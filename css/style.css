@@ -1,5 +1,5 @@
 /* =========================================
-   1. 全域變數與基礎設定
+   1. 全域變數與基礎設定 (Global & Variables)
    ========================================= */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
 
@@ -18,18 +18,19 @@
 * {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
+    margin: 0;
+    padding: 0;
 }
 
 body { 
     background-color: black; 
     font-family: 'Inter', -apple-system, sans-serif; 
     color: var(--text-main); 
-    margin: 0; 
     overflow: hidden; 
 }
 
 /* =========================================
-   2. 容器與內容佈局
+   2. 容器佈局 (Layout)
    ========================================= */
 .phone-container { 
     width: 100%; 
@@ -43,11 +44,12 @@ body {
     flex-direction: column; 
 }
 
-/* 主列表區域：確保底部內容不被導覽列擋住 */
+/* 主內容區域 */
 .content-area { 
     flex: 1; 
     overflow-y: auto; 
     padding-bottom: 100px; 
+    position: relative;
 }
 
 .no-scrollbar::-webkit-scrollbar { 
@@ -55,7 +57,7 @@ body {
 }
 
 /* =========================================
-   3. 頁面切換動畫
+   3. 頁面切換動畫 (Page Transitions)
    ========================================= */
 .page { 
     position: absolute; 
@@ -71,7 +73,7 @@ body {
 }
 
 .page-up { 
-    animation: slideUp 0.3s ease-out; 
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
     z-index: 60; 
 }
 
@@ -81,7 +83,7 @@ body {
 }
 
 /* =========================================
-   4. 底部導覽列 (與圖片一致的菱形設計)
+   4. 底部導覽列 (Tab Bar) - 優化毛玻璃與邊框
    ========================================= */
 .tab-bar { 
     position: absolute; 
@@ -89,10 +91,10 @@ body {
     left: 0; 
     right: 0; 
     height: 85px; 
-    background: rgba(37, 37, 56, 0.85); /* 深色半透明 */
-    backdrop-filter: blur(15px);        /* 毛玻璃效果 */
+    background: rgba(37, 37, 56, 0.9); /* 稍微調高透明度 */
+    backdrop-filter: blur(15px);       /* 毛玻璃效果 */
     -webkit-backdrop-filter: blur(15px);
-    border-top: 1px solid var(--border); 
+    border-top: 1px solid rgba(255,255,255,0.03); /* 更精細的頂部邊框 */
     display: flex; 
     justify-content: space-around; 
     align-items: center; 
@@ -106,56 +108,64 @@ body {
     align-items: center; 
     color: var(--text-muted); 
     cursor: pointer; 
-    transition: 0.2s; 
+    transition: color 0.2s; 
     width: 20%;
 }
 
 .tab-item.active { 
-    color: var(--blue); /* 點選後的亮藍色 */
+    color: var(--blue); 
 }
 
 .tab-icon {
     width: 24px;
     height: 24px;
-    margin-bottom: 4px;
 }
 
 .tab-label { 
     font-size: 10px; 
-    margin-top: 2px; 
+    margin-top: 4px; 
     font-weight: 700; 
 }
 
-/* 中間菱形按鈕包裝 */
+/* =========================================
+   5. 中間質感圓形按鈕 (優化核心)
+   ========================================= */
 .fab-wrapper {
     width: 20%;
     display: flex;
     justify-content: center;
     position: relative;
-    top: -22px; /* 向上突出的關鍵 */
+    top: -20px; /* 向上突出的位移 */
 }
 
-/* 菱形本體 (旋轉 45 度) */
+/* 圓形本體 - 質感與圓角修正 */
 .fab-diamond { 
-    width: 58px; 
-    height: 58px; 
-    background: linear-gradient(135deg, var(--purple), var(--blue)); /* 紫藍漸層 */
-    border-radius: 18px; 
-    transform: rotate(45deg); 
+    width: 56px; 
+    height: 56px; 
+    background: linear-gradient(135deg, var(--purple), var(--blue)); 
+    border-radius: 50%; /* 關鍵：修正為完美圓形 */
+    transform: rotate(0deg); /* 關鍵：修正為不旋轉，加號自動轉正 */
     display: flex; 
     align-items: center; 
     justify-content: center; 
-    box-shadow: 0 8px 25px rgba(96, 165, 250, 0.4); 
+    
+    /* 質感提升：多層陰影與內陰影 */
+    box-shadow: 
+        0 8px 25px rgba(96, 165, 250, 0.4), /* 藍色外光暈 */
+        inset 0 4px 10px rgba(255, 255, 255, 0.3), /* 頂部高光內陰影 */
+        inset 0 -4px 10px rgba(0, 0, 0, 0.2); /* 底部暗部內陰影 */
+    
+    border: 3px solid #efefff; /* 質感提升：白色亮圈邊框 */
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .fab-diamond:active { 
-    transform: rotate(45deg) scale(0.85); /* 點擊縮小回饋 */
+    transform: rotate(0deg) scale(0.85); /* 點擊時縮小回饋 */
 }
 
-/* 內部圖示 (轉回 0 度) */
+/* 加號圖示 (修正轉正) */
 .fab-icon { 
-    transform: rotate(-45deg); 
+    transform: rotate(0deg); /* 關鍵：修正為不旋轉，加號水平垂直 */
     color: white; 
     display: flex;
     align-items: center;
@@ -163,8 +173,20 @@ body {
 }
 
 /* =========================================
-   5. 清單與元件樣式
+   6. 儀表板與清單元件 (Dashboard & List)
    ========================================= */
+.dashboard {
+    padding: 20px 24px;
+    text-align: center;
+}
+
+.total-amount {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin: 10px 0;
+    letter-spacing: -2px;
+}
+
 .list-row { 
     display: flex; 
     justify-content: space-between; 
@@ -190,7 +212,7 @@ body {
 }
 
 /* =========================================
-   6. 遮罩與抽屜 (Sheets)
+   7. 彈出層與遮罩 (Sheets & Overlays)
    ========================================= */
 .overlay { 
     position: absolute; 
@@ -198,6 +220,7 @@ body {
     background: rgba(0,0,0,0.7); 
     display: none; 
     z-index: 110; 
+    backdrop-filter: blur(4px);
 }
 
 .overlay.active { display: block; }
@@ -208,14 +231,13 @@ body {
     background: #2b2b3d; 
     border-radius: 24px 24px 0 0; 
     transform: translateY(100%); 
-    transition: transform 0.3s ease; 
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
     z-index: 120; 
-    padding: 20px;
+    padding: 24px;
 }
 
 .sheet.active { transform: translateY(0); }
 
-/* 信用卡子選單展開效果 */
 #credit-sub-menu { 
     max-height: 0; 
     overflow: hidden; 
@@ -224,5 +246,5 @@ body {
 }
 
 #credit-sub-menu.show { 
-    max-height: 500px; 
+    max-height: 600px; 
 }
