@@ -51,13 +51,15 @@ function toggleCredit(show) {
  * 底部導覽列切換效果
  */
 function switchTab(el, pageId) {
-    // 移除所有 Tab 的啟用狀態
-    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-    // 設定當前點擊的 Tab 為啟用
+    // 移除所有項目的 active 類別
+    document.querySelectorAll('.tab-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    // 為點擊的項目加上 active
     el.classList.add('active');
     
-    // 這裡可以擴展：隱藏 page-list 以外的頁面
-    console.log(`切換到頁面: ${pageId}`);
+    // 如果有其他分頁邏輯可在此觸發
+    console.log("切換至：" + pageId);
 }
 
 /**
