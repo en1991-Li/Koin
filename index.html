@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Koin記帳</title>
+    <title>Koin 專業記帳</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -11,28 +11,39 @@
     <div class="phone-container">
         <div id="overlay" class="overlay" onclick="closeAllSheets()"></div>
 
-        <div class="content-area no-scrollbar">
+        <main class="content-area no-scrollbar">
             <div id="page-list" class="page active">
-                <div class="flex-header">
-                    <i data-lucide="eye" class="header-icon"></i>
-                    <h2 class="header-title">帳戶總覽</h2>
-                    <i data-lucide="plus" class="header-icon" onclick="openAddPage()"></i>
-                </div>
                 
-                <div class="dashboard">
-                    <p class="total-label">總額 TWD</p>
-                    <h1 id="total-val" class="total-amount">0</h1>
-                    <div class="stats-row">
-                        <span>資產 <span id="asset-val" class="text-green">0</span></span>
-                        <span>負債 <span id="debt-val" class="text-red">0</span></span>
+                <header class="top-nav">
+                    <i data-lucide="eye" class="icon-btn"></i>
+                    <h2 class="title">帳戶總覽</h2>
+                    <div class="right-icons">
+                        <i data-lucide="maximize" class="icon-btn"></i>
+                        <i data-lucide="plus" class="icon-btn" onclick="openAddPage()"></i>
                     </div>
-                </div>
+                </header>
+
+                <section class="dashboard">
+                    <div class="total-box">
+                        <p class="total-label">總額 TWD</p>
+                        <h1 id="total-val" class="total-amount">0</h1>
+                    </div>
+                    <div class="stats-row">
+                        <span class="stat-item">總資產 <b id="asset-val" class="text-green">0</b></span>
+                        <span class="stat-item">總負債 <b id="debt-val" class="text-red">0</b></span>
+                    </div>
+                    <div class="chart-links">
+                        <span><i data-lucide="pie-chart" class="small-icon"></i> 各分組佔比</span>
+                        <span><i data-lucide="pie-chart" class="small-icon"></i> 各幣種佔比</span>
+                    </div>
+                </section>
 
                 <div id="main-list" class="account-list">
                     <div class="empty-state">尚未建立帳戶</div>
                 </div>
             </div>
-        </div>
+
+            </main>
 
         <nav class="tab-bar">
             <div class="tab-item active" onclick="switchTab(this, 'page-list')">
@@ -40,13 +51,14 @@
                 <span class="tab-label"></span>
             </div>
             <div class="tab-item" onclick="alert('功能開發中')">
-                <i data-lucide="credit-card" class="tab-icon"></i>
+                <i data-lucide="briefcase" class="tab-icon"></i>
                 <span class="tab-label"></span>
             </div>
             
             <div class="fab-wrapper" onclick="openAddPage()">
-                <div class="fab-diamond">
-                    <div class="fab-icon"><i data-lucide="plus"></i></div>
+                <div class="fab-diamond"> <div class="fab-icon">
+                        <i data-lucide="plus"></i>
+                    </div>
                 </div>
             </div>
 
@@ -60,6 +72,7 @@
             </div>
         </nav>
     </div>
+
     <script src="js/script.js"></script>
 </body>
 </html>
