@@ -1,16 +1,16 @@
 /* =========================================
-   1. 核心變數與全域設定 (對照 IMG_1144, 1146)
+   1. 核心變數與全域設定
    ========================================= */
 :root {
-    --bg: #14141f;          /* 深色背景 */
-    --card: #1c1c28;        /* 卡片顏色 */
-    --border: #2a2a3c;      /* 分隔線顏色 */
-    --blue: #5ac8fa;        /* iOS 亮藍 */
-    --purple: #a78bfa;      /* 趨勢線紫色 */
-    --text-main: #ffffff;   /* 主文字 */
-    --text-muted: #8e8e93;  /* 次要文字 */
-    --green: #a3e635;       /* 亮綠 (資產) */
-    --red: #f16565;         /* 珊瑚紅 (負債) */
+    --bg: #14141f;
+    --card: #1c1c28;
+    --border: #2a2a3c;
+    --blue: #5ac8fa;
+    --purple: #a78bfa;
+    --text-main: #ffffff;
+    --text-muted: #8e8e93;
+    --green: #a3e635;
+    --red: #f16565;
     --tab-bg: rgba(20, 20, 31, 0.95);
 }
 
@@ -25,41 +25,39 @@ body, html {
     padding: 0;
     width: 100%;
     height: 100%;
-    background-color: #000; /* 電腦端背景設為全黑以突顯手機容器 */
+    background-color: #000;
     display: flex;
     justify-content: center;
-    align-items: center;    /* 垂直居中 */
-    overflow: hidden;       /* 防止全網頁出現捲軸 */
+    align-items: center;
+    overflow: hidden;
 }
 
 /* =========================================
-   2. 手機模擬容器 (修正底部消失的問題)
+   2. 手機模擬容器 (Web/iPad 視窗優化)
    ========================================= */
 .phone-container {
     width: 100%;
-    max-width: 414px;      /* 模擬 iPhone 寬度 */
-    height: 90vh;          /* 限制高度為視窗的 90% */
-    max-height: 850px;     /* 避免在超大螢幕上拉得太長 */
+    max-width: 414px;
+    height: 92vh;
+    max-height: 850px;
     background-color: var(--bg);
     display: flex;
     flex-direction: column;
     position: relative;
-    border-radius: 40px;   /* 圓角邊框 */
-    border: 8px solid #2a2a3c; /* 模擬手機外殼 */
+    border-radius: 40px;
+    border: 8px solid #2a2a3c;
     box-shadow: 0 20px 60px rgba(0,0,0,0.8);
     overflow: hidden;
 }
 
-/* 內容滾動區：確保內容在這裡捲動，不推擠底部導覽列 */
 .content-scroll {
     flex: 1;
     overflow-y: auto;
-    padding-bottom: 100px; /* 為底部 Tab Bar 預留空間 */
+    padding-bottom: 100px;
     -webkit-overflow-scrolling: touch;
 }
 
-/* 隱藏捲軸 */
-.content-scroll::-webkit-scrollbar {
+.no-scrollbar::-webkit-scrollbar {
     display: none;
 }
 
@@ -78,7 +76,9 @@ body, html {
 .page-title {
     font-size: 18px;
     font-weight: 700;
-    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .page {
@@ -105,11 +105,17 @@ body, html {
     padding: 15px 0;
 }
 
+.balance-hero .label {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-muted);
+}
+
 .balance-hero .amount {
     font-size: 56px;
     font-weight: 900;
-    color: var(--red); /* 對照截圖總額顏色 */
     letter-spacing: -2px;
+    margin: 5px 0;
 }
 
 .sub-stats {
@@ -117,12 +123,28 @@ body, html {
     justify-content: center;
     gap: 15px;
     font-size: 13px;
-    margin-top: 5px;
+    font-weight: 600;
+}
+
+.link-group {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    font-size: 13px;
+}
+
+.link-group span {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .chart-section {
     width: 100%;
-    height: 180px;
+    height: 160px;
     padding: 0 20px;
 }
 
@@ -131,43 +153,155 @@ body, html {
     padding: 12px 20px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+}
+
+.date-text {
     font-size: 14px;
+    color: var(--blue);
+    font-weight: 600;
+}
+
+.filter-btn {
+    font-size: 13px;
+    background: #2a2a3c;
+    padding: 4px 12px;
+    border-radius: 8px;
+}
+
+.group-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
 /* =========================================
-   5. 新增記錄樣式 (IMG_1152, 1153)
+   5. 新增帳戶與表單 (IMG_1146, 1156)
    ========================================= */
-.category-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 15px;
+.add-acc-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     padding: 20px;
 }
 
-.category-item {
-    text-align: center;
-    font-size: 12px;
-}
-
-.category-icon {
-    width: 50px;
-    height: 50px;
+.icon-box {
+    width: 65px;
+    height: 65px;
+    background: linear-gradient(135deg, #3a3a55, #252538);
     border-radius: 50%;
-    margin: 0 auto 5px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--card); /* 對照截圖圖示背景 */
+    border: 1px solid var(--border);
+    margin-bottom: 15px;
 }
 
+.hero-balance { text-align: center; }
+.hero-balance .val { font-size: 52px; font-weight: 900; }
+
+.memo-field {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 14px;
+    text-align: center;
+    width: 100%;
+    margin-top: 10px;
+    outline: none;
+}
+
+.form-group { padding: 0 20px; }
+
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.form-row label { font-size: 15px; font-weight: 600; }
+.form-row input {
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    text-align: right;
+    font-size: 15px;
+    outline: none;
+}
+
+/* 信用帳戶子欄位縮排 (IMG_1156) */
+.sub-row {
+    padding-left: 25px !important;
+    background: rgba(255,255,255,0.02);
+}
+
+/* iOS Switch 開關 */
+.switch { position: relative; width: 46px; height: 26px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute; cursor: pointer; inset: 0;
+    background-color: #39394d; transition: .3s; border-radius: 34px;
+}
+.slider:before {
+    position: absolute; content: ""; height: 22px; width: 22px;
+    left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%;
+}
+input:checked + .slider { background-color: var(--blue); }
+input:checked + .slider:before { transform: translateX(20px); }
+
 /* =========================================
-   6. 底部導覽列 (Tab Bar)
+   6. 帳戶分組選擇彈窗 (IMG_1155)
+   ========================================= */
+.modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+}
+
+.modal-content {
+    background: #252538;
+    width: 85%;
+    border-radius: 24px;
+    overflow: hidden;
+}
+
+.modal-header {
+    padding: 18px;
+    text-align: center;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border);
+}
+
+.option-item {
+    padding: 16px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: var(--text-main);
+    font-size: 16px;
+}
+
+.option-item:active { background: var(--blue); }
+
+.modal-footer { display: flex; border-top: 1px solid var(--border); }
+.modal-footer button {
+    flex: 1; padding: 15px; background: transparent; border: none;
+    color: var(--text-main); font-size: 15px;
+}
+.btn-confirm { color: var(--blue) !important; font-weight: 700; border-left: 1px solid var(--border) !important; }
+
+/* =========================================
+   7. 底部 Tab Bar 與 鑽石按鈕
    ========================================= */
 .tab-bar {
     position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 85px;
+    bottom: 0; width: 100%; height: 85px;
     background: var(--tab-bg);
     backdrop-filter: blur(15px);
     border-top: 1px solid var(--border);
@@ -178,37 +312,25 @@ body, html {
     z-index: 100;
 }
 
-.tab-item {
-    color: var(--text-muted);
-    font-size: 24px;
-    cursor: pointer;
-}
+.tab-item { color: var(--text-muted); font-size: 24px; cursor: pointer; }
+.tab-item.active { color: var(--blue); }
 
-.tab-item.active {
-    color: var(--blue); /* 當前分頁顏色 */
-}
-
-/* 鑽石中央按鈕 */
 .tab-fab {
-    width: 55px;
-    height: 55px;
+    width: 55px; height: 55px;
     background: linear-gradient(135deg, #a78bfa, #5ac8fa);
-    transform: translateY(-20px) rotate(45deg); /* 旋轉成鑽石型 */
-    border-radius: 15px;
+    transform: translateY(-20px) rotate(45deg);
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 15px rgba(90, 200, 250, 0.5);
+    box-shadow: 0 4px 15px rgba(90, 200, 250, 0.4);
 }
 
-.fab-inner {
-    transform: rotate(-45deg); /* 圖示轉回來 */
-    color: white;
-}
+.fab-inner { transform: rotate(-45deg); color: white; }
 
-/* =========================================
-   7. 通用工具類
-   ========================================= */
+/* 工具類 */
 .text-green { color: var(--green); }
 .text-red { color: var(--red); }
-.text-blue { color: var(--blue); }
+.text-muted { color: var(--text-muted); }
+.text-right { text-align: right; }
+.s-icon { width: 18px; height: 18px; vertical-align: middle; }
