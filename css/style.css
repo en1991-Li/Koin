@@ -43,7 +43,7 @@ body {
     flex-direction: column; 
 }
 
-/* 主列表區域：確保底部不會被導覽列擋住 */
+/* 主列表區域：確保底部內容不被導覽列擋住 */
 .content-area { 
     flex: 1; 
     overflow-y: auto; 
@@ -81,38 +81,37 @@ body {
 }
 
 /* =========================================
-   4. 底部導覽列
+   4. 底部導覽列 (與圖片一致的菱形設計)
    ========================================= */
-/* 導覽列主體 */
-.tab-bar {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 85px;
-    background: rgba(37, 37, 56, 0.95); /* 深色半透明背景 */
-    border-top: 1px solid #32324d;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding-bottom: 20px; /* 留出底部安全區域 */
-    z-index: 100;
+.tab-bar { 
+    position: absolute; 
+    bottom: 0; 
+    left: 0; 
+    right: 0; 
+    height: 85px; 
+    background: rgba(37, 37, 56, 0.85); /* 深色半透明 */
+    backdrop-filter: blur(15px);        /* 毛玻璃效果 */
+    -webkit-backdrop-filter: blur(15px);
+    border-top: 1px solid var(--border); 
+    display: flex; 
+    justify-content: space-around; 
+    align-items: center; 
+    z-index: 100; 
+    padding-bottom: env(safe-area-inset-bottom); 
 }
 
-/* 個別項目樣式 */
-.tab-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+.tab-item { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    color: var(--text-muted); 
+    cursor: pointer; 
+    transition: 0.2s; 
     width: 20%;
-    color: #7e7e9a; /* 預設灰色 */
-    cursor: pointer;
-    transition: all 0.2s ease;
 }
 
-.tab-item.active {
-    color: #60a5fa; /* 啟用時的亮藍色 */
+.tab-item.active { 
+    color: var(--blue); /* 點選後的亮藍色 */
 }
 
 .tab-icon {
@@ -121,45 +120,48 @@ body {
     margin-bottom: 4px;
 }
 
-.tab-label {
-    font-size: 10px;
-    font-weight: 700;
+.tab-label { 
+    font-size: 10px; 
+    margin-top: 2px; 
+    font-weight: 700; 
 }
 
-/* 中間菱形按鈕包裝器 */
+/* 中間菱形按鈕包裝 */
 .fab-wrapper {
     width: 20%;
     display: flex;
     justify-content: center;
     position: relative;
-    top: -20px; /* 向上偏移使其突出 */
+    top: -22px; /* 向上突出的關鍵 */
 }
 
-/* 菱形本體 */
-.fab-diamond {
-    width: 58px;
-    height: 58px;
-    background: linear-gradient(135deg, #a78bfa, #60a5fa); /* 紫藍漸層 */
-    border-radius: 18px; /* 稍微圓角的正方形 */
-    transform: rotate(45deg); /* 關鍵：旋轉 45 度變成菱形 */
+/* 菱形本體 (旋轉 45 度) */
+.fab-diamond { 
+    width: 58px; 
+    height: 58px; 
+    background: linear-gradient(135deg, var(--purple), var(--blue)); /* 紫藍漸層 */
+    border-radius: 18px; 
+    transform: rotate(45deg); 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    box-shadow: 0 8px 25px rgba(96, 165, 250, 0.4); 
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fab-diamond:active { 
+    transform: rotate(45deg) scale(0.85); /* 點擊縮小回饋 */
+}
+
+/* 內部圖示 (轉回 0 度) */
+.fab-icon { 
+    transform: rotate(-45deg); 
+    color: white; 
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 10px 20px rgba(96, 165, 250, 0.3);
-    transition: transform 0.1s active;
 }
 
-.fab-diamond:active {
-    transform: rotate(45deg) scale(0.9);
-}
-
-/* 菱形內部的圖示 (要轉回來) */
-.fab-plus-icon {
-    transform: rotate(-45deg); /* 將加號圖示轉正 */
-    color: white;
-    width: 32px;
-    height: 32px;
-}
 /* =========================================
    5. 清單與元件樣式
    ========================================= */
