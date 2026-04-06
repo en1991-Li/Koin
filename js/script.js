@@ -3,16 +3,14 @@
  * 1. 基礎設定與資料初始化
  * =========================================
  */
-// 初始化 Lucide 圖示
-lucide.createIcons();
-
-// 從 LocalStorage 讀取資料，若無則為空陣列
+// 從 LocalStorage 讀取資料
 let accounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
 
-// 初始化執行一次渲染
+// 初始化執行
 document.addEventListener('DOMContentLoaded', () => {
     render();
     setupEventListeners();
+    lucide.createIcons();
 });
 
 /**
@@ -26,7 +24,8 @@ function openAddPage() {
     if (addPage && listPage) {
         listPage.classList.remove('active');
         addPage.classList.add('active');
-        lucide.createIcons(); // 確保新頁面圖示渲染
+        // 切換頁面後重新渲染圖示
+        setTimeout(() => lucide.createIcons(), 10); 
     }
 }
 
@@ -40,18 +39,6 @@ function closeAddPage() {
     }
 }
 
-// 底部 Tab 切換 (處理高亮)
-function switchTab(el, pageId) {
-    document.querySelectorAll('.tab-item').forEach(item => item.classList.remove('active'));
-    el.classList.add('active');
-    
-    // 如果是切換回首頁，確保首頁 active
-    if(pageId === 'page-list') {
-        document.getElementById('page-add-account').classList.remove('active');
-        document.getElementById('page-list').classList.add('active');
-    }
-}
-
 /**
  * =========================================
  * 3. 表單互動邏輯
@@ -59,13 +46,28 @@ function switchTab(el, pageId) {
  */
 function setupEventListeners() {
     const balanceInput = document.getElementById('acc-balance');
-    const headerBalance = document.querySelector('.balance-display .value');
+    const headerBalance = document.getElementById('header-balance-val');
 
-    // 當輸入初始金額時，同步更新頂部大數字
     if (balanceInput && headerBalance) {
         balanceInput.addEventListener('input', (e) => {
-            const val = parseFloat(e.target.value) || 0;
-            headerBalance.innerText = val.toLocaleString();
+            let val = parseFloat(e.target.value) || 0;
+            
+            // 如果是信用帳戶勾選狀態，數值轉為負數顯示（視覺上）
+            const isCredit = document.getElementById('is-credit').checked;
+            const displayVal = isCredit ? -Math.abs(val) : val;
+
+            headerBalance.innerText = Math.abs(displayVal).toLocaleString();
+            
+            // 根據正負值切換顏色 (還原截圖質感)
+            headerBalance.className = 'value ' + (displayVal >= 0 ? 'text-green' : 'text-red');
+        });
+    }
+
+    // 處理信用帳戶 Switch 切換時的顏色連動
+    const creditToggle = document.getElementById('is-credit');
+    if (creditToggle) {
+        creditToggle.addEventListener('change', () => {
+            balanceInput.dispatchEvent(new Event('input'));
         });
     }
 }
@@ -76,11 +78,16 @@ function saveAccount() {
     const isCreditInput = document.getElementById('is-credit');
 
     const name = nameInput.value.trim();
-    const balance = parseFloat(balanceInput.value) || 0;
+    let balance = parseFloat(balanceInput.value) || 0;
 
     if (!name) {
         alert("請輸入帳戶名稱");
         return;
+    }
+
+    // 如果勾選信用帳戶，存入資料庫時存為負值
+    if (isCreditInput && isCreditInput.checked) {
+        balance = -Math.abs(balance);
     }
 
     const newAccount = {
@@ -88,7 +95,7 @@ function saveAccount() {
         name: name,
         amount: balance,
         isCredit: isCreditInput ? isCreditInput.checked : false,
-        type: '現金' // 預設值，之後可擴充
+        type: '現金'
     };
 
     accounts.push(newAccount);
@@ -101,14 +108,16 @@ function saveAccount() {
 function resetForm() {
     document.getElementById('acc-name').value = "";
     document.getElementById('acc-balance').value = 0;
-    document.querySelector('.balance-display .value').innerText = "0";
+    const headerBalance = document.getElementById('header-balance-val');
+    headerBalance.innerText = "0";
+    headerBalance.className = "value text-green";
     const creditToggle = document.getElementById('is-credit');
     if (creditToggle) creditToggle.checked = false;
 }
 
 /**
  * =========================================
- * 4. 資料渲染 (符合 App 質感)
+ * 4. 資料渲染 (還原 IMG_1144 質感)
  * =========================================
  */
 function render() {
@@ -120,29 +129,36 @@ function render() {
     let totalDebt = 0;
 
     if (accounts.length === 0) {
-        list.innerHTML = `<div class="empty-state">尚未建立帳戶</div>`;
+        list.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:14px;">尚未建立帳戶，點擊 + 開始記帳</div>`;
         updateDashboard(0, 0, 0);
         return;
     }
 
-    accounts.forEach(acc => {
-        // 計算資產與負債 (假設負數或勾選信用帳戶為負債邏輯，這裡簡化處理)
-        if (acc.amount >= 0) totalAssets += acc.amount;
-        else totalDebt += Math.abs(acc.amount);
+    // 按照建立時間排序
+    accounts.sort((a, b) => b.id - a.id);
 
-        const colorClass = acc.amount >= 0 ? 'text-green' : 'text-red';
+    accounts.forEach(acc => {
+        if (acc.amount >= 0) {
+            totalAssets += acc.amount;
+        } else {
+            totalDebt += Math.abs(acc.amount);
+        }
+
+        const isPositive = acc.amount >= 0;
+        const colorClass = isPositive ? 'text-green' : 'text-red';
+        const sign = isPositive ? '+' : '-';
         
-        // 建立列表 HTML
         const item = document.createElement('div');
         item.className = 'group-item';
         item.innerHTML = `
             <span class="group-name">${acc.name}</span>
-            <span class="group-value ${colorClass}">$${Math.abs(acc.amount).toLocaleString()}</span>
+            <span class="group-value ${colorClass}">${sign}$${Math.abs(acc.amount).toLocaleString()}</span>
         `;
         list.appendChild(item);
     });
 
-    updateDashboard(totalAssets, totalDebt, (totalAssets - totalDebt));
+    const totalBalance = totalAssets - totalDebt;
+    updateDashboard(totalAssets, totalDebt, totalBalance);
 }
 
 function updateDashboard(assets, debt, total) {
@@ -151,8 +167,9 @@ function updateDashboard(assets, debt, total) {
     const debtEl = document.getElementById('debt-val');
 
     if (totalEl) {
-        totalEl.innerText = total.toLocaleString();
-        totalEl.style.color = total >= 0 ? 'var(--green)' : 'var(--red)';
+        totalEl.innerText = Math.abs(total).toLocaleString();
+        // 總額的正負顏色邏輯：負債多於資產顯示紅色
+        totalEl.className = 'total-amount ' + (total >= 0 ? 'text-green' : 'text-red');
     }
     if (assetEl) assetEl.innerText = assets.toLocaleString();
     if (debtEl) debtEl.innerText = debt.toLocaleString();
