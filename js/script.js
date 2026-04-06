@@ -1,176 +1,71 @@
-/**
- * =========================================
- * 1. 基礎設定與資料初始化
- * =========================================
- */
-// 從 LocalStorage 讀取資料
-let accounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
+// 初始化圖標
+lucide.createIcons();
 
-// 初始化執行
-document.addEventListener('DOMContentLoaded', () => {
-    render();
-    setupEventListeners();
-    lucide.createIcons();
+// 初始化圖表 (對照 IMG_1144)
+const ctx = document.getElementById('mainChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['3/17', '3/18', '3/19', '3/20', '3/21', '3/22', '3/23', '3/24', '3/25', '3/26'],
+        datasets: [{
+            data: [1000, 8000, 7500, 7200, 7000, 6800, 6500, 6200, 6000, 6000],
+            borderColor: '#a78bfa',
+            borderWidth: 3,
+            pointRadius: 0,
+            fill: false,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { display: true, grid: { display: false } }, y: { display: false } }
+    }
 });
 
-/**
- * =========================================
- * 2. 頁面切換控制 (Navigation)
- * =========================================
- */
-function openAddPage() { 
-    const addPage = document.getElementById('page-add-account');
-    const listPage = document.getElementById('page-list');
-    if (addPage && listPage) {
-        listPage.classList.remove('active');
-        addPage.classList.add('active');
-        // 切換頁面後重新渲染圖示
-        setTimeout(() => lucide.createIcons(), 10); 
-    }
+// 分頁控制
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+    lucide.createIcons();
 }
 
-function closeAddPage() { 
-    const addPage = document.getElementById('page-add-account');
-    const listPage = document.getElementById('page-list');
-    if (addPage && listPage) {
-        addPage.classList.remove('active');
-        listPage.classList.add('active');
-        resetForm();
-    }
-}
-
-/**
- * =========================================
- * 3. 表單互動邏輯
- * =========================================
- */
-function setupEventListeners() {
-    const balanceInput = document.getElementById('acc-balance');
-    const headerBalance = document.getElementById('header-balance-val');
-
-    if (balanceInput && headerBalance) {
-        balanceInput.addEventListener('input', (e) => {
-            let val = parseFloat(e.target.value) || 0;
-            
-            // 如果是信用帳戶勾選狀態，數值轉為負數顯示（視覺上）
-            const isCredit = document.getElementById('is-credit').checked;
-            const displayVal = isCredit ? -Math.abs(val) : val;
-
-            headerBalance.innerText = Math.abs(displayVal).toLocaleString();
-            
-            // 根據正負值切換顏色 (還原截圖質感)
-            headerBalance.className = 'value ' + (displayVal >= 0 ? 'text-green' : 'text-red');
-        });
-    }
-
-    // 處理信用帳戶 Switch 切換時的顏色連動
-    const creditToggle = document.getElementById('is-credit');
-    if (creditToggle) {
-        creditToggle.addEventListener('change', () => {
-            balanceInput.dispatchEvent(new Event('input'));
-        });
-    }
-}
-
-function saveAccount() {
-    const nameInput = document.getElementById('acc-name');
-    const balanceInput = document.getElementById('acc-balance');
-    const isCreditInput = document.getElementById('is-credit');
-
-    const name = nameInput.value.trim();
-    let balance = parseFloat(balanceInput.value) || 0;
-
-    if (!name) {
-        alert("請輸入帳戶名稱");
-        return;
-    }
-
-    // 如果勾選信用帳戶，存入資料庫時存為負值
-    if (isCreditInput && isCreditInput.checked) {
-        balance = -Math.abs(balance);
-    }
-
-    const newAccount = {
-        id: Date.now(),
-        name: name,
-        amount: balance,
-        isCredit: isCreditInput ? isCreditInput.checked : false,
-        type: '現金'
-    };
-
-    accounts.push(newAccount);
-    localStorage.setItem('koin_accounts', JSON.stringify(accounts));
+// 實時更新新增頁面的大數字
+document.getElementById('in-amount').addEventListener('input', (e) => {
+    const val = parseFloat(e.target.value) || 0;
+    const display = document.getElementById('add-display-amount');
+    display.innerText = val.toLocaleString();
     
-    render();
-    closeAddPage();
+    const isCredit = document.getElementById('in-is-credit').checked;
+    display.className = 'val ' + (isCredit ? 'text-red' : 'text-green');
+});
+
+// 模擬專案列表數據 (IMG_1150)
+const projects = [
+    { name: '生活開銷', amount: 28647, icon: 'wine' },
+    { name: '投資理財', amount: 0, icon: 'trending-up' },
+    { name: '工作', amount: 0, icon: 'briefcase' },
+    { name: '玩樂', amount: 30, icon: 'film', color: 'text-red' }
+];
+
+function renderProjects() {
+    const container = document.getElementById('project-list');
+    container.innerHTML = projects.map(p => `
+        <div class="project-row">
+            <div style="display:flex; align-items:center; gap:15px;">
+                <div class="icon-circle" style="background:#2a2a3c; padding:10px; border-radius:50%">
+                    <i data-lucide="${p.icon}" style="width:18px"></i>
+                </div>
+                <div>
+                    <div style="font-weight:600">${p.name}</div>
+                    <div style="font-size:11px; color:var(--text-muted)">26/03/01 - 26/03/31</div>
+                </div>
+            </div>
+            <div class="${p.color || 'text-green'}" style="font-weight:700">$${p.amount.toLocaleString()}</div>
+        </div>
+    `).join('');
+    lucide.createIcons();
 }
 
-function resetForm() {
-    document.getElementById('acc-name').value = "";
-    document.getElementById('acc-balance').value = 0;
-    const headerBalance = document.getElementById('header-balance-val');
-    headerBalance.innerText = "0";
-    headerBalance.className = "value text-green";
-    const creditToggle = document.getElementById('is-credit');
-    if (creditToggle) creditToggle.checked = false;
-}
-
-/**
- * =========================================
- * 4. 資料渲染 (還原 IMG_1144 質感)
- * =========================================
- */
-function render() {
-    const list = document.getElementById('main-list');
-    if (!list) return;
-
-    list.innerHTML = "";
-    let totalAssets = 0;
-    let totalDebt = 0;
-
-    if (accounts.length === 0) {
-        list.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:14px;">尚未建立帳戶，點擊 + 開始記帳</div>`;
-        updateDashboard(0, 0, 0);
-        return;
-    }
-
-    // 按照建立時間排序
-    accounts.sort((a, b) => b.id - a.id);
-
-    accounts.forEach(acc => {
-        if (acc.amount >= 0) {
-            totalAssets += acc.amount;
-        } else {
-            totalDebt += Math.abs(acc.amount);
-        }
-
-        const isPositive = acc.amount >= 0;
-        const colorClass = isPositive ? 'text-green' : 'text-red';
-        const sign = isPositive ? '+' : '-';
-        
-        const item = document.createElement('div');
-        item.className = 'group-item';
-        item.innerHTML = `
-            <span class="group-name">${acc.name}</span>
-            <span class="group-value ${colorClass}">${sign}$${Math.abs(acc.amount).toLocaleString()}</span>
-        `;
-        list.appendChild(item);
-    });
-
-    const totalBalance = totalAssets - totalDebt;
-    updateDashboard(totalAssets, totalDebt, totalBalance);
-}
-
-function updateDashboard(assets, debt, total) {
-    const totalEl = document.getElementById('total-val');
-    const assetEl = document.getElementById('asset-val');
-    const debtEl = document.getElementById('debt-val');
-
-    if (totalEl) {
-        totalEl.innerText = Math.abs(total).toLocaleString();
-        // 總額的正負顏色邏輯：負債多於資產顯示紅色
-        totalEl.className = 'total-amount ' + (total >= 0 ? 'text-green' : 'text-red');
-    }
-    if (assetEl) assetEl.innerText = assets.toLocaleString();
-    if (debtEl) debtEl.innerText = debt.toLocaleString();
-}
+renderProjects();
