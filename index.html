@@ -4,8 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Koin記帳</title>
+    
     <link rel="stylesheet" href="css/style.css">
+    
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --bg: #14141f;
+            --card: #1f1f2e;
+            --text: #ffffff;
+            --red: #ff453a;
+            --green: #32d74b;
+            --blue: #5ac8fa;
+        }
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow: hidden;
+        }
+        .phone-container {
+            display: flex; flex-direction: column;
+            width: 100%; height: 100vh;
+            max-width: 500px; margin: 0 auto;
+            position: relative;
+        }
+        .content-area {
+            flex: 1; overflow-y: auto;
+            padding-bottom: 90px; /* 預留底部導覽列空間 */
+        }
+        .page { display: none; width: 100%; flex-direction: column; }
+        .page.active { display: flex; }
+        
+        /* 底部導覽列固定位置 */
+        .tab-bar {
+            position: absolute; bottom: 0;
+            width: 100%; height: 80px;
+            background: #1c1c28;
+            display: flex; justify-content: space-around; align-items: center;
+            border-top: 1px solid #2a2a3c;
+            z-index: 100;
+        }
+        .icon-btn { cursor: pointer; padding: 8px; }
+        .text-red { color: var(--red) !important; }
+        .text-green { color: var(--green) !important; }
+    </style>
 </head>
 <body>
     <div class="phone-container">
@@ -25,11 +71,11 @@
                 <section class="dashboard">
                     <div class="total-box">
                         <p class="total-label">總額 TWD</p>
-                        <h1 id="total-val" class="total-amount">0</h1>
+                        <h1 id="total-val" class="total-amount text-red">1,524</h1>
                     </div>
                     <div class="stats-row">
-                        <span class="stat-item">總資產 <b id="asset-val" class="text-green">0</b></span>
-                        <span class="stat-item">總負債 <b id="debt-val" class="text-red">0</b></span>
+                        <span class="stat-item">總資產 <b id="asset-val" class="text-green">34,782</b></span>
+                        <span class="stat-item">總負債 <b id="debt-val" class="text-red">36,306</b></span>
                     </div>
                     <div class="chart-links">
                         <span><i data-lucide="pie-chart" class="small-icon"></i> 各分組佔比</span>
@@ -37,8 +83,7 @@
                     </div>
 
                     <div class="chart-container">
-                        <div class="mock-chart">
-                            </div>
+                        <div class="mock-chart-line"></div>
                         <div class="chart-dates">
                             <span>3/17</span><span>3/19</span><span>3/21</span><span>3/23</span><span>3/25</span>
                         </div>
@@ -59,6 +104,10 @@
                         <span class="group-name">+ 銀行 (4)</span>
                         <span class="group-value text-green">+$32,571</span>
                     </div>
+                    <div class="group-item">
+                        <span class="group-name">+ 數位銀行 (8)</span>
+                        <span class="group-value text-green">+$2,211</span>
+                    </div>
                 </div>
             </div>
 
@@ -78,7 +127,7 @@
                         </div>
                         <div class="balance-display">
                             <span class="label">餘額 TWD</span>
-                            <span class="value" id="header-balance-val">0</span>
+                            <span class="value text-green" id="header-balance-val">0</span>
                         </div>
                         <input type="text" class="memo-input" placeholder="請在這裡填寫備註事項">
                     </div>
@@ -100,10 +149,6 @@
                             <label>初始金額</label>
                             <input type="number" value="0" id="acc-balance" class="text-right">
                         </div>
-                        <div class="form-item">
-                            <label>帳單週期</label>
-                            <span class="val-text">2026/03/01 － 2026/03/31</span>
-                        </div>
                         
                         <div class="form-divider"></div>
 
@@ -118,36 +163,46 @@
                             <label>主帳戶</label>
                             <span class="val-text gray">無</span>
                         </div>
-                        </div>
+                    </div>
                 </section>
             </div>
         </main>
 
         <nav class="tab-bar">
-            <div class="tab-item active" onclick="switchTab(this, 'page-list')">
-                <i data-lucide="wallet" class="tab-icon"></i>
-            </div>
-            <div class="tab-item">
-                <i data-lucide="briefcase" class="tab-icon"></i>
-            </div>
-            
+            <div class="tab-item active"><i data-lucide="wallet"></i></div>
+            <div class="tab-item"><i data-lucide="briefcase"></i></div>
             <div class="fab-wrapper" onclick="openAddPage()">
-                <div class="fab-diamond">
-                    <div class="fab-icon">
-                        <i data-lucide="plus"></i>
-                    </div>
-                </div>
+                <div class="fab-diamond"><div class="fab-icon"><i data-lucide="plus"></i></div></div>
             </div>
-
-            <div class="tab-item">
-                <i data-lucide="line-chart" class="tab-icon"></i>
-            </div>
-            <div class="tab-item">
-                <i data-lucide="sliders-horizontal" class="tab-icon"></i>
-            </div>
+            <div class="tab-item"><i data-lucide="line-chart"></i></div>
+            <div class="tab-item"><i data-lucide="sliders-horizontal"></i></div>
         </nav>
     </div>
 
     <script src="js/script.js"></script>
+    <script>
+        // 初始化圖標
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+        });
+
+        // 簡單的切換邏輯，確保在手機上也能正常運作
+        function openAddPage() {
+            document.getElementById('page-list').classList.remove('active');
+            document.getElementById('page-add-account').classList.add('active');
+            lucide.createIcons();
+        }
+
+        function closeAddPage() {
+            document.getElementById('page-add-account').classList.remove('active');
+            document.getElementById('page-list').classList.add('active');
+        }
+
+        function saveAccount() {
+            const name = document.getElementById('acc-name').value || '未命名';
+            alert('帳戶「' + name + '」儲存成功！');
+            closeAddPage();
+        }
+    </script>
 </body>
 </html>
