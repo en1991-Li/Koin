@@ -2,15 +2,15 @@
    1. 核心變數與全域設定
    ========================================= */
 :root {
-    --bg: #14141f;          /* 深色背景 */
-    --card: #1c1c28;        /* 卡片顏色 */
-    --border: #2a2a3c;      /* 分隔線顏色 */
-    --blue: #5ac8fa;        /* iOS 亮藍 */
-    --purple: #a78bfa;      /* 趨勢線紫色 */
-    --text-main: #ffffff;   /* 主文字改為純白 */
-    --text-muted: #a1a1aa;  /* 次要文字稍微調亮，確保可讀性 */
-    --green: #a3e635;       /* 亮綠 (資產) */
-    --red: #f16565;         /* 珊瑚紅 (負債) */
+    --bg: #14141f;
+    --card: #1c1c28;
+    --border: #2a2a3c;
+    --blue: #5ac8fa;
+    --purple: #a78bfa;
+    --text-main: #ffffff;
+    --text-muted: #8e8e93;
+    --green: #a3e635;
+    --red: #f16565;
     --tab-bg: rgba(20, 20, 31, 0.95);
 }
 
@@ -18,7 +18,6 @@
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    color: var(--text-main); /* 全域預設文字顏色設為白色 */
 }
 
 body, html {
@@ -34,7 +33,7 @@ body, html {
 }
 
 /* =========================================
-   2. 手機模擬容器 (修正寬度與高度問題)
+   2. 手機模擬容器 (Web/iPad 視窗優化)
    ========================================= */
 .phone-container {
     width: 100%;
@@ -63,7 +62,7 @@ body, html {
 }
 
 /* =========================================
-   3. 標題與導覽
+   3. 導覽列與頁面切換
    ========================================= */
 .nav-header {
     display: flex;
@@ -77,7 +76,9 @@ body, html {
 .page-title {
     font-size: 18px;
     font-weight: 700;
-    color: var(--text-main); /* 確保標題為白色 */
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .page {
@@ -88,10 +89,95 @@ body, html {
 
 .page.active {
     display: flex;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* =========================================
-   4. 新增帳戶表單樣式 (修正輸入框與備註顏色)
+   4. 帳戶總覽樣式 (IMG_1144)
+   ========================================= */
+.balance-hero {
+    text-align: center;
+    padding: 15px 0;
+}
+
+.balance-hero .label {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-muted);
+}
+
+.balance-hero .amount {
+    font-size: 56px;
+    font-weight: 900;
+    letter-spacing: -2px;
+    margin: 5px 0;
+}
+
+.sub-stats {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.link-group {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    font-size: 13px;
+}
+
+.link-group span {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.chart-section {
+    width: 100%;
+    height: 160px;
+    padding: 0 20px;
+}
+
+.list-divider {
+    background: rgba(255,255,255,0.05);
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.date-text {
+    font-size: 14px;
+    color: var(--blue);
+    font-weight: 600;
+}
+
+.filter-btn {
+    font-size: 13px;
+    background: #2a2a3c;
+    padding: 4px 12px;
+    border-radius: 8px;
+}
+
+.group-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+/* =========================================
+   5. 新增帳戶與表單 (IMG_1146, 1156)
    ========================================= */
 .add-acc-hero {
     display: flex;
@@ -100,26 +186,30 @@ body, html {
     padding: 20px;
 }
 
-.hero-balance .label {
-    font-size: 11px;
-    color: var(--text-muted);
+.icon-box {
+    width: 65px;
+    height: 65px;
+    background: linear-gradient(135deg, #3a3a55, #252538);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    margin-bottom: 15px;
 }
 
-/* 修正備註輸入框：原本可能是黑色，現在改為白色 */
+.hero-balance { text-align: center; }
+.hero-balance .val { font-size: 52px; font-weight: 900; }
+
 .memo-field {
     background: transparent;
     border: none;
-    color: #ffffff; /* 強制白色 */
+    color: var(--text-muted);
     font-size: 14px;
     text-align: center;
     width: 100%;
     margin-top: 10px;
     outline: none;
-}
-
-/* 設定 placeholder 顏色為淺灰色，方便區分 */
-.memo-field::placeholder {
-    color: rgba(255, 255, 255, 0.4);
 }
 
 .form-group { padding: 0 20px; }
@@ -132,37 +222,43 @@ body, html {
     border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
-.form-row label { 
-    font-size: 15px; 
-    font-weight: 600; 
-    color: var(--text-main); /* 標籤設為白色 */
-}
-
-/* 修正表單內的所有輸入框文字顏色 */
+.form-row label { font-size: 15px; font-weight: 600; }
 .form-row input {
     background: transparent;
     border: none;
-    color: #ffffff; /* 確保輸入文字是白色 */
+    color: var(--text-main);
     text-align: right;
     font-size: 15px;
     outline: none;
 }
 
-.text-muted { color: var(--text-muted); }
-
-/* 信用帳戶子欄位縮排 */
+/* 信用帳戶子欄位縮排 (IMG_1156) */
 .sub-row {
     padding-left: 25px !important;
     background: rgba(255,255,255,0.02);
 }
 
+/* iOS Switch 開關 */
+.switch { position: relative; width: 46px; height: 26px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute; cursor: pointer; inset: 0;
+    background-color: #39394d; transition: .3s; border-radius: 34px;
+}
+.slider:before {
+    position: absolute; content: ""; height: 22px; width: 22px;
+    left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%;
+}
+input:checked + .slider { background-color: var(--blue); }
+input:checked + .slider:before { transform: translateX(20px); }
+
 /* =========================================
-   5. 帳戶分組彈窗樣式 (修正按鈕文字)
+   6. 帳戶分組選擇彈窗 (IMG_1155)
    ========================================= */
 .modal-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0,0,0,0.8);
+    background: rgba(0,0,0,0.7);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -174,14 +270,12 @@ body, html {
     width: 85%;
     border-radius: 24px;
     overflow: hidden;
-    border: 1px solid var(--border);
 }
 
 .modal-header {
     padding: 18px;
     text-align: center;
     font-weight: 700;
-    color: #ffffff;
     border-bottom: 1px solid var(--border);
 }
 
@@ -189,31 +283,21 @@ body, html {
     padding: 16px;
     text-align: center;
     border-bottom: 1px solid rgba(255,255,255,0.05);
-    color: #ffffff; /* 選項文字改為白色 */
+    color: var(--text-main);
     font-size: 16px;
 }
 
+.option-item:active { background: var(--blue); }
+
 .modal-footer { display: flex; border-top: 1px solid var(--border); }
-
-/* 修正彈窗底部按鈕文字顏色 */
 .modal-footer button {
-    flex: 1; 
-    padding: 15px; 
-    background: transparent; 
-    border: none;
-    color: #ffffff; /* 取消按鈕改為白色 */
-    font-size: 15px;
-    cursor: pointer;
+    flex: 1; padding: 15px; background: transparent; border: none;
+    color: var(--text-main); font-size: 15px;
 }
-
-.btn-confirm { 
-    color: var(--blue) !important; /* 確定按鈕維持亮藍色作為重點 */
-    font-weight: 700; 
-    border-left: 1px solid var(--border) !important; 
-}
+.btn-confirm { color: var(--blue) !important; font-weight: 700; border-left: 1px solid var(--border) !important; }
 
 /* =========================================
-   6. 底部導覽列
+   7. 底部 Tab Bar 與 鑽石按鈕
    ========================================= */
 .tab-bar {
     position: absolute;
@@ -228,7 +312,7 @@ body, html {
     z-index: 100;
 }
 
-.tab-item { color: var(--text-muted); font-size: 24px; }
+.tab-item { color: var(--text-muted); font-size: 24px; cursor: pointer; }
 .tab-item.active { color: var(--blue); }
 
 .tab-fab {
@@ -239,11 +323,14 @@ body, html {
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 4px 15px rgba(90, 200, 250, 0.4);
 }
 
 .fab-inner { transform: rotate(-45deg); color: white; }
 
-/* 通用顏色 */
+/* 工具類 */
 .text-green { color: var(--green); }
 .text-red { color: var(--red); }
-.s-icon { width: 18px; height: 18px; color: #ffffff; } /* 圖示設為白色 */
+.text-muted { color: var(--text-muted); }
+.text-right { text-align: right; }
+.s-icon { width: 18px; height: 18px; vertical-align: middle; }
