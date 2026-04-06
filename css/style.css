@@ -1,60 +1,90 @@
 /* =========================================
-   1. 核心變數與全域設定
+   1. 全域變數與基礎設定 (對照深色主題)
    ========================================= */
 :root {
-    --bg: #14141f;
-    --card: #1c1c28;
-    --border: #2a2a3c;
-    --blue: #5ac8fa;
-    --purple: #a78bfa;
-    --text-main: #ffffff;
-    --text-muted: #8e8e93;
-    --green: #a3e635;
-    --red: #f16565;
-    --tab-bg: rgba(20, 20, 31, 0.95);
+    --bg-dark: #1c1c28;       /* 主背景深色 */
+    --card-bg: #282833;       /* 卡片/清單背景 */
+    --text-main: #FFFFFF;     /* 改為白色字體 [根據需求] */
+    --text-muted: #a0a0ab;    /* 淺灰色輔助字 */
+    --accent-purple: #8e80eb; /* 紫色調 */
+    --danger-red: #ff5a5f;    /* 負債/支出紅 (IMG_1144) */
+    --success-green: #a2d149; /* 資產/收入綠 (IMG_1145) */
 }
 
 * {
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-body, html {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #000;
+body {
+    background-color: #000; /* 外部背景 */
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100vh;
+    color: var(--text-main);
+}
+
+/* 手機模擬容器 (對照 IMG_1157) */
+.phone-container {
+    width: 390px;
+    height: 844px;
+    background-color: var(--bg-dark);
+    border-radius: 40px;
+    position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
 }
 
 /* =========================================
-   2. 手機模擬容器 (Web/iPad 視窗優化)
+   2. 導覽列與標題 (Nav Header)
    ========================================= */
-.phone-container {
-    width: 100%;
-    max-width: 414px;
-    height: 92vh;
-    max-height: 850px;
-    background-color: var(--bg);
+.nav-header {
+    padding: 50px 20px 10px;
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(28, 28, 40, 0.8);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.page-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--text-main); /* 確保標題為白色 */
+}
+
+.s-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--text-main);
+    cursor: pointer;
+}
+
+/* =========================================
+   3. 頁面切換控制
+   ========================================= */
+.page {
+    display: none;
+    flex: 1;
     flex-direction: column;
-    position: relative;
-    border-radius: 40px;
-    border: 8px solid #2a2a3c;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-    overflow: hidden;
+}
+
+.page.active {
+    display: flex;
 }
 
 .content-scroll {
     flex: 1;
     overflow-y: auto;
-    padding-bottom: 100px;
-    -webkit-overflow-scrolling: touch;
+    padding-bottom: 100px; /* 避開底部 Tab */
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -62,275 +92,210 @@ body, html {
 }
 
 /* =========================================
-   3. 導覽列與頁面切換
-   ========================================= */
-.nav-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    height: 60px;
-    background: var(--bg);
-}
-
-.page-title {
-    font-size: 18px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.page {
-    display: none;
-    flex-direction: column;
-    height: 100%;
-}
-
-.page.active {
-    display: flex;
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* =========================================
-   4. 帳戶總覽樣式 (IMG_1144)
+   4. 總覽頁面樣式 (IMG_1144)
    ========================================= */
 .balance-hero {
+    padding: 30px 20px;
     text-align: center;
-    padding: 15px 0;
 }
 
 .balance-hero .label {
-    font-size: 11px;
-    font-weight: 800;
+    font-size: 12px;
     color: var(--text-muted);
 }
 
 .balance-hero .amount {
-    font-size: 56px;
-    font-weight: 900;
-    letter-spacing: -2px;
-    margin: 5px 0;
+    font-size: 48px;
+    font-weight: bold;
+    margin: 10px 0;
 }
 
 .sub-stats {
+    font-size: 14px;
     display: flex;
     justify-content: center;
     gap: 15px;
-    font-size: 13px;
-    font-weight: 600;
 }
 
 .link-group {
     margin-top: 15px;
-    display: flex;
-    justify-content: center;
-    gap: 15px;
+    color: var(--text-muted);
     font-size: 13px;
-}
-
-.link-group span {
     text-decoration: underline;
-    text-underline-offset: 3px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
 }
 
-.chart-section {
-    width: 100%;
-    height: 160px;
-    padding: 0 20px;
-}
-
-.list-divider {
-    background: rgba(255,255,255,0.05);
-    padding: 12px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.date-text {
-    font-size: 14px;
-    color: var(--blue);
-    font-weight: 600;
-}
-
-.filter-btn {
-    font-size: 13px;
-    background: #2a2a3c;
-    padding: 4px 12px;
-    border-radius: 8px;
+/* 帳戶列表清單 */
+.account-list {
+    margin-top: 10px;
 }
 
 .group-item {
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
     display: flex;
     justify-content: space-between;
-    padding: 18px 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    align-items: center;
+    color: var(--text-main); /* 確保清單文字為白色 */
 }
 
 /* =========================================
-   5. 新增帳戶與表單 (IMG_1146, 1156)
+   5. 表單與新增帳戶 (IMG_1146, 1156)
    ========================================= */
 .add-acc-hero {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     padding: 20px;
+    text-align: center;
 }
 
 .icon-box {
-    width: 65px;
-    height: 65px;
-    background: linear-gradient(135deg, #3a3a55, #252538);
+    width: 80px;
+    height: 80px;
+    background: var(--card-bg);
     border-radius: 50%;
+    margin: 0 auto 15px;
     display: flex;
-    align-items: center;
     justify-content: center;
-    border: 1px solid var(--border);
-    margin-bottom: 15px;
+    align-items: center;
 }
 
-.hero-balance { text-align: center; }
-.hero-balance .val { font-size: 52px; font-weight: 900; }
-
-.memo-field {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    font-size: 14px;
-    text-align: center;
-    width: 100%;
-    margin-top: 10px;
-    outline: none;
+.form-group {
+    background-color: var(--card-bg);
+    margin: 0 15px;
+    border-radius: 15px;
 }
-
-.form-group { padding: 0 20px; }
 
 .form-row {
+    padding: 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 0;
     border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
-.form-row label { font-size: 15px; font-weight: 600; }
+.form-row label {
+    color: var(--text-main); /* 標籤改為白色 */
+}
+
 .form-row input {
-    background: transparent;
+    background: none;
     border: none;
-    color: var(--text-main);
+    color: var(--text-main); /* 輸入文字改為白色 */
     text-align: right;
-    font-size: 15px;
     outline: none;
 }
 
-/* 信用帳戶子欄位縮排 (IMG_1156) */
 .sub-row {
-    padding-left: 25px !important;
+    padding-left: 30px; /* 縮排效果 (IMG_1156) */
     background: rgba(255,255,255,0.02);
 }
 
-/* iOS Switch 開關 */
-.switch { position: relative; width: 46px; height: 26px; }
-.switch input { opacity: 0; width: 0; height: 0; }
-.slider {
-    position: absolute; cursor: pointer; inset: 0;
-    background-color: #39394d; transition: .3s; border-radius: 34px;
-}
-.slider:before {
-    position: absolute; content: ""; height: 22px; width: 22px;
-    left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%;
-}
-input:checked + .slider { background-color: var(--blue); }
-input:checked + .slider:before { transform: translateX(20px); }
-
 /* =========================================
-   6. 帳戶分組選擇彈窗 (IMG_1155)
+   6. 視覺元件 (開關、按鈕、顏色)
    ========================================= */
-.modal-overlay {
+.text-red { color: var(--danger-red); }
+.text-green { color: var(--success-green); }
+.text-muted { color: var(--text-muted); }
+
+/* Switch 開關樣式 */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+}
+
+.switch input { display: none; }
+
+.slider {
     position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 200;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #444;
+    transition: .4s;
+    border-radius: 34px;
 }
 
-.modal-content {
-    background: #252538;
-    width: 85%;
-    border-radius: 24px;
-    overflow: hidden;
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px; width: 18px;
+    left: 2px; bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
 }
 
-.modal-header {
-    padding: 18px;
-    text-align: center;
-    font-weight: 700;
-    border-bottom: 1px solid var(--border);
+input:checked + .slider {
+    background-color: var(--accent-purple);
 }
 
-.option-item {
-    padding: 16px;
-    text-align: center;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    color: var(--text-main);
-    font-size: 16px;
+input:checked + .slider:before {
+    transform: translateX(18px);
 }
-
-.option-item:active { background: var(--blue); }
-
-.modal-footer { display: flex; border-top: 1px solid var(--border); }
-.modal-footer button {
-    flex: 1; padding: 15px; background: transparent; border: none;
-    color: var(--text-main); font-size: 15px;
-}
-.btn-confirm { color: var(--blue) !important; font-weight: 700; border-left: 1px solid var(--border) !important; }
 
 /* =========================================
-   7. 底部 Tab Bar 與 鑽石按鈕
+   7. 底部 Tab Bar (IMG_1157)
    ========================================= */
 .tab-bar {
     position: absolute;
-    bottom: 0; width: 100%; height: 85px;
-    background: var(--tab-bg);
-    backdrop-filter: blur(15px);
-    border-top: 1px solid var(--border);
+    bottom: 0;
+    width: 100%;
+    height: 80px;
+    background: rgba(20, 20, 30, 0.95);
     display: flex;
     justify-content: space-around;
     align-items: center;
     padding-bottom: 20px;
+}
+
+.tab-item {
+    color: var(--text-muted);
+}
+
+.tab-item.active {
+    color: #4facfe; /* 藍色啟動狀態 */
+}
+
+.tab-fab {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border-radius: 15px;
+    transform: rotate(45deg); /* 鑽石形狀 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: -30px;
+    box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+}
+
+.tab-fab i {
+    transform: rotate(-45deg);
+    color: white;
+}
+
+/* =========================================
+   8. 彈窗樣式 (IMG_1155)
+   ========================================= */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
     z-index: 100;
 }
 
-.tab-item { color: var(--text-muted); font-size: 24px; cursor: pointer; }
-.tab-item.active { color: var(--blue); }
-
-.tab-fab {
-    width: 55px; height: 55px;
-    background: linear-gradient(135deg, #a78bfa, #5ac8fa);
-    transform: translateY(-20px) rotate(45deg);
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 15px rgba(90, 200, 250, 0.4);
+.modal-content {
+    background: var(--card-bg);
+    width: 85%;
+    border-radius: 20px;
+    overflow: hidden;
+    color: var(--text-main);
 }
 
-.fab-inner { transform: rotate(-45deg); color: white; }
-
-/* 工具類 */
-.text-green { color: var(--green); }
-.text-red { color: var(--red); }
-.text-muted { color: var(--text-muted); }
-.text-right { text-align: right; }
-.s-icon { width: 18px; height: 18px; vertical-align: middle; }
+.option-item {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
