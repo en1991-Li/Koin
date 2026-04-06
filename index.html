@@ -3,171 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Koin - 精緻記帳</title>
+    <title>Koin - 帳戶總覽</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        
         :root {
             --moze-bg: #1c1c28;
-            --moze-card: #252538;
             --moze-red: #f16565;
+            --moze-card: #252538;
+            --moze-text-gray: #7e7e9a;
             --moze-border: #32324d;
         }
+
         body {
             background-color: var(--moze-bg);
             font-family: 'Inter', -apple-system, sans-serif;
-            color: #ffffff;
-            user-select: none;
+            color: white;
+            margin: 0;
+            display: flex;
+            justify-content: center;
         }
-        .page { display: none; }
-        .page.active { display: flex; }
-        .tab-icon.active { color: #60a5fa; }
-        /* 隱藏捲軸但保留功能 */
+
+        .phone-container {
+            width: 100%;
+            max-width: 414px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        .total-amount {
+            font-size: 4.5rem;
+            font-weight: 900;
+            color: var(--moze-red);
+            line-height: 1;
+            letter-spacing: -2px;
+        }
+
+        .chart-container {
+            height: 160px;
+            padding: 0 10px;
+        }
+
+        .account-row {
+            border-bottom: 1px solid var(--moze-border);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .moze-btn-center {
+            background: linear-gradient(135deg, #d886ff 0%, #3fe7ff 100%);
+            width: 56px;
+            height: 48px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(216, 134, 255, 0.4);
+            transform: translateY(-4px);
+        }
+
+        /* 隱藏捲軸 */
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="antialiased flex justify-center bg-black">
+<body>
 
-    <div class="relative w-full max-w-md min-h-screen bg-[#1c1c28] flex flex-col overflow-hidden shadow-2xl">
-        
-        <div id="page-accounts" class="page active flex-col h-full animate-in fade-in duration-300">
-            <div class="flex justify-between p-6">
-                <i data-lucide="eye" class="w-6 h-6 text-slate-400"></i>
-                <h2 class="text-lg font-bold">帳戶總覽</h2>
-                <div class="flex gap-4">
-                    <i data-lucide="maximize" class="w-6 h-6 text-slate-400"></i>
-                    <i data-lucide="plus" class="w-6 h-6 text-slate-400"></i>
-                </div>
-            </div>
-            <div class="text-center mb-6">
-                <p class="text-[10px] text-slate-500 font-bold tracking-widest">總額 TWD</p>
-                <h1 class="text-6xl font-black text-[#f16565] my-1">1,524</h1>
-                <div class="flex justify-center gap-4 text-[11px]">
-                    <span class="text-slate-400">總資產 <span class="text-emerald-400 font-bold">34,782</span></span>
-                    <span class="text-slate-400">總負債 <span class="text-rose-400 font-bold">36,306</span></span>
-                </div>
-            </div>
-            <div class="px-6 mb-4 h-32">
-                <canvas id="assetChart"></canvas>
-            </div>
-            <div class="flex-1 overflow-y-auto no-scrollbar border-t border-[#32324d]">
-                <div class="divide-y divide-[#32324d]">
-                    <div class="flex justify-between p-5 items-center">
-                        <span class="text-sm font-semibold text-slate-300">+ 現金 (3)</span>
-                        <span class="font-mono font-bold text-[#f16565]">-$36,306</span>
-                    </div>
-                    <div class="flex justify-between p-5 items-center">
-                        <span class="text-sm font-semibold text-slate-300">+ 銀行 (4)</span>
-                        <span class="font-mono font-bold text-emerald-400">+$32,571</span>
-                    </div>
-                    <div class="flex justify-between p-5 items-center">
-                        <span class="text-sm font-semibold text-slate-300">+ 數位銀行 (8)</span>
-                        <span class="font-mono font-bold text-emerald-400">+$2,211</span>
-                    </div>
-                </div>
+    <div class="phone-container">
+        <div class="flex justify-between items-center p-6 pb-2">
+            <i data-lucide="eye" class="w-7 h-7 text-gray-500"></i>
+            <h2 class="text-xl font-bold">帳戶總覽</h2>
+            <div class="flex gap-4">
+                <i data-lucide="maximize" class="w-6 h-6 text-gray-500"></i>
+                <i data-lucide="plus" class="w-7 h-7 text-gray-500"></i>
             </div>
         </div>
 
-        <div id="page-projects" class="page flex-col h-full hidden">
-            <div class="p-6 text-center border-b border-[#32324d] flex justify-between items-center">
-                <div class="w-6"></div>
-                <h2 class="text-lg font-bold">專案總覽</h2>
-                <i data-lucide="plus" class="w-6 h-6 text-slate-400"></i>
+        <div class="text-center mt-2">
+            <div class="text-[10px] text-gray-500 font-bold tracking-widest uppercase">總額 TWD</div>
+            <div class="total-amount">1,524</div>
+            <div class="flex justify-center gap-4 text-[12px] font-bold mt-1">
+                <span class="text-gray-500 uppercase">總資產 <span class="text-emerald-400">34,782</span></span>
+                <span class="text-gray-500 uppercase">總負債 <span class="text-rose-400">36,306</span></span>
             </div>
-            <div class="p-4 bg-[#252538]/30 text-xs text-slate-500 font-bold">－ 進行中 (8)</div>
-            <div class="flex-1 overflow-y-auto no-scrollbar px-4 space-y-4 pt-4">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center">🍸</div>
-                        <div>
-                            <div class="text-sm font-bold">生活開銷</div>
-                            <div class="text-[10px] text-slate-500">26/03/01 - 26/03/31</div>
-                        </div>
-                    </div>
-                    <span class="text-emerald-400 font-bold">$28,647</span>
-                </div>
-                </div>
-        </div>
-
-        <div id="page-add" class="page flex-col h-full hidden bg-[#1c1c28]">
-            <div class="flex justify-between p-6">
-                <i data-lucide="x" class="w-6 h-6" onclick="switchPage('accounts')"></i>
-                <h2 class="text-lg font-bold">新增記錄</h2>
-                <i data-lucide="check" class="w-6 h-6 text-slate-400"></i>
-            </div>
-            <div class="flex overflow-x-auto gap-4 px-6 pb-6 no-scrollbar">
-                <div class="flex-shrink-0 text-center">
-                    <div class="w-14 h-14 rounded-full bg-[#fcd34d] mb-1"></div>
-                    <span class="text-[10px]">7-11</span>
-                </div>
-                <div class="flex-shrink-0 text-center">
-                    <div class="w-14 h-14 rounded-full bg-[#ef4444] mb-1"></div>
-                    <span class="text-[10px]">麥當勞</span>
-                </div>
-                <div class="flex-shrink-0 text-center">
-                    <div class="w-14 h-14 rounded-full bg-[#22c55e] mb-1"></div>
-                    <span class="text-[10px]">全家</span>
-                </div>
-            </div>
-            <div class="flex-1 bg-[#252538] rounded-t-[3rem] p-8">
-                <div class="flex justify-between items-center mb-8">
-                    <span class="bg-slate-700 px-3 py-1 rounded-full text-xs">TWD</span>
-                    <span class="text-5xl font-black">0</span>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-[#1c1c28] p-4 rounded-2xl text-center text-sm font-bold">錢包</div>
-                    <div class="bg-[#1c1c28] p-4 rounded-2xl text-center text-sm font-bold">生活開銷</div>
-                </div>
+            <div class="flex justify-center gap-6 mt-3 text-[11px] text-gray-400">
+                <span class="flex items-center gap-1"><i data-lucide="pie-chart" class="w-3 h-3"></i> 各分組佔比</span>
+                <span class="flex items-center gap-1"><i data-lucide="pie-chart" class="w-3 h-3"></i> 各幣種佔比</span>
             </div>
         </div>
 
-        <nav class="absolute bottom-0 w-full h-20 bg-[#1c1c28]/90 backdrop-blur-md border-t border-[#32324d] flex justify-around items-center px-4">
-            <button onclick="switchPage('accounts')" class="tab-icon active"><i data-lucide="layout-grid"></i></button>
-            <button onclick="switchPage('projects')" class="tab-icon text-slate-500"><i data-lucide="wallet"></i></button>
-            <div onclick="switchPage('add')" class="bg-gradient-to-tr from-purple-500 to-pink-500 p-3 rounded-2xl shadow-lg -translate-y-4 cursor-pointer">
-                <i data-lucide="aperture" class="text-white"></i>
+        <div class="chart-container mt-6">
+            <canvas id="mozeChart"></canvas>
+        </div>
+        <div class="flex justify-between px-8 text-[10px] text-gray-500 mb-4">
+            <span>3/17</span><span>3/18</span><span>3/19</span><span>3/20</span><span>3/21</span><span>3/22</span><span>3/23</span><span>3/24</span><span>3/25</span><span>3/26</span>
+        </div>
+
+        <div class="bg-[#1c1c28] border-b border-[#32324d] px-6 py-2 flex justify-between items-center text-[11px] font-bold text-gray-500">
+            <div class="flex items-center gap-1 lowercase">
+                <div class="w-2 h-2 rounded-full bg-blue-500"></div> 2026/03/26 週四 <i data-lucide="help-circle" class="w-3 h-3"></i>
             </div>
-            <button class="text-slate-500"><i data-lucide="trending-up"></i></button>
-            <button class="text-slate-500"><i data-lucide="sliders"></i></button>
-        </nav>
+            <div class="flex items-center gap-1 bg-[#252538] px-2 py-1 rounded">
+                <i data-lucide="calendar" class="w-3 h-3"></i> 按日 <i data-lucide="chevron-down" class="w-3 h-3"></i>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto no-scrollbar pb-24">
+            <div class="account-row">
+                <div class="flex items-center gap-3"><i data-lucide="plus" class="w-4 h-4 text-gray-600"></i><span class="text-sm font-bold tracking-tight">現金 (3)</span></div>
+                <div class="font-mono font-bold text-rose-400 text-lg">-$36,306</div>
+            </div>
+            <div class="account-row">
+                <div class="flex items-center gap-3"><i data-lucide="plus" class="w-4 h-4 text-gray-600"></i><span class="text-sm font-bold tracking-tight">銀行 (4)</span></div>
+                <div class="font-mono font-bold text-emerald-400 text-lg">+$32,571</div>
+            </div>
+            <div class="account-row">
+                <div class="flex items-center gap-3"><i data-lucide="plus" class="w-4 h-4 text-gray-600"></i><span class="text-sm font-bold tracking-tight">數位銀行 (8)</span></div>
+                <div class="font-mono font-bold text-emerald-400 text-lg">+$2,211</div>
+            </div>
+            <div class="account-row">
+                <div class="flex items-center gap-3"><i data-lucide="plus" class="w-4 h-4 text-gray-600"></i><span class="text-sm font-bold text-gray-500">紅利點數 (1)</span></div>
+                <div class="font-mono font-bold text-gray-500 text-lg">$0</div>
+            </div>
+            <div class="account-row">
+                <div class="flex items-center gap-3"><i data-lucide="plus" class="w-4 h-4 text-gray-600"></i><span class="text-sm font-bold text-gray-500">其他 (2)</span></div>
+                <div class="font-mono font-bold text-gray-500 text-lg">$0</div>
+            </div>
+        </div>
+
+        <div class="absolute bottom-0 w-full h-20 bg-[#1c1c28]/95 backdrop-blur-md border-t border-[#32324d] flex justify-around items-center px-4">
+            <i data-lucide="layout-grid" class="w-7 h-7 text-blue-400"></i>
+            <i data-lucide="wallet" class="w-7 h-7 text-gray-500"></i>
+            <div class="moze-btn-center">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 2L2 12h3v8h6v-6h2v6h6v-8h3L12 2z"/></svg>
+            </div>
+            <i data-lucide="trending-up" class="w-7 h-7 text-gray-500"></i>
+            <i data-lucide="sliders" class="w-7 h-7 text-gray-500"></i>
+        </div>
     </div>
 
     <script>
         // 初始化圖標
         lucide.createIcons();
 
-        // 頁面切換邏輯
-        function switchPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-            document.getElementById('page-' + pageId).classList.remove('hidden');
-            document.getElementById('page-' + pageId).classList.add('flex');
-            
-            // 更新圖標顏色 (簡化處理)
-            document.querySelectorAll('.tab-icon').forEach(i => i.classList.remove('active', 'text-blue-400'));
-            if(pageId === 'accounts') document.querySelector('[onclick="switchPage(\'accounts\')"]').classList.add('text-blue-400');
-        }
-
-        // 初始化圖表 (截圖中的紫色線 + 綠色條)
-        const ctx = document.getElementById('assetChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
+        // 圖表邏輯：復刻紫色趨勢線 + 綠色柱狀
+        const ctx = document.getElementById('mozeChart').getContext('2d');
+        const chart = new Chart(ctx, {
             data: {
                 labels: ['17', '18', '19', '20', '21', '22', '23', '24', '25', '26'],
                 datasets: [
                     {
                         type: 'line',
-                        data: [5, 5, 12, 12, 11, 11, 10, 10, 10, 10],
-                        borderColor: '#8b5cf6',
+                        data: [2, 2, 8, 8, 7.8, 7.5, 7, 6.8, 6.5, 6.5],
+                        borderColor: '#8b5cf6', // 紫色線
                         borderWidth: 3,
                         pointRadius: 0,
-                        tension: 0.3
+                        tension: 0.1,
+                        yAxisID: 'yLine'
                     },
                     {
-                        data: [0, 0, 25, 0, 2, 0, 4, 0, 0, 0],
-                        backgroundColor: '#a3e635',
-                        borderRadius: 4
+                        type: 'bar',
+                        data: [0, 0, 18, 0, 2, 0, 3, 0, 1, 0],
+                        backgroundColor: '#a3e635', // 綠色柱狀
+                        borderRadius: 4,
+                        barThickness: 10,
+                        yAxisID: 'yBar'
                     }
                 ]
             },
@@ -175,7 +182,11 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
-                scales: { y: { display: false }, x: { display: false } }
+                scales: {
+                    yLine: { display: false, min: 0, max: 10 },
+                    yBar: { display: false, min: 0, max: 30 },
+                    x: { display: false }
+                }
             }
         });
     </script>
