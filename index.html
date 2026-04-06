@@ -1,79 +1,81 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Koin記帳</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+
     <div class="phone-container">
         
-        <main id="page-summary" class="page active">
+        <section id="page-overview" class="page active">
             <header class="nav-header">
-                <i data-lucide="eye"></i>
-                <span class="page-title">帳戶總覽</span>
-                <div class="header-right">
-                    <i data-lucide="maximize"></i>
-                    <i data-lucide="plus" onclick="showPage('page-add-account')"></i>
+                <i data-lucide="eye" class="s-icon"></i>
+                <h1 class="page-title">帳戶總覽</h1>
+                <div style="display: flex; gap: 15px;">
+                    <i data-lucide="maximize" class="s-icon"></i>
+                    <i data-lucide="plus" class="s-icon" onclick="showPage('page-add-account')"></i>
                 </div>
             </header>
 
             <div class="content-scroll no-scrollbar">
-                <section class="balance-hero">
+                <div class="balance-hero">
                     <div class="label">總額 TWD</div>
-                    <div class="amount text-red" id="summary-total">0</div>
+                    <div class="amount" id="total-balance">0</div>
                     <div class="sub-stats">
-                        <span>總資產 <b class="text-green" id="summary-assets">0</b></span>
-                        <span>總負債 <b class="text-red" id="summary-debts">0</b></span>
+                        <span>總資產 <span class="text-green">0</span></span>
+                        <span>總負債 <span class="text-red">0</span></span>
                     </div>
                     <div class="link-group">
-                        <span><i data-lucide="pie-chart"></i> 各分組佔比</span>
-                        <span><i data-lucide="pie-chart"></i> 各幣種佔比</span>
+                        <span><i data-lucide="pie-chart" class="s-icon"></i> 各分組佔比</span>
+                        <span><i data-lucide="pie-chart" class="s-icon"></i> 各幣種佔比</span>
                     </div>
-                </section>
-
-                <section class="chart-section">
-                    <canvas id="mainChart"></canvas>
-                </section>
-
-                <div class="list-divider">
-                    <span class="date-text"><i data-lucide="calendar"></i> 2026/03/26 週四</span>
-                    <div class="filter-btn">按日 <i data-lucide="chevron-down"></i></div>
                 </div>
 
-                <div id="account-list" class="account-group-list">
-                    </div>
-            </div>
-        </main>
+                <div class="chart-section">
+                    <canvas id="overviewChart"></canvas>
+                </div>
 
-        <main id="page-projects" class="page">
+                <div class="list-divider">
+                    <span class="date-text">● 2026/03/26 週四 <i data-lucide="rotate-ccw" class="s-icon"></i></span>
+                    <div class="filter-btn">按日 <i data-lucide="chevron-down" class="s-icon"></i></div>
+                </div>
+
+                <div class="account-list">
+                    <div class="group-item">
+                        <span class="group-name">+ 現金 (3)</span>
+                        <span class="group-value text-red">-$36,306</span>
+                    </div>
+                    <div class="group-item">
+                        <span class="group-name">+ 銀行 (4)</span>
+                        <span class="group-value text-green">+$32,571</span>
+                    </div>
+                    <div class="group-item">
+                        <span class="group-name">+ 數位銀行 (8)</span>
+                        <span class="group-value text-green">+$2,211</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-add-account" class="page">
             <header class="nav-header">
-                <div></div>
-                <span class="page-title">專案總覽</span>
-                <i data-lucide="plus"></i>
+                <i data-lucide="x" class="s-icon" onclick="showPage('page-overview')"></i>
+                <h1 class="page-title">新增帳戶 <i data-lucide="info" class="s-icon" style="width:14px"></i></h1>
+                <i data-lucide="check" class="s-icon" onclick="showPage('page-overview')"></i>
             </header>
+
             <div class="content-scroll no-scrollbar">
-                <div class="group-title">— 進行中 (8)</div>
-                <div id="project-list" class="project-items">
-                    </div>
-            </div>
-        </main>
-
-        <main id="page-add-account" class="page full-modal">
-            <header class="nav-header">
-                <i data-lucide="x" onclick="showPage('page-summary')"></i>
-                <span class="page-title">新增帳戶 <i data-lucide="info" class="s-icon"></i></span>
-                <i data-lucide="check" class="text-blue" onclick="saveNewAccount()"></i>
-            </header>
-            <div class="content-scroll">
                 <div class="add-acc-hero">
-                    <div class="icon-box"><i data-lucide="credit-card"></i></div>
+                    <div class="icon-box">
+                        <i data-lucide="credit-card" style="width: 32px; height: 32px;"></i>
+                    </div>
                     <div class="hero-balance">
-                        <span class="label">餘額 TWD</span>
-                        <span class="val text-green" id="add-display-amount">0</span>
+                        <div class="label">餘額 TWD</div>
+                        <div class="val text-green" id="add-display-amount">0</div>
                     </div>
                     <input type="text" class="memo-field" placeholder="請在這裡填寫備註事項">
                 </div>
@@ -81,49 +83,136 @@
                 <div class="form-group">
                     <div class="form-row">
                         <label>名稱</label>
-                        <input type="text" id="in-name" placeholder="尚未設定" class="text-right">
+                        <input type="text" placeholder="尚未設定" class="text-right">
                     </div>
                     <div class="form-row">
                         <label>主幣種</label>
-                        <span>TWD</span>
+                        <span class="text-muted">TWD</span>
                     </div>
-                    <div class="form-row">
+                    <div class="form-row" onclick="openGroupPicker()" style="cursor: pointer;">
                         <label>帳戶分組</label>
-                        <span>現金 <i data-lucide="chevron-right"></i></span>
+                        <span id="selected-group-text">現金 <i data-lucide="chevron-right" class="s-icon"></i></span>
                     </div>
                     <div class="form-row">
                         <label>初始金額</label>
-                        <input type="number" id="in-amount" value="0" class="text-right">
+                        <input type="number" value="0" class="text-right">
                     </div>
-                    <div class="spacer"></div>
+                    <div class="form-row">
+                        <label>帳單週期</label>
+                        <span class="text-muted">2026/03/01 － 2026/03/31</span>
+                    </div>
+                    
                     <div class="form-row">
                         <label>信用帳戶</label>
                         <label class="switch">
-                            <input type="checkbox" id="in-is-credit">
+                            <input type="checkbox" id="in-is-credit" onchange="toggleCreditFields()">
                             <span class="slider"></span>
                         </label>
                     </div>
+
+                    <div id="credit-extra-fields" style="display: none;">
+                        <div class="form-row sub-row">
+                            <label>— 繳款期限</label>
+                            <span class="text-muted">2026/05/01</span>
+                        </div>
+                        <div class="form-row sub-row">
+                            <label>— 信用額度</label>
+                            <input type="number" placeholder="0" class="text-right">
+                        </div>
+                    </div>
+
                     <div class="form-row">
-                        <label>納入總餘額</label>
-                        <label class="switch">
-                            <input type="checkbox" checked>
-                            <span class="slider"></span>
-                        </label>
+                        <label>主帳戶</label>
+                        <span class="text-muted">無</span>
+                    </div>
+                    <div class="form-row">
+                        <label>自動儲值</label>
+                        <label class="switch"><input type="checkbox"><span class="slider"></span></label>
                     </div>
                 </div>
             </div>
-        </main>
+        </section>
+
+        <div id="group-picker-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>帳戶分組</span>
+                    <i data-lucide="plus"></i>
+                </div>
+                <div class="modal-options">
+                    <div class="option-item" onclick="selectGroup('現金')">現金</div>
+                    <div class="option-item" onclick="selectGroup('銀行')">銀行</div>
+                    <div class="option-item" onclick="selectGroup('數位銀行')">數位銀行</div>
+                    <div class="option-item" onclick="selectGroup('信用卡')">信用卡</div>
+                </div>
+                <div class="modal-footer">
+                    <button onclick="closeGroupPicker()">取消</button>
+                    <button class="btn-confirm" onclick="closeGroupPicker()">確定</button>
+                </div>
+            </div>
+        </div>
 
         <nav class="tab-bar">
-            <div class="tab-item active" onclick="showPage('page-summary')"><i data-lucide="wallet"></i></div>
-            <div class="tab-item" onclick="showPage('page-projects')"><i data-lucide="briefcase"></i></div>
-            <div class="tab-fab">
-                <div class="fab-inner"><i data-lucide="plus"></i></div>
+            <div class="tab-item active" onclick="showPage('page-overview')">
+                <i data-lucide="wallet"></i>
             </div>
-            <div class="tab-item"><i data-lucide="line-chart"></i></div>
-            <div class="tab-item"><i data-lucide="sliders-horizontal"></i></div>
+            <div class="tab-item">
+                <i data-lucide="archive"></i>
+            </div>
+            <div class="tab-fab">
+                <div class="fab-inner">
+                    <i data-lucide="layers"></i>
+                </div>
+            </div>
+            <div class="tab-item">
+                <i data-lucide="trending-up"></i>
+            </div>
+            <div class="tab-item">
+                <i data-lucide="sliders-horizontal"></i>
+            </div>
         </nav>
+
     </div>
-    <script src="js/script.js"></script>
+
+    <script>
+        // 初始化圖示
+        lucide.createIcons();
+
+        // 頁面切換邏輯
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // 帳戶分組彈窗邏輯
+        function openGroupPicker() {
+            document.getElementById('group-picker-modal').style.display = 'flex';
+        }
+
+        function closeGroupPicker() {
+            document.getElementById('group-picker-modal').style.display = 'none';
+        }
+
+        function selectGroup(name) {
+            document.getElementById('selected-group-text').innerHTML = `${name} <i data-lucide="chevron-right" class="s-icon"></i>`;
+            lucide.createIcons();
+            closeGroupPicker();
+        }
+
+        // 信用帳戶連動邏輯
+        function toggleCreditFields() {
+            const isCredit = document.getElementById('in-is-credit').checked;
+            const extraFields = document.getElementById('credit-extra-fields');
+            const displayVal = document.getElementById('add-display-amount');
+
+            if (isCredit) {
+                extraFields.style.display = 'block';
+                displayVal.className = 'val text-red'; // 變紅色
+            } else {
+                extraFields.style.display = 'none';
+                displayVal.className = 'val text-green'; // 變回綠色
+            }
+        }
+    </script>
 </body>
 </html>
