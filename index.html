@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koin - 你的個人財務中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { background-color: #1a1c2c; }
+        .moze-gradient {
+            background: linear-gradient(180deg, rgba(241, 101, 101, 0.1) 0%, rgba(26, 28, 44, 0) 100%);
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+<body class="text-slate-200 font-sans">
+
+    <div class="max-w-5xl mx-auto p-6 md:p-10">
+        <header class="flex justify-between items-end mb-10">
+            <div>
+                <p class="text-slate-400 text-xs tracking-widest uppercase mb-1">Total Balance (TWD)</p>
+                <h1 class="text-6xl font-black text-[#f16565] tracking-tighter">1,524</h1>
+                <p class="text-[10px] text-slate-500 mt-2">最後更新：2026/04/06 15:52</p>
+            </div>
+            <div class="flex gap-6 text-right pb-1">
+                <div>
+                    <p class="text-[10px] text-slate-500 uppercase font-bold">資產</p>
+                    <p class="text-emerald-400 font-bold text-xl">34,782</p>
+                </div>
+                <div>
+                    <p class="text-[10px] text-slate-500 uppercase font-bold">負債</p>
+                    <p class="text-rose-400 font-bold text-xl">36,306</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <section class="lg:col-span-7 bg-[#23263a] rounded-[2rem] p-8 shadow-2xl border border-slate-800/50 relative overflow-hidden">
+                <div class="moze-gradient absolute inset-0"></div>
+                <div class="relative z-10">
+                    <div class="flex justify-between items-center mb-8">
+                        <h2 class="font-bold flex items-center gap-2">
+                            <i data-lucide="bar-chart-3" class="text-[#f16565] w-5 h-5"></i> 資產走勢
+                        </h2>
+                        <div class="flex gap-2">
+                            <span class="text-[10px] bg-slate-700/50 px-3 py-1 rounded-full text-slate-300 border border-slate-600">7 天</span>
+                        </div>
+                    </div>
+                    
+                    <div class="h-48 w-full flex items-end">
+                        <svg viewBox="0 0 100 40" class="w-full h-full">
+                            <path d="M0 35 Q 20 10, 40 25 T 80 5 T 100 15" fill="none" stroke="#f16565" stroke-width="2" />
+                            <path d="M0 35 Q 20 10, 40 25 T 80 5 T 100 15 V 40 H 0 Z" fill="url(#grad)" opacity="0.2" />
+                            <defs>
+                                <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#f16565;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#f16565;stop-opacity:0" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div class="flex justify-between mt-4 text-[10px] text-slate-500 px-1">
+                        <span>03/31</span><span>04/02</span><span>04/04</span><span>今天</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="lg:col-span-5 space-y-6">
+                <div class="bg-[#23263a] rounded-[2rem] overflow-hidden border border-slate-800/50 shadow-2xl">
+                    <div class="p-6 border-b border-slate-800/50 flex justify-between items-center bg-[#2b2e4a]/50">
+                        <h3 class="font-bold text-sm tracking-tight text-slate-300">帳戶分組</h3>
+                        <i data-lucide="search" class="w-4 h-4 text-slate-500 cursor-pointer"></i>
+                    </div>
+                    
+                    <div class="divide-y divide-slate-800/50 custom-scrollbar max-h-80 overflow-y-auto">
+                        <div class="flex items-center justify-between p-5 hover:bg-slate-800/40 transition group cursor-pointer">
+                            <div class="flex items-center gap-4">
+                                <div class="p-3 rounded-2xl bg-orange-500/10 text-orange-400 group-hover:scale-110 transition">
+                                    <i data-lucide="wallet" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-sm">現金</p>
+                                    <p class="text-[10px] text-slate-500">3 個帳戶</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-mono font-bold text-rose-400">-36,306</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between p-5 hover:bg-slate-800/40 transition group cursor-pointer">
+                            <div class="flex items-center gap-4">
+                                <div class="p-3 rounded-2xl bg-blue-500/10 text-blue-400 group-hover:scale-110 transition">
+                                    <i data-lucide="landmark" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-sm">銀行</p>
+                                    <p class="text-[10px] text-slate-500">4 個帳戶</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-mono font-bold text-emerald-400">32,571</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between p-5 hover:bg-slate-800/40 transition group cursor-pointer">
+                            <div class="flex items-center gap-4">
+                                <div class="p-3 rounded-2xl bg-purple-500/10 text-purple-400 group-hover:scale-110 transition">
+                                    <i data-lucide="credit-card" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-sm">信用卡</p>
+                                    <p class="text-[10px] text-slate-500">2 個帳戶</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-mono font-bold text-rose-400">-15,000</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="w-full py-5 bg-[#f16565] hover:bg-[#e05555] text-white rounded-2xl font-black transition-all shadow-xl hover:shadow-[#f16565]/20 flex items-center justify-center gap-3 active:scale-95">
+                    <i data-lucide="plus-circle" class="w-6 h-6"></i> 新增交易記錄
+                </button>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // 初始化圖標
+        lucide.createIcons();
+    </script>
+</body>
+</html>
