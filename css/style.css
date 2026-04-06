@@ -1,43 +1,249 @@
 /* =========================================
-   1. 基礎設定與變數
+   1. 核心變數與全域設定
    ========================================= */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-
-:root { 
-    --bg: #1c1c28;          /* 深藍黑背景保持不變 */
-    --card: #252538;        /* 卡片底色 */
-    --border: #32324d;      /* 分隔線顏色 */
-    --blue: #5ac8fa;        /* 亮藍色 */
-    
-    /* 核心修改：將文字顏色設定為白色和淺灰色 */
-    --text-main: #ffffff;   /* 主文字改成純白 */
-    --text-muted: #aaaaaa;  /* 次要文字（如標籤）改成淺灰色，確保在深色背景下清晰 */
-    
-    --green: #a3e635;       /* 資產綠色 */
-    --red: #f16565;         /* 負債紅色 */
+:root {
+    --bg: #14141f;          /* 深色背景 */
+    --card: #1c1c28;        /* 卡片顏色 */
+    --border: #2a2a3c;      /* 分隔線顏色 */
+    --blue: #5ac8fa;        /* iOS 亮藍 */
+    --purple: #a78bfa;      /* 趨勢線紫色 */
+    --text-main: #ffffff;   /* 主文字改為純白 */
+    --text-muted: #a1a1aa;  /* 次要文字稍微調亮，確保可讀性 */
+    --green: #a3e635;       /* 亮綠 (資產) */
+    --red: #f16565;         /* 珊瑚紅 (負債) */
+    --tab-bg: rgba(20, 20, 31, 0.95);
 }
 
-/* 確保全域文字使用主文字顏色 */
-body {
-    color: var(--text-main);
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--text-main); /* 全域預設文字顏色設為白色 */
 }
 
-/* 確保 form 裡面的 label 使用淺灰色，內容使用白色 */
-.form-item label {
-    color: var(--text-muted) !important;
-    font-weight: 500;
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
-.form-item input, 
-.form-item select,
-.form-item span:not(.label) {
-    color: var(--text-main) !important;
+/* =========================================
+   2. 手機模擬容器 (修正寬度與高度問題)
+   ========================================= */
+.phone-container {
+    width: 100%;
+    max-width: 414px;
+    height: 92vh;
+    max-height: 850px;
+    background-color: var(--bg);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border-radius: 40px;
+    border: 8px solid #2a2a3c;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    overflow: hidden;
 }
 
-/* 針對備註輸入框特別設定 */
-.memo-input {
-    color: var(--text-main) !important;
+.content-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 100px;
+    -webkit-overflow-scrolling: touch;
 }
-.memo-input::placeholder {
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* =========================================
+   3. 標題與導覽
+   ========================================= */
+.nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    height: 60px;
+    background: var(--bg);
+}
+
+.page-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-main); /* 確保標題為白色 */
+}
+
+.page {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+}
+
+.page.active {
+    display: flex;
+}
+
+/* =========================================
+   4. 新增帳戶表單樣式 (修正輸入框與備註顏色)
+   ========================================= */
+.add-acc-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.hero-balance .label {
+    font-size: 11px;
     color: var(--text-muted);
 }
+
+/* 修正備註輸入框：原本可能是黑色，現在改為白色 */
+.memo-field {
+    background: transparent;
+    border: none;
+    color: #ffffff; /* 強制白色 */
+    font-size: 14px;
+    text-align: center;
+    width: 100%;
+    margin-top: 10px;
+    outline: none;
+}
+
+/* 設定 placeholder 顏色為淺灰色，方便區分 */
+.memo-field::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.form-group { padding: 0 20px; }
+
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.form-row label { 
+    font-size: 15px; 
+    font-weight: 600; 
+    color: var(--text-main); /* 標籤設為白色 */
+}
+
+/* 修正表單內的所有輸入框文字顏色 */
+.form-row input {
+    background: transparent;
+    border: none;
+    color: #ffffff; /* 確保輸入文字是白色 */
+    text-align: right;
+    font-size: 15px;
+    outline: none;
+}
+
+.text-muted { color: var(--text-muted); }
+
+/* 信用帳戶子欄位縮排 */
+.sub-row {
+    padding-left: 25px !important;
+    background: rgba(255,255,255,0.02);
+}
+
+/* =========================================
+   5. 帳戶分組彈窗樣式 (修正按鈕文字)
+   ========================================= */
+.modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+}
+
+.modal-content {
+    background: #252538;
+    width: 85%;
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.modal-header {
+    padding: 18px;
+    text-align: center;
+    font-weight: 700;
+    color: #ffffff;
+    border-bottom: 1px solid var(--border);
+}
+
+.option-item {
+    padding: 16px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: #ffffff; /* 選項文字改為白色 */
+    font-size: 16px;
+}
+
+.modal-footer { display: flex; border-top: 1px solid var(--border); }
+
+/* 修正彈窗底部按鈕文字顏色 */
+.modal-footer button {
+    flex: 1; 
+    padding: 15px; 
+    background: transparent; 
+    border: none;
+    color: #ffffff; /* 取消按鈕改為白色 */
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.btn-confirm { 
+    color: var(--blue) !important; /* 確定按鈕維持亮藍色作為重點 */
+    font-weight: 700; 
+    border-left: 1px solid var(--border) !important; 
+}
+
+/* =========================================
+   6. 底部導覽列
+   ========================================= */
+.tab-bar {
+    position: absolute;
+    bottom: 0; width: 100%; height: 85px;
+    background: var(--tab-bg);
+    backdrop-filter: blur(15px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding-bottom: 20px;
+    z-index: 100;
+}
+
+.tab-item { color: var(--text-muted); font-size: 24px; }
+.tab-item.active { color: var(--blue); }
+
+.tab-fab {
+    width: 55px; height: 55px;
+    background: linear-gradient(135deg, #a78bfa, #5ac8fa);
+    transform: translateY(-20px) rotate(45deg);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fab-inner { transform: rotate(-45deg); color: white; }
+
+/* 通用顏色 */
+.text-green { color: var(--green); }
+.text-red { color: var(--red); }
+.s-icon { width: 18px; height: 18px; color: #ffffff; } /* 圖示設為白色 */
