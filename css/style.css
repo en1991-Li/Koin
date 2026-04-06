@@ -12,32 +12,13 @@
     --green: #a3e635;
     --red: #f16565;
     --tab-bg: rgba(20, 20, 31, 0.95);
-   /* 表單欄位標籤 (名稱、主幣種、帳戶分組等) */
-.form-row label {
-    color: #FFFFFF;
-}
-
-/* 輸入框內的文字與數值 */
-.form-row input, .form-row span {
-    color: #FFFFFF;
-}
-
-/* 底部清單文字 (現金、銀行、數位銀行) */
-.group-item span {
-    color: #FFFFFF;
-}
-
-/* 佔位符文字顏色 (Placeholder) */
-input::placeholder {
-    color: rgba(255, 255, 255, 0.5); /* 半透明白色 */
-}
-
 }
 
 * {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--text-main); /* 預設全域文字為白色 */
 }
 
 body, html {
@@ -53,7 +34,7 @@ body, html {
 }
 
 /* =========================================
-   2. 手機模擬容器 (Web/iPad 視窗優化)
+   2. 手機模擬容器
    ========================================= */
 .phone-container {
     width: 100%;
@@ -99,6 +80,7 @@ body, html {
     display: flex;
     align-items: center;
     gap: 5px;
+    color: #FFFFFF;
 }
 
 .page {
@@ -160,6 +142,7 @@ body, html {
     display: flex;
     align-items: center;
     gap: 4px;
+    color: #FFFFFF;
 }
 
 .chart-section {
@@ -187,6 +170,7 @@ body, html {
     background: #2a2a3c;
     padding: 4px 12px;
     border-radius: 8px;
+    color: #FFFFFF;
 }
 
 .group-item {
@@ -194,6 +178,10 @@ body, html {
     justify-content: space-between;
     padding: 18px 20px;
     border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.group-item span {
+    color: #FFFFFF; /* 確保現金、銀行等清單文字為白色 */
 }
 
 /* =========================================
@@ -224,7 +212,7 @@ body, html {
 .memo-field {
     background: transparent;
     border: none;
-    color: var(--text-muted);
+    color: #FFFFFF; /* 備註輸入文字改為白色 */
     font-size: 14px;
     text-align: center;
     width: 100%;
@@ -242,17 +230,27 @@ body, html {
     border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
-.form-row label { font-size: 15px; font-weight: 600; }
-.form-row input {
+.form-row label { 
+    font-size: 15px; 
+    font-weight: 600; 
+    color: #FFFFFF; /* 標籤文字為白色 */
+}
+
+.form-row input, .form-row span {
     background: transparent;
     border: none;
-    color: var(--text-main);
+    color: #FFFFFF; /* 輸入數值或選擇內容為白色 */
     text-align: right;
     font-size: 15px;
     outline: none;
 }
 
-/* 信用帳戶子欄位縮排 (IMG_1156) */
+/* 佔位符文字顏色 (Placeholder) */
+input::placeholder {
+    color: rgba(255, 255, 255, 0.4); 
+}
+
+/* 信用帳戶子欄位縮排 */
 .sub-row {
     padding-left: 25px !important;
     background: rgba(255,255,255,0.02);
@@ -290,6 +288,7 @@ input:checked + .slider:before { transform: translateX(20px); }
     width: 85%;
     border-radius: 24px;
     overflow: hidden;
+    color: #FFFFFF;
 }
 
 .modal-header {
@@ -297,13 +296,14 @@ input:checked + .slider:before { transform: translateX(20px); }
     text-align: center;
     font-weight: 700;
     border-bottom: 1px solid var(--border);
+    color: #FFFFFF;
 }
 
 .option-item {
     padding: 16px;
     text-align: center;
     border-bottom: 1px solid rgba(255,255,255,0.05);
-    color: var(--text-main);
+    color: #FFFFFF;
     font-size: 16px;
 }
 
@@ -312,7 +312,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 .modal-footer { display: flex; border-top: 1px solid var(--border); }
 .modal-footer button {
     flex: 1; padding: 15px; background: transparent; border: none;
-    color: var(--text-main); font-size: 15px;
+    color: #FFFFFF; font-size: 15px;
 }
 .btn-confirm { color: var(--blue) !important; font-weight: 700; border-left: 1px solid var(--border) !important; }
 
@@ -349,8 +349,8 @@ input:checked + .slider:before { transform: translateX(20px); }
 .fab-inner { transform: rotate(-45deg); color: white; }
 
 /* 工具類 */
-.text-green { color: var(--green); }
-.text-red { color: var(--red); }
+.text-green { color: var(--green) !important; }
+.text-red { color: var(--red) !important; }
 .text-muted { color: var(--text-muted); }
 .text-right { text-align: right; }
-.s-icon { width: 18px; height: 18px; vertical-align: middle; }
+.s-icon { width: 18px; height: 18px; vertical-align: middle; color: #FFFFFF; }
