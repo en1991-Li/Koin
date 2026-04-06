@@ -35,17 +35,37 @@
                         <span><i data-lucide="pie-chart" class="small-icon"></i> 各分組佔比</span>
                         <span><i data-lucide="pie-chart" class="small-icon"></i> 各幣種佔比</span>
                     </div>
+
+                    <div class="chart-container">
+                        <div class="mock-chart">
+                            </div>
+                        <div class="chart-dates">
+                            <span>3/17</span><span>3/19</span><span>3/21</span><span>3/23</span><span>3/25</span>
+                        </div>
+                    </div>
                 </section>
 
+                <div class="list-header">
+                    <span class="date-tag"><i data-lucide="calendar" class="mini-icon"></i> 2026/03/26 週四</span>
+                    <div class="filter-dropdown">按日 <i data-lucide="chevron-down"></i></div>
+                </div>
+
                 <div id="main-list" class="account-list">
-                    <div class="empty-state">尚未建立帳戶</div>
+                    <div class="group-item">
+                        <span class="group-name">+ 現金 (3)</span>
+                        <span class="group-value text-red">-$36,306</span>
+                    </div>
+                    <div class="group-item">
+                        <span class="group-name">+ 銀行 (4)</span>
+                        <span class="group-value text-green">+$32,571</span>
+                    </div>
                 </div>
             </div>
 
             <div id="page-add-account" class="page">
                 <header class="top-nav">
                     <i data-lucide="x" class="icon-btn" onclick="closeAddPage()"></i>
-                    <h2 class="title">新增帳戶</h2>
+                    <h2 class="title">新增帳戶 <i data-lucide="info" class="mini-icon"></i></h2>
                     <div class="right-icons">
                         <i data-lucide="check" class="icon-btn" onclick="saveAccount()"></i>
                     </div>
@@ -53,12 +73,12 @@
 
                 <section class="add-account-form">
                     <div class="account-header-icon">
-                        <div class="icon-circle">
+                        <div class="icon-circle-large">
                             <i data-lucide="credit-card"></i>
                         </div>
                         <div class="balance-display">
                             <span class="label">餘額 TWD</span>
-                            <span class="value">0</span>
+                            <span class="value" id="header-balance-val">0</span>
                         </div>
                         <input type="text" class="memo-input" placeholder="請在這裡填寫備註事項">
                     </div>
@@ -66,7 +86,7 @@
                     <div class="form-list">
                         <div class="form-item">
                             <label>名稱</label>
-                            <input type="text" placeholder="尚未設定" id="acc-name">
+                            <input type="text" placeholder="尚未設定" id="acc-name" class="text-right">
                         </div>
                         <div class="form-item">
                             <label>主幣種</label>
@@ -74,18 +94,18 @@
                         </div>
                         <div class="form-item">
                             <label>帳戶分組</label>
-                            <span class="val-text">現金</span>
+                            <span class="val-text">現金 <i data-lucide="chevron-right" class="mini-icon"></i></span>
                         </div>
                         <div class="form-item">
                             <label>初始金額</label>
-                            <input type="number" value="0" id="acc-balance">
+                            <input type="number" value="0" id="acc-balance" class="text-right">
                         </div>
                         <div class="form-item">
                             <label>帳單週期</label>
-                            <span class="val-text">2026/03/01 - 2026/03/31</span>
+                            <span class="val-text">2026/03/01 － 2026/03/31</span>
                         </div>
                         
-                        <hr class="divider">
+                        <div class="form-divider"></div>
 
                         <div class="form-item">
                             <label>信用帳戶</label>
@@ -98,39 +118,7 @@
                             <label>主帳戶</label>
                             <span class="val-text gray">無</span>
                         </div>
-                        <div class="form-item">
-                            <label>紅利回饋</label>
-                            <span class="val-text gray">無</span>
                         </div>
-                        <div class="form-item">
-                            <label>自動儲值</label>
-                            <label class="switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="form-item">
-                            <label>國外交易手續費</label>
-                            <label class="switch">
-                                <input type="checkbox">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="form-item">
-                            <label>納入總餘額</label>
-                            <label class="switch">
-                                <input type="checkbox" checked>
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="form-item">
-                            <label>顯示在 Widget / Watch 上</label>
-                            <label class="switch">
-                                <input type="checkbox" checked>
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                    </div>
                 </section>
             </div>
         </main>
@@ -139,7 +127,7 @@
             <div class="tab-item active" onclick="switchTab(this, 'page-list')">
                 <i data-lucide="wallet" class="tab-icon"></i>
             </div>
-            <div class="tab-item" onclick="alert('功能開發中')">
+            <div class="tab-item">
                 <i data-lucide="briefcase" class="tab-icon"></i>
             </div>
             
@@ -151,38 +139,15 @@
                 </div>
             </div>
 
-            <div class="tab-item" onclick="alert('功能開發中')">
+            <div class="tab-item">
                 <i data-lucide="line-chart" class="tab-icon"></i>
             </div>
-            <div class="tab-item" onclick="alert('功能開發中')">
+            <div class="tab-item">
                 <i data-lucide="sliders-horizontal" class="tab-icon"></i>
             </div>
         </nav>
     </div>
 
     <script src="js/script.js"></script>
-    <script>
-        // 簡單的頁面切換邏輯
-        function openAddPage() {
-            document.getElementById('page-list').classList.remove('active');
-            document.getElementById('page-add-account').classList.add('active');
-            lucide.createIcons(); // 重新渲染圖標
-        }
-
-        function closeAddPage() {
-            document.getElementById('page-add-account').classList.remove('active');
-            document.getElementById('page-list').classList.add('active');
-        }
-
-        function saveAccount() {
-            const name = document.getElementById('acc-name').value;
-            if(!name) {
-                alert('請輸入帳戶名稱');
-                return;
-            }
-            alert('帳戶 ' + name + ' 已儲存！');
-            closeAddPage();
-        }
-    </script>
 </body>
 </html>
