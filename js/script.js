@@ -3,132 +3,112 @@
  * 1. 基礎設定與資料初始化
  * =========================================
  */
-// 初始化 Lucide 圖示庫
+// 初始化 Lucide 圖示
 lucide.createIcons();
 
-// 儲存所有帳戶資料的陣列
-let accounts = [];
+// 從 LocalStorage 讀取資料，若無則為空陣列
+let accounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
+
+// 初始化執行一次渲染
+document.addEventListener('DOMContentLoaded', () => {
+    render();
+    setupEventListeners();
+});
 
 /**
  * =========================================
- * 2. 導覽列與分頁控制 (Tab Navigation)
- * =========================================
- */
-function switchTab(el, pageId) {
-    // 1. 處理底部按鈕高亮狀態
-    document.querySelectorAll('.tab-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    el.classList.add('active');
-
-    // 2. 切換主內容區域的分頁顯示
-    const pages = ['page-list', 'page-wallet', 'page-trends', 'page-settings'];
-    pages.forEach(id => {
-        const pageEl = document.getElementById(id);
-        if (pageEl) {
-            pageEl.style.display = (id === pageId) ? 'flex' : 'none';
-        }
-    });
-
-    console.log(`已切換至分頁: ${pageId}`);
-}
-
-/**
- * =========================================
- * 3. 頁面與彈窗控制 (UI Controls)
+ * 2. 頁面切換控制 (Navigation)
  * =========================================
  */
 function openAddPage() { 
-    const addPage = document.getElementById('page-add');
-    if (addPage) addPage.classList.add('active'); 
+    const addPage = document.getElementById('page-add-account');
+    const listPage = document.getElementById('page-list');
+    if (addPage && listPage) {
+        listPage.classList.remove('active');
+        addPage.classList.add('active');
+        lucide.createIcons(); // 確保新頁面圖示渲染
+    }
 }
 
 function closeAddPage() { 
-    const addPage = document.getElementById('page-add');
-    if (addPage) addPage.classList.remove('active'); 
-}
-
-function openSheet(id) { 
-    const overlay = document.getElementById('overlay');
-    const sheet = document.getElementById(id);
-    if (overlay) overlay.classList.add('active'); 
-    if (sheet) sheet.classList.add('active'); 
-}
-
-function closeAllSheets() { 
-    const overlay = document.getElementById('overlay');
-    if (overlay) overlay.classList.remove('active'); 
-    document.querySelectorAll('.sheet').forEach(s => s.classList.remove('active')); 
-}
-
-function setVal(type, val) {
-    const el = document.getElementById('val-' + type);
-    if (el) {
-        el.innerText = val;
-        el.classList.add('text-white');
+    const addPage = document.getElementById('page-add-account');
+    const listPage = document.getElementById('page-list');
+    if (addPage && listPage) {
+        addPage.classList.remove('active');
+        listPage.classList.add('active');
+        resetForm();
     }
-    closeAllSheets();
+}
+
+// 底部 Tab 切換 (處理高亮)
+function switchTab(el, pageId) {
+    document.querySelectorAll('.tab-item').forEach(item => item.classList.remove('active'));
+    el.classList.add('active');
+    
+    // 如果是切換回首頁，確保首頁 active
+    if(pageId === 'page-list') {
+        document.getElementById('page-add-account').classList.remove('active');
+        document.getElementById('page-list').classList.add('active');
+    }
 }
 
 /**
  * =========================================
- * 4. 表單邏輯處理 (Form Logic)
+ * 3. 表單互動邏輯
  * =========================================
  */
-function toggleCredit(show) {
-    const menu = document.getElementById('credit-sub-menu');
-    if (menu) {
-        if (show) menu.classList.add('show');
-        else menu.classList.remove('show');
+function setupEventListeners() {
+    const balanceInput = document.getElementById('acc-balance');
+    const headerBalance = document.querySelector('.balance-display .value');
+
+    // 當輸入初始金額時，同步更新頂部大數字
+    if (balanceInput && headerBalance) {
+        balanceInput.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value) || 0;
+            headerBalance.innerText = val.toLocaleString();
+        });
     }
 }
 
-function saveData() {
-    const nameInput = document.getElementById('field-name');
-    const amountInput = document.getElementById('field-amount');
-    const groupLabel = document.getElementById('val-group');
-    const isCreditChecked = document.getElementById('field-is-credit').checked;
+function saveAccount() {
+    const nameInput = document.getElementById('acc-name');
+    const balanceInput = document.getElementById('acc-balance');
+    const isCreditInput = document.getElementById('is-credit');
 
-    if (!groupLabel || groupLabel.innerText === "尚未選擇") {
-        alert("請選擇帳戶分組");
+    const name = nameInput.value.trim();
+    const balance = parseFloat(balanceInput.value) || 0;
+
+    if (!name) {
+        alert("請輸入帳戶名稱");
         return;
     }
 
     const newAccount = {
         id: Date.now(),
-        name: nameInput.value.trim() || "未命名帳戶",
-        group: groupLabel.innerText,
-        amount: parseFloat(amountInput.value) || 0,
-        include: true, // 預設計入總額
-        isCredit: isCreditChecked
+        name: name,
+        amount: balance,
+        isCredit: isCreditInput ? isCreditInput.checked : false,
+        type: '現金' // 預設值，之後可擴充
     };
 
     accounts.push(newAccount);
-    render();
+    localStorage.setItem('koin_accounts', JSON.stringify(accounts));
     
+    render();
     closeAddPage();
-    resetForm();
 }
 
 function resetForm() {
-    const nameInput = document.getElementById('field-name');
-    const amountInput = document.getElementById('field-amount');
-    const groupLabel = document.getElementById('val-group');
-    const creditCheck = document.getElementById('field-is-credit');
-
-    if (nameInput) nameInput.value = "";
-    if (amountInput) amountInput.value = 0;
-    if (groupLabel) {
-        groupLabel.innerText = "尚未選擇";
-        groupLabel.classList.remove('text-white');
-    }
-    if (creditCheck) creditCheck.checked = false;
-    toggleCredit(false);
+    document.getElementById('acc-name').value = "";
+    document.getElementById('acc-balance').value = 0;
+    document.querySelector('.balance-display .value').innerText = "0";
+    const creditToggle = document.getElementById('is-credit');
+    if (creditToggle) creditToggle.checked = false;
 }
 
 /**
  * =========================================
- * 5. 資料渲染與統計計算 (對應照片樣式)
+ * 4. 資料渲染 (符合 App 質感)
  * =========================================
  */
 function render() {
@@ -145,26 +125,24 @@ function render() {
         return;
     }
 
-    // 依照帳戶進行渲染
     accounts.forEach(acc => {
+        // 計算資產與負債 (假設負數或勾選信用帳戶為負債邏輯，這裡簡化處理)
         if (acc.amount >= 0) totalAssets += acc.amount;
         else totalDebt += Math.abs(acc.amount);
-        
-        const colorClass = acc.amount >= 0 ? 'text-green' : 'text-red';
-        const displayAmount = (acc.amount >= 0 ? '+$' : '-$') + Math.abs(acc.amount).toLocaleString();
 
-        // 建立符合照片質感的列表行
-        const row = document.createElement('div');
-        row.className = 'group-item'; // 使用 CSS 中定義的 class
-        row.innerHTML = `
-            <span class="group-name">+ ${acc.name}</span>
-            <span class="group-value ${colorClass}">${displayAmount}</span>
+        const colorClass = acc.amount >= 0 ? 'text-green' : 'text-red';
+        
+        // 建立列表 HTML
+        const item = document.createElement('div');
+        item.className = 'group-item';
+        item.innerHTML = `
+            <span class="group-name">${acc.name}</span>
+            <span class="group-value ${colorClass}">$${Math.abs(acc.amount).toLocaleString()}</span>
         `;
-        list.appendChild(row);
+        list.appendChild(item);
     });
-    
+
     updateDashboard(totalAssets, totalDebt, (totalAssets - totalDebt));
-    lucide.createIcons();
 }
 
 function updateDashboard(assets, debt, total) {
@@ -172,12 +150,10 @@ function updateDashboard(assets, debt, total) {
     const assetEl = document.getElementById('asset-val');
     const debtEl = document.getElementById('debt-val');
 
-    if (totalEl) totalEl.innerText = total.toLocaleString();
+    if (totalEl) {
+        totalEl.innerText = total.toLocaleString();
+        totalEl.style.color = total >= 0 ? 'var(--green)' : 'var(--red)';
+    }
     if (assetEl) assetEl.innerText = assets.toLocaleString();
     if (debtEl) debtEl.innerText = debt.toLocaleString();
-
-    // 根據總額正負切換顏色
-    if (totalEl) {
-        totalEl.className = total >= 0 ? 'total-amount text-green' : 'total-amount text-red';
-    }
 }
