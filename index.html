@@ -53,6 +53,33 @@
             <h2 class="text-xl font-bold">帳戶總覽</h2>
             <i data-lucide="plus" class="w-7 h-7 text-gray-500 cursor-pointer" onclick="openAddPage()"></i>
         </div>
+        <nav class="tab-bar">
+    <div class="tab-item active" onclick="switchTab(this, 'page-list')">
+        <i data-lucide="wallet" class="tab-icon"></i>
+        <span class="tab-label">帳戶</span>
+    </div>
+
+    <div class="tab-item" onclick="alert('錢包功能開發中')">
+        <i data-lucide="credit-card" class="tab-icon"></i>
+        <span class="tab-label">錢包</span>
+    </div>
+
+    <div class="fab-wrapper" onclick="openAddPage()">
+        <div class="fab-diamond">
+            <i data-lucide="plus" class="fab-plus-icon"></i>
+        </div>
+    </div>
+
+    <div class="tab-item" onclick="alert('趨勢功能開發中')">
+        <i data-lucide="line-chart" class="tab-icon"></i>
+        <span class="tab-label">趨勢</span>
+    </div>
+
+    <div class="tab-item" onclick="alert('設定功能開發中')">
+        <i data-lucide="sliders-horizontal" class="tab-icon"></i>
+        <span class="tab-label">設定</span>
+    </div>
+</nav>
         
         <div class="text-center mb-8">
             <p class="text-[10px] text-gray-500 font-bold tracking-widest uppercase">總額 TWD</p>
