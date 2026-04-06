@@ -3,217 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Koin 記帳 - 專業版</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Koin記帳</title>
+    <link rel="stylesheet" href="css/style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-        
-        :root { 
-            --bg: #1c1c28; 
-            --card: #252538; 
-            --border: #32324d; 
-            --blue: #60a5fa; 
-            --purple: #a78bfa;
-            --text-main: #efefff;
-            --text-muted: #7e7e9a;
-            --red: #f16565;
-            --green: #a3e635;
-        }
-
-        body { 
-            background-color: black; 
-            font-family: 'Inter', -apple-system, sans-serif; 
-            color: var(--text-main); 
-            margin: 0; 
-            overflow: hidden; 
-        }
-
-        /* 手機容器佈局 */
-        .phone-container { 
-            width: 100%; 
-            max-width: 414px; 
-            height: 100vh; 
-            background: var(--bg); 
-            position: relative; 
-            margin: 0 auto; 
-            overflow: hidden; 
-            display: flex; 
-            flex-direction: column; 
-        }
-
-        /* 內容區域：預留底部導覽列高度 */
-        .content-area { 
-            flex: 1; 
-            overflow-y: auto; 
-            padding-bottom: 90px; 
-            position: relative; 
-        }
-
-        /* 頁面切換效果 */
-        .page { position: absolute; inset: 0; background: var(--bg); display: none; flex-direction: column; z-index: 10; }
-        .page.active { display: flex; }
-        .page-up { animation: slideUp 0.3s ease-out; z-index: 60; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-        /* 底部導覽列 (Tab Bar) */
-        .tab-bar { 
-            position: absolute; 
-            bottom: 0; left: 0; right: 0; 
-            height: 85px; 
-            background: rgba(37, 37, 56, 0.95); 
-            backdrop-filter: blur(10px);
-            border-top: 1px solid var(--border); 
-            display: flex; 
-            justify-content: space-around; 
-            align-items: center; 
-            z-index: 100; 
-            padding-bottom: env(safe-area-inset-bottom); 
-        }
-
-        .tab-item { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            color: var(--text-muted); 
-            cursor: pointer; 
-            transition: 0.2s; 
-            width: 20%;
-        }
-
-        .tab-item.active { color: var(--blue); }
-        .tab-label { font-size: 10px; margin-top: 4px; font-weight: 700; }
-
-        /* 中間菱形按鈕 (FAB) */
-        .fab-wrapper {
-            width: 20%;
-            display: flex;
-            justify-content: center;
-            position: relative;
-            top: -18px;
-        }
-
-        .fab-diamond { 
-            width: 56px; height: 56px; 
-            background: linear-gradient(135deg, var(--purple), var(--blue)); 
-            border-radius: 18px; 
-            transform: rotate(45deg); 
-            display: flex; align-items: center; justify-content: center; 
-            box-shadow: 0 8px 20px rgba(96, 165, 250, 0.3); 
-            transition: 0.1s;
-        }
-
-        .fab-diamond:active { transform: rotate(45deg) scale(0.9); }
-        .fab-icon { transform: rotate(-45deg); color: white; display: flex; align-items: center; justify-content: center; }
-
-        /* 元件樣式 */
-        .list-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid var(--border); }
-        .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.7); display: none; z-index: 110; }
-        .overlay.active { display: block; }
-        .sheet { position: absolute; bottom: 0; left: 0; right: 0; background: #2b2b3d; border-radius: 24px 24px 0 0; transform: translateY(100%); transition: transform 0.3s ease; z-index: 120; padding: 20px; }
-        .sheet.active { transform: translateY(0); }
-        
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-    </style>
 </head>
 <body>
+    <div class="phone-container">
+        <div id="overlay" class="overlay" onclick="closeAllSheets()"></div>
 
-<div class="phone-container">
-    <div id="overlay" class="overlay" onclick="closeAllSheets()"></div>
+        <div class="content-area no-scrollbar">
+            <div id="page-list" class="page active">
+                <div class="flex-header">
+                    <i data-lucide="eye" class="header-icon"></i>
+                    <h2 class="header-title">帳戶總覽</h2>
+                    <i data-lucide="plus" class="header-icon" onclick="openAddPage()"></i>
+                </div>
+                
+                <div class="dashboard">
+                    <p class="total-label">總額 TWD</p>
+                    <h1 id="total-val" class="total-amount">0</h1>
+                    <div class="stats-row">
+                        <span>資產 <span id="asset-val" class="text-green">0</span></span>
+                        <span>負債 <span id="debt-val" class="text-red">0</span></span>
+                    </div>
+                </div>
 
-    <div class="content-area no-scrollbar">
-        <div id="page-list" class="page active">
-            <div class="flex justify-between items-center p-6">
-                <i data-lucide="eye" class="w-6 h-6 text-gray-500"></i>
-                <h2 class="text-lg font-bold">帳戶總覽</h2>
-                <i data-lucide="scan-line" class="w-6 h-6 text-gray-500"></i>
+                <div id="main-list" class="account-list">
+                    <div class="empty-state">尚未建立帳戶</div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="tab-bar">
+            <div class="tab-item active" onclick="switchTab(this, 'page-list')">
+                <i data-lucide="wallet" class="tab-icon"></i>
+                <span class="tab-label"></span>
+            </div>
+            <div class="tab-item" onclick="alert('功能開發中')">
+                <i data-lucide="credit-card" class="tab-icon"></i>
+                <span class="tab-label"></span>
             </div>
             
-            <div class="text-center mb-8 px-6">
-                <p class="text-[10px] text-gray-500 font-bold tracking-widest uppercase">總額 TWD</p>
-                <h1 id="total-val" class="text-6xl font-black text-[#f16565] my-2">0</h1>
-                <div class="flex justify-center gap-6 text-[12px] font-bold">
-                    <span class="text-gray-400">資產 <span id="asset-val" class="text-emerald-400">0</span></span>
-                    <span class="text-gray-400">負債 <span id="debt-val" class="text-rose-400">0</span></span>
+            <div class="fab-wrapper" onclick="openAddPage()">
+                <div class="fab-diamond">
+                    <div class="fab-icon"><i data-lucide="plus"></i></div>
                 </div>
             </div>
 
-            <div id="main-list" class="flex-1 border-t border-[#32324d]">
-                <div class="p-20 text-center text-gray-600 italic">尚未建立帳戶</div>
+            <div class="tab-item" onclick="alert('功能開發中')">
+                <i data-lucide="line-chart" class="tab-icon"></i>
+                <span class="tab-label"></span>
             </div>
-        </div>
-    </div>
-
-    <nav class="tab-bar">
-        <div class="tab-item active" onclick="switchTab(this, 'page-list')">
-            <i data-lucide="wallet" class="w-6 h-6"></i>
-            <span class="tab-label">帳戶</span>
-        </div>
-        <div class="tab-item" onclick="alert('錢包功能開發中')">
-            <i data-lucide="credit-card" class="w-6 h-6"></i>
-            <span class="tab-label">錢包</span>
-        </div>
-        
-        <div class="fab-wrapper" onclick="openAddPage()">
-            <div class="fab-diamond">
-                <div class="fab-icon"><i data-lucide="plus" class="w-8 h-8"></i></div>
+            <div class="tab-item" onclick="alert('功能開發中')">
+                <i data-lucide="sliders-horizontal" class="tab-icon"></i>
+                <span class="tab-label"></span>
             </div>
-        </div>
-
-        <div class="tab-item" onclick="alert('趨勢功能開發中')">
-            <i data-lucide="line-chart" class="w-6 h-6"></i>
-            <span class="tab-label">趨勢</span>
-        </div>
-        <div class="tab-item" onclick="alert('設定功能開發中')">
-            <i data-lucide="sliders-horizontal" class="w-6 h-6"></i>
-            <span class="tab-label">設定</span>
-        </div>
-    </nav>
-
-    <div id="page-add" class="page page-up overflow-y-auto no-scrollbar">
-        <div class="flex justify-between items-center p-6 sticky top-0 bg-[#1c1c28] z-20">
-            <i data-lucide="x" class="w-8 h-8 cursor-pointer" onclick="closeAddPage()"></i>
-            <h2 class="text-lg font-bold">新增帳戶</h2>
-            <i data-lucide="check" class="w-8 h-8 text-blue-400 cursor-pointer" onclick="saveData()"></i>
-        </div>
-        <div class="p-6 text-center text-gray-500">表單內容請參照原先設定</div>
+        </nav>
     </div>
-</div>
-
-<script>
-    // 初始化圖示
-    lucide.createIcons();
-
-    function openAddPage() { 
-        document.getElementById('page-add').classList.add('active'); 
-    }
-    
-    function closeAddPage() { 
-        document.getElementById('page-add').classList.remove('active'); 
-    }
-
-    function switchTab(el, pageId) {
-        // 移除所有 Tab 的 active 狀態
-        document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-        // 為點擊的 Tab 加上 active
-        el.classList.add('active');
-        
-        // 顯示對應頁面 (目前僅實作帳戶頁)
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        const target = document.getElementById(pageId);
-        if(target) target.classList.add('active');
-    }
-
-    function closeAllSheets() {
-        document.getElementById('overlay').classList.remove('active');
-        document.querySelectorAll('.sheet').forEach(s => s.classList.remove('active'));
-    }
-
-    // 模擬存檔 (您可以自行補回原本的邏輯)
-    function saveData() {
-        alert("資料已儲存");
-        closeAddPage();
-    }
-</script>
+    <script src="js/script.js"></script>
 </body>
 </html>
