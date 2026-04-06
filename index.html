@@ -8,20 +8,23 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-        :root { --bg: #1c1c28; --card: #252538; --border: #32324d; --blue: #60a5fa; --green: #a3e635; }
+        :root { --bg: #1c1c28; --card: #252538; --border: #32324d; --blue: #60a5fa; --green: #a3e635; --red: #f16565; }
         body { background-color: black; font-family: 'Inter', sans-serif; color: white; margin: 0; overflow: hidden; }
         .phone-container { width: 100%; max-width: 414px; height: 100vh; background: var(--bg); position: relative; margin: 0 auto; overflow: hidden; }
         
+        /* 頁面與動畫 */
         .page { position: absolute; inset: 0; background: var(--bg); display: none; flex-direction: column; z-index: 10; }
         .page.active { display: flex; }
         .page-up { animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
+        /* 底部選單 */
         .sheet { position: absolute; bottom: 0; left: 0; right: 0; background: #2b2b3d; border-radius: 2rem 2rem 0 0; transform: translateY(100%); transition: transform 0.3s ease; z-index: 50; max-height: 70%; overflow-y: auto; }
         .sheet.active { transform: translateY(0); }
         .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: none; z-index: 40; }
         .overlay.active { display: block; }
 
+        /* Switch 樣式 */
         .switch { position: relative; display: inline-block; width: 42px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #3f3f5a; transition: .3s; border-radius: 24px; }
@@ -29,12 +32,13 @@
         input:checked + .slider { background-color: var(--blue); }
         input:checked + .slider:before { transform: translateX(18px); }
 
-        #credit-sub-menu { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; }
+        /* 展開動畫 */
+        #credit-sub-menu { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; background: rgba(255,255,255,0.02); }
         #credit-sub-menu.show { max-height: 600px; }
 
         .list-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid var(--border); cursor: pointer; }
         .label-text { font-size: 14px; font-weight: 600; color: #efefff; }
-        .value-text { font-size: 13px; color: #7e7e9a; display: flex; align-items: center; gap: 4px; }
+        .value-text { font-size: 14px; color: #7e7e9a; display: flex; align-items: center; gap: 4px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
@@ -49,7 +53,19 @@
             <h2 class="text-xl font-bold">帳戶總覽</h2>
             <i data-lucide="plus" class="w-7 h-7 text-gray-500 cursor-pointer" onclick="openAddPage()"></i>
         </div>
-        <div id="main-list" class="flex-1 overflow-y-auto no-scrollbar border-t border-[#32324d] p-10 text-center text-gray-600 italic">點擊 + 新增帳戶</div>
+        
+        <div class="text-center mb-8">
+            <p class="text-[10px] text-gray-500 font-bold tracking-widest uppercase">總額 TWD</p>
+            <h1 id="total-val" class="text-7xl font-black text-[#f16565] my-2">0</h1>
+            <div class="flex justify-center gap-6 text-[12px] font-bold">
+                <span class="text-gray-500">資產 <span id="asset-val" class="text-emerald-400">0</span></span>
+                <span class="text-gray-500">負債 <span id="debt-val" class="text-rose-400">0</span></span>
+            </div>
+        </div>
+
+        <div id="main-list" class="flex-1 overflow-y-auto no-scrollbar border-t border-[#32324d]">
+            <div class="p-20 text-center text-gray-600 italic">尚未建立帳戶</div>
+        </div>
     </div>
 
     <div id="page-add" class="page page-up overflow-y-auto no-scrollbar">
@@ -61,99 +77,155 @@
 
         <div class="flex flex-col items-center py-4">
             <div class="w-20 h-20 bg-[#252538] rounded-full flex items-center justify-center mb-4 border border-[#32324d]">
-                <i data-lucide="credit-card" class="w-10 h-10 text-white/80"></i>
+                <i data-lucide="landmark" class="w-10 h-10 text-white/80"></i>
             </div>
             <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">餘額 TWD</p>
-            <h1 id="preview-amt" class="text-6xl font-black text-[#a3e635] mt-1">0</h1>
+            <h1 id="preview-amt" class="text-6xl font-black text-emerald-400 mt-1">0</h1>
         </div>
 
-        <div class="mt-4 pb-10">
-            <div class="list-row" onclick="document.getElementById('f-name').focus()">
+        <div class="mt-4 pb-20">
+            <div class="list-row" onclick="document.getElementById('field-name').focus()">
                 <span class="label-text">名稱</span>
-                <input id="f-name" type="text" placeholder="尚未設定" class="bg-transparent text-right outline-none text-sm text-white w-40">
+                <input id="field-name" type="text" placeholder="尚未設定" class="bg-transparent text-right outline-none text-sm text-white w-40">
             </div>
 
             <div class="list-row" onclick="openSheet('sheet-group')">
                 <span class="label-text">帳戶分組</span>
-                <div class="value-text"><span id="val-group">現金</span><i data-lucide="chevron-right" class="w-4 h-4"></i></div>
+                <div class="value-text"><span id="val-group">尚未選擇</span><i data-lucide="chevron-right" class="w-4 h-4"></i></div>
             </div>
 
-            <div class="list-row" onclick="document.getElementById('f-amount').focus()">
+            <div class="list-row" onclick="document.getElementById('field-amount').focus()">
                 <span class="label-text">初始金額</span>
-                <input id="f-amount" type="number" value="0" oninput="document.getElementById('preview-amt').innerText=this.value" class="bg-transparent text-right outline-none text-sm text-white w-32 font-mono">
-            </div>
-
-            <div class="list-row" onclick="openSheet('sheet-cycle')">
-                <span class="label-text">帳單週期</span>
-                <div class="value-text"><span id="display-cycle">2026/03/01 – 2026/03/31</span><i data-lucide="chevron-right" class="w-4 h-4"></i></div>
+                <input id="field-amount" type="number" value="0" oninput="document.getElementById('preview-amt').innerText=this.value" class="bg-transparent text-right outline-none text-sm text-white w-32 font-mono">
             </div>
 
             <div class="list-row">
                 <span class="label-text">信用帳戶</span>
-                <label class="switch"><input type="checkbox" id="f-credit" onchange="document.getElementById('credit-sub-menu').classList.toggle('show', this.checked)"><span class="slider"></span></label>
+                <label class="switch">
+                    <input type="checkbox" id="field-is-credit" onchange="toggleCredit(this.checked)">
+                    <span class="slider"></span>
+                </label>
             </div>
 
             <div id="credit-sub-menu">
-                <div class="list-row"><span class="label-text text-blue-400 pl-4">信用額度</span><input type="number" placeholder="0" class="bg-transparent text-right outline-none text-sm text-white w-32"></div>
-                <div class="list-row"><span class="label-text text-blue-400 pl-4">自動扣繳</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                <div class="list-row" onclick="openSheet('sheet-cycle')">
+                    <span class="label-text text-blue-400 pl-4">繳款期限 (週期)</span>
+                    <div class="value-text"><span id="val-cycle">每月 1 號</span><i data-lucide="chevron-right" class="w-4 h-4"></i></div>
+                </div>
+                <div class="list-row">
+                    <span class="label-text text-blue-400 pl-4">信用額度</span>
+                    <input id="field-limit" type="number" placeholder="0" class="bg-transparent text-right outline-none text-sm text-white w-32 font-mono">
+                </div>
+                <div class="list-row">
+                    <span class="label-text text-blue-400 pl-4">額度共用 / 主帳戶</span>
+                    <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+                </div>
+                <div class="list-row">
+                    <span class="label-text text-blue-400 pl-4">自動扣繳</span>
+                    <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+                </div>
             </div>
 
             <div class="list-row">
                 <span class="label-text">納入總餘額</span>
-                <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                <label class="switch">
+                    <input type="checkbox" id="field-include" checked>
+                    <span class="slider"></span>
+                </label>
             </div>
         </div>
     </div>
 
-    <div id="sheet-cycle" class="sheet p-6">
-        <h3 class="text-center text-gray-500 text-xs font-bold mb-6 tracking-widest">選擇結帳日</h3>
-        <div class="grid grid-cols-5 gap-2">
-            <script>
-                for(let i=1; i<=31; i++) {
-                    document.write(`<button onclick="updateCycle(${i})" class="p-3 text-center bg-white/5 rounded-lg text-xs hover:bg-blue-500/20">${i}</button>`);
-                }
-            </script>
+    <div id="sheet-group" class="sheet p-6">
+        <h3 class="text-center text-gray-500 text-xs font-bold mb-6">選擇帳戶分組</h3>
+        <div class="grid gap-2">
+            <button onclick="setVal('group', '現金')" class="p-4 text-left bg-white/5 rounded-xl text-sm">現金</button>
+            <button onclick="setVal('group', '銀行')" class="p-4 text-left bg-white/5 rounded-xl text-sm">銀行</button>
+            <button onclick="setVal('group', '數位銀行')" class="p-4 text-left bg-white/5 rounded-xl text-sm">數位銀行</button>
+            <button onclick="setVal('group', '其他')" class="p-4 text-left bg-white/5 rounded-xl text-sm">其他</button>
         </div>
     </div>
 
-    <div id="sheet-group" class="sheet p-6">
-        <h3 class="text-center text-gray-500 text-xs font-bold mb-6">選擇分組</h3>
-        <div class="space-y-2">
-            <button onclick="setGroup('現金')" class="w-full p-4 text-left bg-white/5 rounded-xl text-sm">現金</button>
-            <button onclick="setGroup('銀行')" class="w-full p-4 text-left bg-white/5 rounded-xl text-sm">銀行</button>
-            <button onclick="setGroup('信用卡')" class="w-full p-4 text-left bg-white/5 rounded-xl text-sm">信用卡</button>
+    <div id="sheet-cycle" class="sheet p-6">
+        <h3 class="text-center text-gray-500 text-xs font-bold mb-6">選擇結帳日</h3>
+        <div class="grid grid-cols-5 gap-2">
+            <script>
+                for(let i=1; i<=31; i++) {
+                    document.write(`<button onclick="setVal('cycle', '每月 ${i} 號')" class="p-2 text-center bg-white/5 rounded-lg text-xs">${i}</button>`);
+                }
+            </script>
         </div>
     </div>
 </div>
 
 <script>
     lucide.createIcons();
+    let accounts = [];
 
     function openAddPage() { document.getElementById('page-add').classList.add('active'); }
     function closeAddPage() { document.getElementById('page-add').classList.remove('active'); }
     function openSheet(id) { document.getElementById('overlay').classList.add('active'); document.getElementById(id).classList.add('active'); }
     function closeAllSheets() { document.getElementById('overlay').classList.remove('active'); document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('active')); }
     
-    function setGroup(val) { document.getElementById('val-group').innerText = val; closeAllSheets(); }
-
-    // 自動計算日期區間
-    function updateCycle(day) {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = now.getMonth() + 1;
-        
-        // 格式化日期為 YYYY/MM/DD
-        const start = `${year}/${String(month).padStart(2,'0')}/01`;
-        const end = `${year}/${String(month).padStart(2,'0')}/${String(day).padStart(2,'0')}`;
-        
-        document.getElementById('display-cycle').innerText = `${start} – ${end}`;
-        document.getElementById('display-cycle').classList.add('text-white');
+    function setVal(type, val) {
+        document.getElementById('val-' + type).innerText = val;
+        document.getElementById('val-' + type).classList.add('text-white');
         closeAllSheets();
     }
 
+    function toggleCredit(show) {
+        document.getElementById('credit-sub-menu').classList.toggle('show', show);
+    }
+
     function saveData() {
-        alert("帳戶已儲存！");
+        const name = document.getElementById('field-name').value || "未命名";
+        const group = document.getElementById('val-group').innerText;
+        const amount = parseFloat(document.getElementById('field-amount').value) || 0;
+        const include = document.getElementById('field-include').checked;
+
+        if(group === "尚未選擇") return alert("請選擇分組");
+
+        accounts.push({ name, group, amount, include });
+        render();
         closeAddPage();
+        // 重置
+        document.getElementById('field-name').value = "";
+        document.getElementById('field-amount').value = 0;
+        document.getElementById('val-group').innerText = "尚未選擇";
+    }
+
+    function render() {
+        const list = document.getElementById('main-list');
+        list.innerHTML = "";
+        let assets = 0, debt = 0;
+
+        accounts.forEach(acc => {
+            if(acc.include) {
+                if(acc.amount >= 0) assets += acc.amount;
+                else debt += Math.abs(acc.amount);
+            }
+            list.innerHTML += `
+                <div class="flex justify-between items-center p-5 border-b border-[#32324d]">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
+                            <i data-lucide="wallet" class="w-4 h-4 text-gray-400"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold">${acc.name}</p>
+                            <p class="text-[10px] text-gray-500 uppercase">${acc.group}</p>
+                        </div>
+                    </div>
+                    <p class="font-mono font-bold ${acc.amount >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
+                        ${acc.amount.toLocaleString()}
+                    </p>
+                </div>
+            `;
+        });
+        
+        document.getElementById('asset-val').innerText = assets.toLocaleString();
+        document.getElementById('debt-val').innerText = debt.toLocaleString();
+        document.getElementById('total-val').innerText = (assets - debt).toLocaleString();
+        lucide.createIcons();
     }
 </script>
 </body>
