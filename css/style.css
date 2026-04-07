@@ -12,6 +12,7 @@
     --green: #a3e635;
     --red: #f16565;
     --tab-bg: rgba(20, 20, 31, 0.95);
+    --modal-bg: #252538;
 }
 
 * {
@@ -80,7 +81,6 @@ body, html {
     display: flex;
     align-items: center;
     gap: 5px;
-    color: #FFFFFF;
 }
 
 .page {
@@ -142,7 +142,6 @@ body, html {
     display: flex;
     align-items: center;
     gap: 4px;
-    color: #FFFFFF;
 }
 
 .chart-section {
@@ -170,7 +169,6 @@ body, html {
     background: #2a2a3c;
     padding: 4px 12px;
     border-radius: 8px;
-    color: #FFFFFF;
 }
 
 .group-item {
@@ -181,7 +179,7 @@ body, html {
 }
 
 /* =========================================
-   5. 表單元件強化 (帳單週期選單與日期選擇器)
+   5. 表單元件與自定義選擇器 (重要)
    ========================================= */
 .form-group { padding: 0 20px; }
 
@@ -191,50 +189,80 @@ body, html {
     align-items: center;
     padding: 16px 0;
     border-bottom: 1px solid rgba(255,255,255,0.05);
+    cursor: pointer;
 }
 
 .form-row label { 
     font-size: 15px; 
     font-weight: 600; 
-    color: #FFFFFF;
 }
 
-/* 統一表單輸入、下拉選單、日期選擇器樣式 */
 .form-row input, 
 .form-row select,
-.form-row .text-muted {
+.form-row span {
     background: transparent;
     border: none;
     color: #FFFFFF;
     text-align: right;
     font-size: 15px;
     outline: none;
-    appearance: none; /* 移除原生下拉箭頭 */
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* 自定義滑桿樣式 (帳單週期專用) */
+input[type="range"] {
     -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: #39394d;
+    border-radius: 5px;
+    outline: none;
+    margin: 20px 0;
 }
 
-/* 下拉選單特別處理：讓內容靠右 */
-select.form-select {
-    direction: rtl;
-    padding-right: 5px;
-}
-
-/* 日期選擇器特別處理 */
-input[type="date"].form-date {
-    direction: rtl;
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 26px;
+    height: 26px;
+    background: #fff;
+    border-radius: 50%;
     cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
 }
 
-/* 修正 iOS/Chrome 的日期圖示顏色 */
-input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(1); 
-    opacity: 0.7;
-    margin-left: 8px;
+/* 類型選擇按鈕 (繳款期限專用) */
+.option-btn {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 12px;
+    border-radius: 14px;
+    background: #39394d;
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    font-size: 15px;
+    transition: background 0.2s, transform 0.1s;
 }
 
-/* 佔位符文字顏色 */
-::placeholder {
-    color: rgba(255, 255, 255, 0.4); 
+.option-btn:active {
+    background: #4a4a63;
+    transform: scale(0.98);
+}
+
+/* 驚嘆號圖示框 */
+.icon-circle {
+    width: 50px;
+    height: 50px;
+    background: #39394d;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+    font-size: 24px;
+    font-weight: bold;
 }
 
 /* =========================================
@@ -271,11 +299,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     background: rgba(0,0,0,0.7);
     display: flex; align-items: center; justify-content: center;
     z-index: 200;
+    backdrop-filter: blur(4px);
 }
 
 .modal-content {
-    background: #252538; width: 85%; border-radius: 24px;
-    overflow: hidden; color: #FFFFFF;
+    background: var(--modal-bg); 
+    width: 85%; 
+    border-radius: 24px;
+    overflow: hidden; 
+    color: #FFFFFF;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.1);
 }
 
 .modal-header {
@@ -288,17 +322,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
-.option-item:active { background: var(--blue); }
+.option-item:active { background: rgba(90, 200, 250, 0.2); }
 
 .modal-footer { display: flex; border-top: 1px solid var(--border); }
 .modal-footer button {
     flex: 1; padding: 15px; background: transparent; border: none;
-    color: #FFFFFF; font-size: 15px;
+    color: #FFFFFF; font-size: 15px; cursor: pointer;
 }
 .btn-confirm { color: var(--blue) !important; font-weight: 700; border-left: 1px solid var(--border) !important; }
 
 /* =========================================
-   7. 底部導覽列
+   7. 底部導覽列與開關
    ========================================= */
 .tab-bar {
     position: absolute; bottom: 0; width: 100%; height: 85px;
@@ -324,7 +358,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .fab-inner { transform: rotate(-45deg); color: white; }
 
 /* iOS Switch 開關 */
-.switch { position: relative; width: 46px; height: 26px; }
+.switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
 .switch input { opacity: 0; width: 0; height: 0; }
 .slider {
     position: absolute; cursor: pointer; inset: 0;
@@ -343,4 +377,4 @@ input:checked + .slider:before { transform: translateX(20px); }
 .text-red { color: var(--red) !important; }
 .text-muted { color: var(--text-muted) !important; }
 .text-right { text-align: right; }
-.s-icon { width: 18px; height: 18px; vertical-align: middle; color: #FFFFFF; }
+.s-icon { width: 18px; height: 18px; vertical-align: middle; color: inherit; }
