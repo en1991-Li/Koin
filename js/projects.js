@@ -2,13 +2,13 @@
  * 專案總覽渲染邏輯
  */
 
-// 1. 模擬專案數據
+// 1.專案數據
 const projectData = [
     { name: "生活開銷", icon: "glass-water", date: "26/03/01 － 26/03/31", amount: 0, type: 'expense' },
     { name: "投資理財", icon: "trending-up", date: "26/03/01 － 26/03/31", amount: 0, type: 'neutral' },
     { name: "工作", icon: "briefcase", date: "26/03/01 － 26/03/31", amount: 0, type: 'neutral' },
     { name: "玩樂", icon: "film", date: "26/03/01 － 26/03/31", amount: 0, type: 'income' },
-    { name: "旅遊", icon: "airplane", date: "26/03/01 － 26/03/31", amount: 0, type: 'neutral' },
+    { name: "旅遊", icon: "palmtree", date: "26/03/01 － 26/03/31", amount: 0, type: 'neutral' },
     { name: "家用", icon: "users", date: "26/03/01 － 26/03/31", amount: 0, type: 'neutral' },
     { name: "每月統計", icon: "calendar-days", date: "26/03/01 － 26/03/31", amount: 0, type: 'expense', isStats: true },
     { name: "學習", icon: "pen-tool", date: "26/03/01 － 26/03/31", amount: 0, type: 'neutral' }
