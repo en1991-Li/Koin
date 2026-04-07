@@ -240,9 +240,27 @@
         lucide.createIcons();
 
         function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-        }
+    // 1. 切換頁面顯示
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById(pageId);
+    if (target) target.classList.add('active');
+
+    // 2. 更新導覽列圖示顏色
+    const tabs = document.querySelectorAll('.tab-bar .tab-item');
+    tabs.forEach(tab => tab.classList.remove('active'));
+
+    if (pageId === 'page-overview') tabs[0].classList.add('active');
+    if (pageId === 'page-projects') tabs[1].classList.add('active');
+    
+    // 3. 處理中間按鈕的特殊狀態 (如果需要)
+    const fab = document.querySelector('.tab-fab');
+    if (pageId === 'page-calendar') {
+        fab.style.opacity = "1";
+    } else {
+        fab.style.opacity = "0.9";
+    }
+}
+
 
         function closeModal(id) {
             document.getElementById(id).style.display = 'none';
