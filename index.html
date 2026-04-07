@@ -186,11 +186,42 @@
         </div>
 </section>
 
-<nav class="tab-bar">
-    <div class="tab-item" onclick="showPage('page-overview')"><i data-lucide="archive"></i></div>
-    <div class="tab-item"><i data-lucide="wallet"></i></div>
+<style>
+    /* ... 你原本的樣式 ... */
     
-    <div class="tab-fab" onclick="showPage('page-calendar')"> <div class="fab-inner">
+    /* 圓形按鈕與導覽列啟動狀態 */
+    .tab-item.active { color: #5d5dff; }
+    
+    .tab-fab {
+        bottom: 20px !important;
+    }
+    .fab-inner {
+        border-radius: 50% !important;
+        transform: none !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135.47deg, #A16CFD 15.05%, #6E88F9 52.81%, #45B6F5 85.55%) !important;
+        box-shadow: 0 4px 15px rgba(93, 93, 255, 0.4);
+        width: 56px;
+        height: 56px;
+    }
+    .fab-inner i {
+        transform: none !important;
+        color: white;
+    }
+</style>
+
+<nav class="tab-bar">
+    <div class="tab-item active" onclick="showPage('page-overview')">
+        <i data-lucide="archive"></i>
+    </div>
+    <div class="tab-item" onclick="showPage('page-projects')">
+        <i data-lucide="wallet"></i>
+    </div>
+    
+    <div class="tab-fab" onclick="showPage('page-calendar')"> 
+        <div class="fab-inner">
             <i data-lucide="layers"></i>
         </div>
     </div>
@@ -198,6 +229,7 @@
     <div class="tab-item"><i data-lucide="trending-up"></i></div>
     <div class="tab-item"><i data-lucide="sliders-horizontal"></i></div>
 </nav>
+
 
 <script src="js/projects.js"></script>       
 <script src="js/calendar.js"></script>
