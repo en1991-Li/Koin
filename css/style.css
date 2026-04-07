@@ -18,7 +18,7 @@
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    color: var(--text-main); /* 預設全域文字為白色 */
+    color: var(--text-main);
 }
 
 body, html {
@@ -100,7 +100,7 @@ body, html {
 }
 
 /* =========================================
-   4. 帳戶總覽樣式 (IMG_1144)
+   4. 帳戶總覽樣式
    ========================================= */
 .balance-hero {
     text-align: center;
@@ -180,46 +180,9 @@ body, html {
     border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
-.group-item span {
-    color: #FFFFFF; /* 確保現金、銀行等清單文字為白色 */
-}
-
 /* =========================================
-   5. 新增帳戶與表單 (IMG_1146, 1156)
+   5. 表單元件強化 (帳單週期選單與日期選擇器)
    ========================================= */
-.add-acc-hero {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-}
-
-.icon-box {
-    width: 65px;
-    height: 65px;
-    background: linear-gradient(135deg, #3a3a55, #252538);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--border);
-    margin-bottom: 15px;
-}
-
-.hero-balance { text-align: center; }
-.hero-balance .val { font-size: 52px; font-weight: 900; }
-
-.memo-field {
-    background: transparent;
-    border: none;
-    color: #FFFFFF; /* 備註輸入文字改為白色 */
-    font-size: 14px;
-    text-align: center;
-    width: 100%;
-    margin-top: 10px;
-    outline: none;
-}
-
 .form-group { padding: 0 20px; }
 
 .form-row {
@@ -233,28 +196,132 @@ body, html {
 .form-row label { 
     font-size: 15px; 
     font-weight: 600; 
-    color: #FFFFFF; /* 標籤文字為白色 */
+    color: #FFFFFF;
 }
 
-.form-row input, .form-row span {
+/* 統一表單輸入、下拉選單、日期選擇器樣式 */
+.form-row input, 
+.form-row select,
+.form-row .text-muted {
     background: transparent;
     border: none;
-    color: #FFFFFF; /* 輸入數值或選擇內容為白色 */
+    color: #FFFFFF;
     text-align: right;
     font-size: 15px;
     outline: none;
+    appearance: none; /* 移除原生下拉箭頭 */
+    -webkit-appearance: none;
 }
 
-/* 佔位符文字顏色 (Placeholder) */
-input::placeholder {
+/* 下拉選單特別處理：讓內容靠右 */
+select.form-select {
+    direction: rtl;
+    padding-right: 5px;
+}
+
+/* 日期選擇器特別處理 */
+input[type="date"].form-date {
+    direction: rtl;
+    cursor: pointer;
+}
+
+/* 修正 iOS/Chrome 的日期圖示顏色 */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1); 
+    opacity: 0.7;
+    margin-left: 8px;
+}
+
+/* 佔位符文字顏色 */
+::placeholder {
     color: rgba(255, 255, 255, 0.4); 
 }
 
-/* 信用帳戶子欄位縮排 */
-.sub-row {
-    padding-left: 25px !important;
-    background: rgba(255,255,255,0.02);
+/* =========================================
+   6. 帳戶與彈窗樣式
+   ========================================= */
+.add-acc-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
 }
+
+.icon-box {
+    width: 65px; height: 65px;
+    background: linear-gradient(135deg, #3a3a55, #252538);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border);
+    margin-bottom: 15px;
+}
+
+.hero-balance { text-align: center; }
+.hero-balance .val { font-size: 52px; font-weight: 900; }
+
+.memo-field {
+    background: transparent; border: none; color: #FFFFFF;
+    font-size: 14px; text-align: center; width: 100%;
+    margin-top: 10px; outline: none;
+}
+
+/* 彈窗樣式 */
+.modal-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200;
+}
+
+.modal-content {
+    background: #252538; width: 85%; border-radius: 24px;
+    overflow: hidden; color: #FFFFFF;
+}
+
+.modal-header {
+    padding: 18px; text-align: center; font-weight: 700;
+    border-bottom: 1px solid var(--border);
+}
+
+.option-item {
+    padding: 16px; text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.option-item:active { background: var(--blue); }
+
+.modal-footer { display: flex; border-top: 1px solid var(--border); }
+.modal-footer button {
+    flex: 1; padding: 15px; background: transparent; border: none;
+    color: #FFFFFF; font-size: 15px;
+}
+.btn-confirm { color: var(--blue) !important; font-weight: 700; border-left: 1px solid var(--border) !important; }
+
+/* =========================================
+   7. 底部導覽列
+   ========================================= */
+.tab-bar {
+    position: absolute; bottom: 0; width: 100%; height: 85px;
+    background: var(--tab-bg);
+    backdrop-filter: blur(15px);
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-around; align-items: center;
+    padding-bottom: 20px; z-index: 100;
+}
+
+.tab-item { color: var(--text-muted); font-size: 24px; cursor: pointer; }
+.tab-item.active { color: var(--blue); }
+
+.tab-fab {
+    width: 55px; height: 55px;
+    background: linear-gradient(135deg, #a78bfa, #5ac8fa);
+    transform: translateY(-20px) rotate(45deg);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 15px rgba(90, 200, 250, 0.4);
+}
+
+.fab-inner { transform: rotate(-45deg); color: white; }
 
 /* iOS Switch 開關 */
 .switch { position: relative; width: 46px; height: 26px; }
@@ -270,87 +337,10 @@ input::placeholder {
 input:checked + .slider { background-color: var(--blue); }
 input:checked + .slider:before { transform: translateX(20px); }
 
-/* =========================================
-   6. 帳戶分組選擇彈窗 (IMG_1155)
-   ========================================= */
-.modal-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 200;
-}
-
-.modal-content {
-    background: #252538;
-    width: 85%;
-    border-radius: 24px;
-    overflow: hidden;
-    color: #FFFFFF;
-}
-
-.modal-header {
-    padding: 18px;
-    text-align: center;
-    font-weight: 700;
-    border-bottom: 1px solid var(--border);
-    color: #FFFFFF;
-}
-
-.option-item {
-    padding: 16px;
-    text-align: center;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    color: #FFFFFF;
-    font-size: 16px;
-}
-
-.option-item:active { background: var(--blue); }
-
-.modal-footer { display: flex; border-top: 1px solid var(--border); }
-.modal-footer button {
-    flex: 1; padding: 15px; background: transparent; border: none;
-    color: #FFFFFF; font-size: 15px;
-}
-.btn-confirm { color: var(--blue) !important; font-weight: 700; border-left: 1px solid var(--border) !important; }
-
-/* =========================================
-   7. 底部 Tab Bar 與 鑽石按鈕
-   ========================================= */
-.tab-bar {
-    position: absolute;
-    bottom: 0; width: 100%; height: 85px;
-    background: var(--tab-bg);
-    backdrop-filter: blur(15px);
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding-bottom: 20px;
-    z-index: 100;
-}
-
-.tab-item { color: var(--text-muted); font-size: 24px; cursor: pointer; }
-.tab-item.active { color: var(--blue); }
-
-.tab-fab {
-    width: 55px; height: 55px;
-    background: linear-gradient(135deg, #a78bfa, #5ac8fa);
-    transform: translateY(-20px) rotate(45deg);
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 15px rgba(90, 200, 250, 0.4);
-}
-
-.fab-inner { transform: rotate(-45deg); color: white; }
-
 /* 工具類 */
+.sub-row { padding-left: 25px !important; background: rgba(255,255,255,0.02); }
 .text-green { color: var(--green) !important; }
 .text-red { color: var(--red) !important; }
-.text-muted { color: var(--text-muted); }
+.text-muted { color: var(--text-muted) !important; }
 .text-right { text-align: right; }
 .s-icon { width: 18px; height: 18px; vertical-align: middle; color: #FFFFFF; }
