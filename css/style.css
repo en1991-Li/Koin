@@ -370,6 +370,104 @@ input[type="range"]::-webkit-slider-thumb {
     height: 28px;
     color: white;
 }
+/* =========================================
+   復刻日曆專用樣式
+   ========================================= */
+
+/* 日曆容器 */
+.calendar-replicant {
+    background-color: #1a1b25; /* 深色背景 */
+    padding: 15px;
+    margin-bottom: 10px;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* 標題與月份行 */
+.calendar-replicant-header {
+    margin-bottom: 15px;
+}
+
+.replicant-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#replicant-selected-date {
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.replicant-icon-group {
+    display: flex;
+    gap: 15px;
+    color: #fff;
+}
+
+/* 星期列 */
+.replicant-weekdays {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 15px;
+    color: #8e8e93; /* 淺灰色 */
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.replicant-weekdays span {
+    width: 40px;
+    text-align: center;
+}
+
+/* 日期網格 */
+.replicant-days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    justify-items: center;
+}
+
+/* 單個日期樣式 */
+.replicant-day {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+/* 當月日期，週日特別顯色 */
+.replicant-day.current-month.sunday {
+    color: #ff3b30; /* 紅色 */
+}
+
+/* 非當月日期 */
+.replicant-day.prev-month,
+.replicant-day.next-month {
+    color: #3a3a4c; /* 很深的灰色 */
+}
+
+/* 滑鼠懸停效果 (選配，模擬手機點擊感) */
+.replicant-day.current-month:not(.selected):hover {
+    background-color: rgba(255,255,255,0.05);
+    border-radius: 50%;
+}
+
+/* **選取狀態樣式** (復刻圖片的核心) */
+.replicant-day.selected {
+    color: #fff !important;
+    background-color: transparent; /* 圓圈內部透明 */
+    border: 2px solid #5ac8fa; /* 復刻圖片的亮藍色圓圈 */
+    border-radius: 50%;
+}
+
 
 
 /* iOS Switch 開關 */
