@@ -165,6 +165,7 @@
                 <div class="modal-footer"><button onclick="closeModal('due-date-type-modal')">取消</button></div>
             </div>
         </div>
+        
         <section id="page-projects" class="page">
     <header class="nav-header">
         <div style="width: 24px;"></div> <h1 class="page-title">專案總覽</h1>
@@ -172,27 +173,27 @@
     </header>
     <div class="content-scroll no-scrollbar" id="projects-list-container">
         </div>
-</section>
 <section id="page-calendar" class="page">
     <header class="nav-header">
-        <i data-lucide="bell-dot" class="s-icon"></i> 
-        <h1 class="page-title" id="calendar-header-title">2026/04</h1>
+        <i data-lucide="bell" class="s-icon"></i> 
+        <h1 class="page-title" id="full-calendar-month">2026/04</h1>
         <div style="display: flex; gap: 15px;">
-            <i data-lucide="calendar" class="s-icon"></i>
+            <i data-lucide="calendar-range" class="s-icon"></i>
             <i data-lucide="search" class="s-icon"></i>
         </div>
     </header>
 
-    <div class="calendar-strip-container">
-        <div class="calendar-strip" id="fab-calendar-strip">
+    <div class="calendar-full-container">
+        <div class="calendar-grid-header">
+            <span>週日</span><span>週一</span><span>週二</span><span>週三</span><span>週四</span><span>週五</span><span>週六</span>
+        </div>
+        <div class="calendar-grid-body" id="full-calendar-grid">
             </div>
-    </div>
-
-    <div class="content-scroll no-scrollbar" style="text-align: center; padding-top: 50px; color: #444;">
-        <i data-lucide="calendar-check" style="width: 48px; height: 48px; margin-bottom: 10px; opacity: 0.2;"></i>
-        <p style="font-size: 14px; opacity: 0.5;">請選擇日期查看記錄</p>
+        
+        <div class="calendar-footer-line"></div>
     </div>
 </section>
+
 
 
 
