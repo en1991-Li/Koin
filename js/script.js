@@ -152,3 +152,120 @@ function handleAccountSubmit() {
     alert("帳戶已儲存");
     showPage('page-overview');
 }
+
+// =========================================
+// 復刻日曆選取與渲染邏輯
+// =========================================
+
+// 初始化：生成 2026/04 的日曆
+document.addEventListener('DOMContentLoaded', () => {
+    // 預設日期設定為 2026 年 4 月 8 日 (對應 image_3.png)
+    const initialDate = new Date(2026, 3, 8); // 注意：月份從 0 開始，3 代表 4 月
+    renderReplicatedCalendar(initialDate);
+});
+
+// 通用頁面切換 (你原本就有的，保持不變)
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+}
+
+/**
+ * 渲染復刻版日曆
+ * @param {Date} date - 當前要顯示月份的任意一天
+ */
+function renderReplicatedCalendar(date) {
+    const gridContainer = document.getElementById('replicant-days-grid');
+    const selectedDateDisplay = document.getElementById('replicant-selected-date');
+    if (!gridContainer || !selectedDateDisplay) return;
+
+    // 清空舊內容
+    gridContainer.innerHTML = '';
+
+    const year = date.getFullYear();
+    const month = date.getMonth();
+
+    // 更新顯示的日期標題 (格式為 2026/04/xx)
+    const formattedSelectedDay = date.getDate().toString().padStart(2, '0');
+    selectedDateDisplay.innerText = `${year}/${(month + 1).toString().padStart(2, '0')}/${formattedSelectedDay}`;
+
+    // 獲取當月第一天是星期幾 (0=週日)
+    const firstDayIndex = new Date(year, month, 1).getDay();
+
+    // 獲取當月總天數
+    const lastDay = new Date(year, month + 1, 0).getDate();
+
+    // 獲取上月最後一天日期
+    const prevLastDay = new Date(year, month, 0).getDate();
+
+    // 1. 生成上個月的剩餘日子 (淺灰色)
+    for (let i = firstDayIndex; i > 0; i--) {
+        const daySpan = document.createElement('span');
+        daySpan.classList.add('replicant-day', 'prev-month');
+        daySpan.innerText = (prevLastDay - i + 1).toString().padStart(2, '0');
+        gridContainer.appendChild(daySpan);
+    }
+
+    // 2. 生成當月日期
+    for (let i = 1; i <= lastDay; i++) {
+        const daySpan = document.createElement('span');
+        daySpan.classList.add('replicant-day', 'current-month');
+        
+        // 格式化日期 (補零)
+        const formattedDay = i.toString().padStart(2, '0');
+        daySpan.innerText = formattedDay;
+
+        // 判斷是否為週日，應用紅色
+        const currentCheckDate = new Date(year, month, i);
+        if (currentCheckDate.getDay() === 0) {
+            daySpan.classList.add('sunday');
+        }
+
+        // **判斷是否為選取日期** (復刻 image_3.png 至 image_10.png 的選取效果)
+        // 這裡預設將 date 參數傳入的那天設為選取
+        if (i === date.getDate()) {
+            daySpan.classList.add('selected');
+        }
+
+        // 綁定點擊事件，處理選取與更新標題
+        daySpan.addEventListener('click', () => {
+            handleDaySelection(daySpan, year, month, i);
+        });
+
+        gridContainer.appendChild(daySpan);
+    }
+
+    // 3. 生成下個月的起始日子 (淺灰色，確保網格對齊)
+    const totalSlots = firstDayIndex + lastDay;
+    const nextDays = (7 - (totalSlots % 7)) % 7;
+    for (let i = 1; i <= nextDays; i++) {
+        const daySpan = document.createElement('span');
+        daySpan.classList.add('replicant-day', 'next-month');
+        daySpan.innerText = i.toString().padStart(2, '0');
+        gridContainer.appendChild(daySpan);
+    }
+}
+
+/**
+ * 處理日期選取的點擊事件
+ */
+function handleDaySelection(selectedElement, year, month, day) {
+    // 1. 移除舊的選取狀態
+    const prevSelected = document.querySelector('.replicant-day.selected');
+    if (prevSelected) {
+        prevSelected.classList.remove('selected');
+    }
+
+    // 2. 加入新的選取狀態 (套用亮藍色圓圈)
+    selectedElement.classList.add('selected');
+
+    // 3. 更新標題顯示
+    const selectedDateDisplay = document.getElementById('replicant-selected-date');
+    if (selectedDateDisplay) {
+        const formattedSelectedDay = day.toString().padStart(2, '0');
+        const formattedMonth = (month + 1).toString().padStart(2, '0');
+        selectedDateDisplay.innerText = `${year}/${formattedMonth}/${formattedSelectedDay}`;
+    }
+    
+    // 這裡可以加入其他連動邏輯 (例如：載入該日期的記帳記錄)
+}
