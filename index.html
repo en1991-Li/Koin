@@ -174,24 +174,41 @@
         </div>
 </section>
 
-<section id="page-calendar" class="page">
+<section id="page-overview" class="page active">
     <header class="nav-header">
-        <i data-lucide="bell-dot" class="s-icon"></i> 
-        <h1 class="page-title" id="current-date-title">2026/04/08</h1>
+        <i data-lucide="eye" class="s-icon"></i>
+        <h1 class="page-title">帳戶總覽</h1>
         <div style="display: flex; gap: 15px;">
             <i data-lucide="maximize" class="s-icon"></i>
-            <i data-lucide="search" class="s-icon"></i>
+            <i data-lucide="plus" class="s-icon" onclick="showPage('page-add-account')"></i>
         </div>
     </header>
-    
-    <div class="calendar-strip-container">
-        <div class="calendar-strip" id="calendar-strip">
-            </div>
-    </div>
 
-    <div class="content-scroll no-scrollbar" id="calendar-details-container">
+    <div class="content-scroll no-scrollbar">
+        <div id="replicated-calendar" class="calendar-replicant">
+            <div class="calendar-replicant-header">
+                <div class="replicant-title-row">
+                    <span id="replicant-selected-date">2026/04/08</span>
+                    <div class="replicant-icon-group">
+                        <i data-lucide="calendar-days" class="s-icon"></i>
+                        <i data-lucide="search" class="s-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="replicant-weekdays">
+                <span>週日</span><span>週一</span><span>週二</span><span>週三</span><span>週四</span><span>週五</span><span>週六</span>
+            </div>
+
+            <div class="replicant-days-grid" id="replicant-days-grid">
+                </div>
+        </div>
+        
+        <div class="balance-hero">
+            </div>
         </div>
 </section>
+
 
 <style>
     
