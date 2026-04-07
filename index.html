@@ -165,14 +165,24 @@
                 <div class="modal-footer"><button onclick="closeModal('due-date-type-modal')">取消</button></div>
             </div>
         </div>
+        <section id="page-projects" class="page">
+    <header class="nav-header">
+        <div style="width: 24px;"></div> <h1 class="page-title">專案總覽</h1>
+        <i data-lucide="plus" class="s-icon"></i>
+    </header>
+    <div class="content-scroll no-scrollbar" id="projects-list-container">
+        </div>
+</section>
 
-        <nav class="tab-bar">
-            <div class="tab-item active" onclick="showPage('page-overview')"><i data-lucide="archive"></i></div>
-            <div class="tab-item"><i data-lucide="wallet"></i></div>
-            <div class="tab-fab"><div class="fab-inner"><i data-lucide="layers"></i></div></div>
-            <div class="tab-item"><i data-lucide="trending-up"></i></div>
-            <div class="tab-item"><i data-lucide="sliders-horizontal"></i></div>
-        </nav>
+<nav class="tab-bar">
+    <div class="tab-item" onclick="showPage('page-overview')"><i data-lucide="archive"></i></div>
+    <div class="tab-item" onclick="showPage('page-projects')"><i data-lucide="wallet"></i></div> <div class="tab-fab"><div class="fab-inner"><i data-lucide="layers"></i></div></div>
+    <div class="tab-item"><i data-lucide="trending-up"></i></div>
+    <div class="tab-item"><i data-lucide="sliders-horizontal"></i></div>
+</nav>
+
+<script src="js/projects.js"></script>
+        
     </div>
 
     <script>
