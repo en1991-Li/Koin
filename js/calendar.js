@@ -30,66 +30,57 @@ function initCalendarStrip() {
     strip.innerHTML = html;
 }
 
-function selectCalendarDate(year, month, day, element) {
-    // 1. 更新選中狀態 UI
-    document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('active'));
-    element.classList.add('active');
+function renderFullCalendar() {
+    const grid = document.getElementById('full-calendar-grid');
+    if (!grid) return;
 
-    // 2. 更新標題
-    const formattedDate = `${year}/${(month + 1).toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}`;
-    document.getElementById('current-date-title').innerText = formattedDate;
+    const year = 2026;
+    const month = 3; // 4月 (JavaScript 月份從0開始)
+    const firstDay = new Date(year, month, 1).getDay(); // 4/1 是週三
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const prevMonthDays = new Date(year, month, 0).getDate();
 
-    // 3. 重新渲染該日期的詳細列表內容
-    renderDailyDetails(formattedDate);
-}
+    grid.innerHTML = '';
 
-// 模擬當日詳細記錄渲染
-function renderDailyDetails(dateStr) {
-    const container = document.getElementById('calendar-details-container');
-    // 這裡可以根據日期顯示不同的資料，目前先放原本的模擬數據
-    // renderCalendarDetails(); 
-    console.log("切換到日期:", dateStr);
-}
-function initFabCalendar() {
-    const strip = document.getElementById('fab-calendar-strip');
-    const headerTitle = document.getElementById('calendar-header-title');
-    if (!strip) return;
+    // 1. 填入上個月的尾巴
+    for (let i = firstDay - 1; i >= 0; i--) {
+        createDayElement(prevMonthDays - i, 'not-current');
+    }
 
-    const days = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
-    // 以 2026/04/08 為中心生成日期
-    const baseDate = new Date(2026, 3, 8); 
+    // 2. 填入本月日期
+    for (let i = 1; i <= daysInMonth; i++) {
+        const isSelected = (i === 8); // 預設選中 4/8
+        createDayElement(i, 'current', isSelected, new Date(year, month, i).getDay());
+    }
 
-    strip.innerHTML = ''; // 清空
+    // 3. 填入下個月的頭
+    const remaining = 42 - (firstDay + daysInMonth);
+    for (let i = 1; i <= remaining; i++) {
+        createDayElement(i, 'not-current');
+    }
 
-    for (let i = -15; i <= 15; i++) {
-        const d = new Date(2026, 3, 8 + i);
-        const isToday = i === 0;
-        const dayEl = document.createElement('div');
+    function createDayElement(num, type, isActive = false, weekDay = null) {
+        const dayDiv = document.createElement('div');
+        let className = `calendar-grid-day ${type} ${isActive ? 'active' : ''}`;
+        if (weekDay === 0) className += ' sunday';
+        if (weekDay === 6) className += ' saturday';
         
-        // 設定週末 Class
-        let weekClass = '';
-        if (d.getDay() === 0) weekClass = 'sunday';
-        if (d.getDay() === 6) weekClass = 'saturday';
+        dayDiv.className = className;
+        dayDiv.innerHTML = `<span class="date-val">${num < 10 ? '0' + num : num}</span>`;
         
-        dayEl.className = `calendar-day ${weekClass} ${isToday ? 'active' : ''}`;
-        dayEl.innerHTML = `
-            <span class="weekday">${days[d.getDay()]}</span>
-            <span class="date-num">${d.getDate() < 10 ? '0'+d.getDate() : d.getDate()}</span>
-        `;
-
-        dayEl.onclick = function() {
-            document.querySelectorAll('.calendar-day').forEach(el => el.classList.remove('active'));
-            dayEl.classList.add('active');
-            // 連動標題顯示
-            headerTitle.innerText = `2026/04/${d.getDate() < 10 ? '0'+d.getDate() : d.getDate()}`;
-        };
-
-        strip.appendChild(dayEl);
+        if (type === 'current') {
+            dayDiv.onclick = () => {
+                document.querySelectorAll('.calendar-grid-day').forEach(d => d.classList.remove('active'));
+                dayDiv.classList.add('active');
+            };
+        }
+        grid.appendChild(dayDiv);
     }
 }
 
-// 確保頁面載入時執行
-document.addEventListener('DOMContentLoaded', initFabCalendar);
+// 頁面載入時執行
+document.addEventListener('DOMContentLoaded', renderFullCalendar);
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
