@@ -1,6 +1,6 @@
 /**
- * Koin 記帳 App 完整邏輯控制
- * 整合：頁面切換、帳戶分組彈窗、信用帳戶聯動、日期選擇優化
+ * Koin 記帳 App 完整邏輯控制 (更新版)
+ * 整合：頁面切換、帳戶分組、帳單週期滑桿、繳款期限彈窗
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -12,122 +12,143 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. 初始化圖表
     initOverviewChart();
 
-    // 3. 監聽帳單週期變更
-    const cycleSelect = document.querySelector('.form-select');
-    if (cycleSelect) {
-        cycleSelect.addEventListener('change', handleCycleChange);
-    }
+    // 3. 初始化帳單週期滑桿監聽
+    initCycleSlider();
 });
 
 // =========================================
-// 1. 頁面切換邏輯
+// 1. 頁面與彈窗基礎控制
 // =========================================
 function showPage(pageId) {
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-    });
-    
+    document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
     const targetPage = document.getElementById(pageId);
     if (targetPage) {
         targetPage.classList.add('active');
-        // 重新渲染新頁面中的圖示
         lucide.createIcons();
     }
 }
 
-// =========================================
-// 2. 帳戶分組選擇邏輯
-// =========================================
-function openGroupPicker() {
-    const modal = document.getElementById('group-picker-modal');
-    if (modal) {
-        modal.style.display = 'flex';
-    }
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.style.display = 'flex';
 }
 
-function closeGroupPicker() {
-    const modal = document.getElementById('group-picker-modal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
-function selectGroup(groupName) {
-    const textElement = document.getElementById('selected-group-text');
-    if (textElement) {
-        // 更新文字並保留右側箭頭圖示
-        textElement.innerHTML = `${groupName} <i data-lucide="chevron-right" class="s-icon"></i>`;
-        lucide.createIcons();
-    }
-    closeGroupPicker();
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.style.display = 'none';
 }
 
 // =========================================
-// 3. 信用帳戶聯動邏輯 (核心修改)
+// 2. 帳單週期邏輯 (滑桿功能)
 // =========================================
-function toggleCreditFields() {
-    const isCreditCheckbox = document.getElementById('in-is-credit');
-    const creditExtraFields = document.getElementById('credit-extra-fields');
-    const displayAmount = document.getElementById('add-display-amount');
-    const dateInput = document.querySelector('.form-date');
+function openCyclePicker() {
+    openModal('cycle-picker-modal');
+}
 
-    if (!isCreditCheckbox || !creditExtraFields || !displayAmount) return;
+function initCycleSlider() {
+    const slider = document.getElementById('cycle-slider');
+    const rangeDisplay = document.getElementById('modal-cycle-range');
+    const noteDisplay = document.getElementById('modal-cycle-note');
 
-    if (isCreditCheckbox.checked) {
-        // 顯示隱藏欄位 (繳款期限、信用額度)
-        creditExtraFields.style.display = 'block';
-        
-        // 信用帳戶代表負債，餘額顯示為紅色
-        displayAmount.classList.remove('text-green');
-        displayAmount.classList.add('text-red');
+    if (!slider) return;
 
-        // 如果日期沒值，設定一個預設值 (例如下個月 1 號)
-        if (dateInput && !dateInput.value) {
-            dateInput.value = "2026-05-01";
+    slider.addEventListener('input', (e) => {
+        const day = parseInt(e.target.value);
+        // 這裡以 2026 年 4 月作為基準進行計算 (對應截圖內容)
+        if (day >= 28) {
+            rangeDisplay.innerText = "2026/04/01 － 2026/04/30";
+            noteDisplay.innerText = "帳單結帳日：每月月底";
+        } else {
+            const startDay = (day + 1).toString().padStart(2, '0');
+            const endDay = day.toString().padStart(2, '0');
+            // 跨月計算：從 3 月的隔天到 4 月的結帳日
+            rangeDisplay.innerText = `2026/03/${startDay} － 2026/04/${endDay}`;
+            noteDisplay.innerText = `帳單結帳日：每月 ${day} 號`;
         }
-    } else {
-        // 隱藏欄位
-        creditExtraFields.style.display = 'none';
-        
-        // 一般帳戶顯示為綠色
-        displayAmount.classList.remove('text-red');
-        displayAmount.classList.add('text-green');
+    });
+}
+
+function confirmCycle() {
+    const selectedRange = document.getElementById('modal-cycle-range').innerText;
+    const mainDisplayText = document.getElementById('display-main-cycle');
+    
+    if (mainDisplayText) {
+        // 更新主頁面顯示並保留箭頭
+        mainDisplayText.innerHTML = `${selectedRange} <i data-lucide="chevron-right" class="s-icon"></i>`;
+        lucide.createIcons();
     }
+    closeModal('cycle-picker-modal');
+}
+
+// =========================================
+// 3. 繳款期限邏輯 (類型選擇)
+// =========================================
+function openDueDateTypePicker() {
+    openModal('due-date-type-modal');
 }
 
 /**
- * 處理帳單週期切換邏輯
+ * 處理繳款期限類型選擇
+ * @param {string} type - 'fixed' (每月固定日) 或 'after' (結帳日後幾日)
  */
-function handleCycleChange(event) {
-    const selectedCycle = event.target.value;
-    console.log("當前選擇的帳單週期為:", selectedCycle);
+function selectDueDateType(type) {
+    closeModal('due-date-type-modal');
     
-    // 你可以在這裡加入邏輯：當用戶選 4 月週期，自動把繳款期限改為 5 月
-    // const datePicker = document.querySelector('.form-date');
-    // if (selectedCycle.includes("04/01")) { datePicker.value = "2026-05-15"; }
+    let userValue = "";
+    let finalString = "";
+
+    if (type === 'fixed') {
+        userValue = prompt("請輸入每月固定繳款日 (1-31):", "1");
+        if (userValue) finalString = `每月 ${userValue} 號`;
+    } else {
+        userValue = prompt("請輸入結帳日後第幾天繳款:", "15");
+        if (userValue) finalString = `結帳日後 ${userValue} 天`;
+    }
+
+    if (finalString) {
+        const displayElement = document.getElementById('display-main-due-date');
+        if (displayElement) {
+            displayElement.innerHTML = `${finalString} <i data-lucide="chevron-right" class="s-icon"></i>`;
+            lucide.createIcons();
+        }
+    }
 }
 
 // =========================================
-// 4. 圖表初始化
+// 4. 帳戶分組與信用聯動
+// =========================================
+function selectGroup(groupName) {
+    const textElement = document.getElementById('selected-group-text');
+    if (textElement) {
+        textElement.innerHTML = `${groupName} <i data-lucide="chevron-right" class="s-icon"></i>`;
+        lucide.createIcons();
+    }
+    closeModal('group-picker-modal');
+}
+
+function toggleCreditFields() {
+    const isCredit = document.getElementById('in-is-credit').checked;
+    const extraFields = document.getElementById('credit-extra-fields');
+    const amountVal = document.getElementById('add-display-amount');
+
+    if (extraFields) extraFields.style.display = isCredit ? 'block' : 'none';
+    
+    if (amountVal) {
+        // 信用帳戶代表負債，顯示為紅色
+        amountVal.className = isCredit ? 'val text-red' : 'val text-green';
+    }
+}
+
+// =========================================
+// 5. 其他初始化 (圖表與提交)
 // =========================================
 function initOverviewChart() {
     const canvas = document.getElementById('overviewChart');
     if (!canvas) return;
-
-    // 模擬圖表初始化
-    console.log("Chart initialized based on IMG_1144 trend layout.");
+    console.log("圖表初始化完成");
 }
 
-// =========================================
-// 5. 提交與存檔
-// =========================================
 function handleAccountSubmit() {
-    // 這裡可以抓取所有的 input 值進行存檔
-    const accountName = document.querySelector('input[placeholder="尚未設定"]').value;
-    const isCredit = document.getElementById('in-is-credit').checked;
-    
-    console.log(`正在儲存帳戶: ${accountName}, 類型: ${isCredit ? '信用' : '一般'}`);
-    
     alert("帳戶已儲存");
     showPage('page-overview');
 }
