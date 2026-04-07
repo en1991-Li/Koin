@@ -174,28 +174,32 @@
         </div>
 </section>
 
+<section id="page-calendar" class="page">
+    <header class="nav-header">
+        <i data-lucide="bell-dot" class="s-icon"></i> <h1 class="page-title">2025/06/02</h1>
+        <div style="display: flex; gap: 15px;">
+            <i data-lucide="maximize" class="s-icon"></i>
+            <i data-lucide="search" class="s-icon"></i>
+        </div>
+    </header>
+    <div class="content-scroll no-scrollbar" id="calendar-details-container">
+        </div>
+</section>
+
 <nav class="tab-bar">
-    <div class="tab-item" onclick="showPage('page-overview')">
-        <i data-lucide="archive"></i>
-    </div>
-    <div class="tab-item" onclick="showPage('page-projects')">
-        <i data-lucide="wallet"></i>
-    </div>
+    <div class="tab-item" onclick="showPage('page-overview')"><i data-lucide="archive"></i></div>
+    <div class="tab-item"><i data-lucide="wallet"></i></div>
     
-    <div class="tab-fab">
-        <div class="fab-inner">
+    <div class="tab-fab" onclick="showPage('page-calendar')"> <div class="fab-inner">
             <i data-lucide="layers"></i>
         </div>
     </div>
     
-    <div class="tab-item">
-        <i data-lucide="trending-up"></i>
-    </div>
-    <div class="tab-item">
-        <i data-lucide="sliders-horizontal"></i>
-    </div>
+    <div class="tab-item"><i data-lucide="trending-up"></i></div>
+    <div class="tab-item"><i data-lucide="sliders-horizontal"></i></div>
 </nav>
 
+<script src="js/calendar.js"></script>
 
 <script src="js/projects.js"></script>
         
