@@ -1,13 +1,13 @@
-// 模擬專案數據
+// 專案數據
 const projectData = [
-    { name: "生活開銷", icon: "glass-water", date: "26/03/01 － 26/03/31", amount: 28647, color: "text-green" },
-    { name: "投資理財", icon: "trending-up", date: "26/03/01 － 26/03/31", amount: 0, color: "text-green" },
-    { name: "工作", icon: "briefcase", date: "26/03/01 － 26/03/31", amount: 0, color: "text-green" },
-    { name: "玩樂", icon: "film", date: "26/03/01 － 26/03/31", amount: 30, color: "text-red" },
-    { name: "旅遊", icon: "palm-tree", date: "26/03/01 － 26/03/31", amount: 0, color: "text-green" },
-    { name: "家用", icon: "users", date: "26/03/01 － 26/03/31", amount: 0, color: "text-green" },
-    { name: "每月統計", icon: "calendar-days", date: "26/03/01 － 26/03/31", amount: 28617, color: "text-green", isStats: true },
-    { name: "學習", icon: "pen-tool", date: "26/03/01 － 26/03/31", amount: 0, color: "text-green" }
+    { name: "生活開銷", icon: "glass-water", date: "26/04/01 － 26/04/30", amount: 28647, color: "text-green" },
+    { name: "投資理財", icon: "trending-up", date: "26/04/01 － 26/04/30", amount: 0, color: "text-green" },
+    { name: "工作", icon: "briefcase", date: "26/04/01 － 26/04/30", amount: 0, color: "text-green" },
+    { name: "玩樂", icon: "film", date: "26/04/01 － 26/04/30", amount: 30, color: "text-red" },
+    { name: "旅遊", icon: "car", date: "26/04/01 － 26/04/30", amount: 0, color: "text-green" },
+    { name: "家用", icon: "users", date: "26/04/01 － 26/04/30", amount: 0, color: "text-green" },
+    { name: "每月統計", icon: "calendar-days", date: "26/04/01 － 26/04/30", amount: 28617, color: "text-green", isStats: true },
+    { name: "學習", icon: "pen-tool", date: "26/04/01 － 26/04/30", amount: 0, color: "text-green" }
 ];
 
 function renderProjects() {
