@@ -6,6 +6,23 @@
     <title>Koin記帳</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* 為了確保新增的表單元件樣式統一，加入簡單的內聯樣式 */
+        .form-select, .form-date {
+            background: transparent;
+            border: none;
+            color: #FFFFFF;
+            font-size: 15px;
+            text-align: right;
+            outline: none;
+            direction: rtl; /* 讓文字靠右顯示 */
+            appearance: none; /* 移除原生下拉箭頭 */
+        }
+        .form-date::-webkit-calendar-picker-indicator {
+            filter: invert(1); /* 讓日曆圖示變成白色 */
+            margin-left: 5px;
+        }
+    </style>
 </head>
 <body>
 
@@ -97,9 +114,14 @@
                         <label>初始金額</label>
                         <input type="number" value="0" class="text-right">
                     </div>
+
                     <div class="form-row">
                         <label>帳單週期</label>
-                        <span class="text-muted">2026/03/01 － 2026/03/31</span>
+                        <select class="form-select">
+                            <option value="current">2026/03/01 － 2026/03/31</option>
+                            <option value="next">2026/04/01 － 2026/04/30</option>
+                            <option value="custom">自定義週期...</option>
+                        </select>
                     </div>
                     
                     <div class="form-row">
@@ -113,7 +135,7 @@
                     <div id="credit-extra-fields" style="display: none;">
                         <div class="form-row sub-row">
                             <label>— 繳款期限</label>
-                            <span class="text-muted">2026/05/01</span>
+                            <input type="date" class="form-date" value="2026-05-01">
                         </div>
                         <div class="form-row sub-row">
                             <label>— 信用額度</label>
@@ -175,16 +197,13 @@
     </div>
 
     <script>
-        // 初始化圖示
         lucide.createIcons();
 
-        // 頁面切換邏輯
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
         }
 
-        // 帳戶分組彈窗邏輯
         function openGroupPicker() {
             document.getElementById('group-picker-modal').style.display = 'flex';
         }
@@ -199,7 +218,6 @@
             closeGroupPicker();
         }
 
-        // 信用帳戶連動邏輯
         function toggleCreditFields() {
             const isCredit = document.getElementById('in-is-credit').checked;
             const extraFields = document.getElementById('credit-extra-fields');
@@ -207,10 +225,10 @@
 
             if (isCredit) {
                 extraFields.style.display = 'block';
-                displayVal.className = 'val text-red'; // 變紅色
+                displayVal.className = 'val text-red';
             } else {
                 extraFields.style.display = 'none';
-                displayVal.className = 'val text-green'; // 變回綠色
+                displayVal.className = 'val text-green';
             }
         }
     </script>
