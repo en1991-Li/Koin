@@ -20,9 +20,9 @@
 - **Layout**: Responsive Design (Mobile-First)
 
 📂 **專案結構**
-├── index.html      # 主頁面結構與導覽控制
-├── style.css       # 介面視覺、配色與手機模擬容器樣式
-└── script.js      # 頁面切換、彈窗處理與信用帳戶聯動邏輯
+index.html  # 主頁面結構與導覽控制
+style.css   # 介面視覺、配色與手機模擬容器樣式
+script.js   # 頁面切換、彈窗處理與信用帳戶聯動邏輯
 
 **專案成果**
 - 成功建構一個具備高度擴充性的記帳系統原型，完整還原複雜的財務交互邏輯。
