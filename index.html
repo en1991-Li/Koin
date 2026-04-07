@@ -176,18 +176,24 @@
 
 <section id="page-calendar" class="page">
     <header class="nav-header">
-        <i data-lucide="bell-dot" class="s-icon"></i> <h1 class="page-title">2025/06/02</h1>
+        <i data-lucide="bell-dot" class="s-icon"></i> 
+        <h1 class="page-title" id="current-date-title">2026/04/08</h1>
         <div style="display: flex; gap: 15px;">
             <i data-lucide="maximize" class="s-icon"></i>
             <i data-lucide="search" class="s-icon"></i>
         </div>
     </header>
+    
+    <div class="calendar-strip-container">
+        <div class="calendar-strip" id="calendar-strip">
+            </div>
+    </div>
+
     <div class="content-scroll no-scrollbar" id="calendar-details-container">
         </div>
 </section>
 
 <style>
-    /* ... 你原本的樣式 ... */
     
     /* 圓形按鈕與導覽列啟動狀態 */
     .tab-item.active { color: #5d5dff; }
@@ -210,6 +216,60 @@
         transform: none !important;
         color: white;
     }
+    .calendar-strip-container {
+    background: #1c1c28;
+    padding: 10px 0;
+    border-bottom: 1px solid #2c2c3e;
+}
+
+.calendar-strip {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 0 10px;
+    gap: 15px;
+}
+
+.calendar-strip::-webkit-scrollbar {
+    display: none; /* 隱藏滾動條 */
+}
+
+.calendar-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 45px;
+    cursor: pointer;
+}
+
+.calendar-day .weekday {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 8px;
+}
+
+.calendar-day .date-num {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #fff;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+/* 選中狀態：白色外圈 */
+.calendar-day.active .date-num {
+    border: 2px solid #fff;
+    font-weight: bold;
+}
+
+/* 週末顏色模擬 (週日紅、週六綠) */
+.calendar-day.sunday .weekday, .calendar-day.sunday .date-num { color: #ff5d5d; }
+.calendar-day.saturday .weekday, .calendar-day.saturday .date-num { color: #5dff5d; }
+
 </style>
 
 <nav class="tab-bar">
