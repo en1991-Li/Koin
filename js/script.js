@@ -24,31 +24,34 @@ document.addEventListener('DOMContentLoaded', () => {
  * @param {HTMLElement} element - 被點擊的按鈕 (由 HTML 傳入 this)
  */
 function showPage(pageId, element) {
-    // 1. 切換分頁顯示
-    const targetPage = document.getElementById(pageId);
-    if (!targetPage) return;
+    console.log("切換頁面至:", pageId);
 
+    // 1. 切換頁面顯示 (對應 CSS .page.active)
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    targetPage.classList.add('active');
+    const target = document.getElementById(pageId);
+    if (target) {
+        target.classList.add('active');
+    }
 
-    // 2. 更新導覽列顏色狀態
-    // 移除所有導覽按鈕的 active
+    // 2. 更新導覽列顏色狀態 (對應 CSS .tab-item.active)
+    // 移除所有導覽項目的 active (包含 tab-item 和 tab-fab)
     document.querySelectorAll('.tab-item, .tab-fab').forEach(tab => tab.classList.remove('active'));
 
-    // 如果是點擊導覽列進入 (element 存在)
+    // 如果是點擊傳入的元素，直接加上 active
     if (element) {
         element.classList.add('active');
     } else {
-        // 備援方案：如果是透過其他按鈕跳轉，手動根據 pageId 強制對應 active
+        // 備援方案：如果是透過其他按鈕跳轉 (如首頁按 + 號)，手動匹配導覽列
         const tabs = document.querySelectorAll('.tab-item');
         if (pageId === 'page-overview') tabs[0].classList.add('active');
         if (pageId === 'page-projects') tabs[1].classList.add('active');
         if (pageId === 'page-calendar') document.querySelector('.tab-fab').classList.add('active');
     }
 
-    // 3. 確保 Lucide 圖示在切換後仍會渲染
+    // 3. 重新整理圖示 (Lucide 圖示在 DOM 變動後需要這行才能維持顏色)
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
+
 
 // =========================================
 // 其他控制邏輯 (保持不變但優化穩定性)
