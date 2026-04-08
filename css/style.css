@@ -410,8 +410,8 @@ input[type="range"]::-webkit-slider-thumb {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 50px;              /* 稍微加大觸控區域 */
-    height: 50px;
+    width: 40px;              /* 稍微加大觸控區域 */
+    height: 40px;
     transition: all 0.2s ease; /* 增加平滑過渡效果 */
     position: relative;
 }
