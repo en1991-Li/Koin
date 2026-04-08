@@ -425,10 +425,8 @@ input[type="range"]::-webkit-slider-thumb {
     min-width: 100%;
     scroll-snap-align: start;
     flex-shrink: 0;
-    padding: 10px 25px 20px 25px; /* 增加底部 Padding 給陰影呼吸空間 */
+    padding: 0 25px; /* 保持與標頭一致的對齊線 */
     box-sizing: border-box;
-    position: relative;
-    z-index: 10; /* 確保陰影浮於上方 */
 }
 
 /* 3. 日期網格：加入陰影的核心 */
