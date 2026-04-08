@@ -392,71 +392,69 @@ input[type="range"]::-webkit-slider-thumb {
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* 月份滾動主體 */
-.calendar-scroll-container {
-    flex: 1;
-    overflow-y: auto;
-    padding: 0 20px;
-    scroll-snap-type: y proximity; /* 讓滑動時稍微帶有吸附感 */
+/* 水平滑動容器 */
+.calendar-horizontal-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory; /* 強制水平吸附，每次滑動一整個月 */
+    background: var(--bg);
+    width: 100%;
 }
 
-/* 單個月份區塊 */
+/* 每個月份區塊佔滿寬度 */
 .month-section {
-    padding: 20px 0;
-    min-height: 320px;
+    min-width: 100%;
+    scroll-snap-align: start;
+    padding: 10px 20px 20px;
     position: relative;
 }
 
-/* 影片中的月份背景浮水印 (例如 4月) */
+/* 月份背景浮水印 (例如 4月) */
 .month-label {
     position: absolute;
-    top: 50%;
+    top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 80px;
     font-weight: 900;
-    color: rgba(255, 255, 255, 0.02); /* 極淡顏色，不干擾日期閱讀 */
+    color: rgba(255, 255, 255, 0.03); 
     z-index: 0;
     pointer-events: none;
 }
 
+/* 網格與圓圈效果 */
 .calendar-grid-body {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    row-gap: 12px;
+    row-gap: 15px;
     position: relative;
     z-index: 1;
 }
 
-/* 每個日期的方格 */
-.calendar-grid-day {
-    aspect-ratio: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-}
-
-/* 數字容器與圓圈選取樣式 */
 .calendar-grid-day .date-val {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
-    font-weight: 500;
+    font-size: 17px;
     border-radius: 50%;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 核心：白色圓圈選取狀態 (完全還原影片) */
 .calendar-grid-day.active .date-val {
-    border: 2px solid #FFFFFF;
-    background: transparent;
-    font-weight: 700;
-    box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
+    border: 2px solid #ffffff; /* 影片中的白色圓圈 */
+    font-weight: bold;
 }
+
+/* 下方記錄列表 */
+.daily-details-section {
+    flex: 1;
+    background: #1c1c28;
+    border-radius: 24px 24px 0 0;
+    padding: 20px;
+    overflow-y: auto;
+}
+
 
 /* 週末特殊顏色 */
 .calendar-grid-day.sunday .date-val { color: var(--red); }
