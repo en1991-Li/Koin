@@ -406,7 +406,71 @@ input[type="range"]::-webkit-slider-thumb {
     height: 40px;
 }
 
+/* =========================================
+   8. 日曆分頁樣式優化
+   ========================================= */
 
+/* 1. 水平容器：移除可能影響間距的預設內距 */
+.calendar-horizontal-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    background: var(--bg);
+    width: 100%;
+    padding: 0; /* 確保容器本身不帶額外間距 */
+}
+
+/* 2. 月份區塊：調整左右 Padding 讓寬度更集中 */
+.month-section {
+    min-width: 100%;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    /* 調整 10px 25px 分別代表上下與左右的間距 */
+    padding: 10px 25px 0 25px; 
+    box-sizing: border-box;
+}
+
+/* 3. 日期網格：縮小垂直行間距 (row-gap) */
+.calendar-grid-body {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    /* 將原先的 15px 縮減為 8px，讓日期看起來更緊湊 */
+    row-gap: 8px; 
+    column-gap: 0; /* 靠 1fr 自動分配 */
+    position: relative;
+    z-index: 1;
+}
+
+/* 4. 日期數字容器：微調大小確保圓圈比例精確 */
+.calendar-grid-day .date-val {
+    width: 38px;  /* 稍微增加圓圈感 */
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+/* 5. 選中圓圈：確保與截圖一致的白色邊框 */
+.calendar-grid-day.active .date-val {
+    border: 2px solid #ffffff;
+    background: transparent;
+    font-weight: 700;
+}
+
+/* 6. 星期標頭：同步對齊月份區塊的內距 */
+.calendar-grid-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    /* 左右 25px 必須與 .month-section 一致，否則「週一」會對不齊日期 */
+    padding: 15px 25px 10px 25px; 
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
 
 /* iOS Switch 開關 */
 .switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
