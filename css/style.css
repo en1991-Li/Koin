@@ -472,6 +472,12 @@ input[type="range"]::-webkit-slider-thumb {
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+/* 週末與非本月顏色微調 */
+.calendar-grid-day.sunday .date-val { color: #f16565; }
+.calendar-grid-day.saturday .date-val { color: #a3e635; }
+.calendar-grid-day.not-current .date-val { color: #3a3a4c; }
+
+
 
 /* iOS Switch 開關 */
 .switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
