@@ -429,16 +429,15 @@ input[type="range"]::-webkit-slider-thumb {
     box-sizing: border-box;
 }
 
-/* 3. 日期網格：加入陰影的核心 */
+/* 3. 日期網格：*/
 .calendar-grid-body {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    row-gap: 12px;
-    
-    /* 仿截圖中的深色陰影 */
-    box-shadow: 
-        0 12px 24px rgba(0, 0, 0, 0.5), /* 主要陰影 */
-        0 4px 8px rgba(0, 0, 0, 0.3);   /* 次要陰影增加層次感 */
+    /* 這裡從 15px 縮小到 5px，會讓日期上下看起來更靠近，更像影片中的樣式 */
+    row-gap: 5px; 
+    column-gap: 0;
+    position: relative;
+    z-index: 1;
 }
 
 /* 確保不顯示月份浮水印 */
