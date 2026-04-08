@@ -523,7 +523,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 /* =========================================
-   9. 下方記錄列表樣式
+   9. 下方記錄列表樣式 (仿影片下方收支)
    ========================================= */
 .daily-record-list {
     background: var(--card);
@@ -557,6 +557,8 @@ input[type="range"]::-webkit-slider-thumb {
     border-radius: 2px;
     margin: 30px auto 0;
 }
+
+
 
 /* iOS Switch 開關 */
 .switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
