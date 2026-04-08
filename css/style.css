@@ -55,7 +55,7 @@ body, html {
 .content-scroll {
     flex: 1;
     overflow-y: auto;
-    padding-bottom: 85px; /* 確保滾動到底部時，內容不會被下移後的導覽列擋住 */
+    padding-bottom: 100px;
     -webkit-overflow-scrolling: touch;
 }
 
@@ -75,15 +75,12 @@ body, html {
     background: var(--bg);
 }
 
-/* 確保標題在 header 中間，不受兩側圖示長度影響 */
-.nav-header .page-title {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+.page-title {
     font-size: 18px;
     font-weight: 700;
-    margin: 0;
-    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .page {
@@ -105,16 +102,15 @@ body, html {
 /* =========================================
    4. 帳戶總覽樣式
    ========================================= */
-/* 帳戶總覽（首頁）的文字置中 */
-
 .balance-hero {
-    display: flex;
-    flex-direction: column;
-    align-items: center;      /* 水平置中 */
-    justify-content: center;   /* 垂直置中 */
     text-align: center;
-    padding: 30px 20px;       /* 增加一點間距感 */
-    width: 100%;
+    padding: 15px 0;
+}
+
+.balance-hero .label {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-muted);
 }
 
 .balance-hero .amount {
@@ -122,38 +118,6 @@ body, html {
     font-weight: 900;
     letter-spacing: -2px;
     margin: 5px 0;
-    display: block;           /* 確保是區塊元素以利對齊 */
-}
-
-/* 3. 新增帳戶頁面 (add-acc-hero) 同步置中 */
-.add-acc-hero {
-    display: flex;
-    flex-direction: column;
-    align-items: center;      /* 置中圖示與文字 */
-    text-align: center;
-    padding: 40px 20px;
-}
-
-.hero-balance {
-    width: 100%;
-    text-align: center;
-}
-
-.hero-balance .val {
-    font-size: 52px;
-    font-weight: 900;
-    display: block; /* 確保數字獨佔一行並置中 */
-}
-
-/* 如果有備註欄位，也一併置中 */
-.memo-field {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    font-size: 14px;
-    text-align: center; /* 文字輸入置中 */
-    width: 100%;
-    outline: none;
 }
 
 .sub-stats {
@@ -371,89 +335,27 @@ input[type="range"]::-webkit-slider-thumb {
    7. 底部導覽列與開關
    ========================================= */
 .tab-bar {
-    position: absolute; 
-    bottom: 0; 
-    width: 100%; 
-    height: 75px; 
+    position: absolute; bottom: 0; width: 100%; height: 85px;
     background: var(--tab-bg);
     backdrop-filter: blur(15px);
     border-top: 1px solid var(--border);
-    
-    /* 關鍵修改：使用 center 配合 gap，或增加左右 padding */
-    display: flex; 
-    justify-content: center; /* 改為置中 */
-    gap: 35px;               /* 設定圖示之間的固定間距 */
-    align-items: center;
-    padding-bottom: 10px; 
-    z-index: 100;
+    display: flex; justify-content: space-around; align-items: center;
+    padding-bottom: 20px; z-index: 100;
 }
 
-/* 針對中間 FAB 按鈕的特殊處理 */
+.tab-item { color: var(--text-muted); font-size: 24px; cursor: pointer; }
+.tab-item.active { color: var(--blue); }
+
 .tab-fab {
-    /* 移除原本的 absolute 定位，讓它參與 flex 佈局以維持間距一致 */
-    position: relative; 
-    bottom: 15px !important; /* 讓圓形按鈕稍微浮起 */
-    z-index: 110;
+    width: 55px; height: 55px;
+    background: linear-gradient(135deg, #a78bfa, #5ac8fa);
+    transform: translateY(-20px) rotate(45deg);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 15px rgba(90, 200, 250, 0.4);
 }
 
-/* 導覽圖示大小微調 */
-.tab-item {
-    color: var(--text-muted);
-    font-size: 22px; /* 稍微縮小圖示尺寸，讓間距視覺上更舒適 */
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-}
-
-.fab-inner {
-    width: 54px;
-    height: 54px;
-    border-radius: 50%;
-    background: linear-gradient(135.47deg, #A16CFD 15.05%, #6E88F9 52.81%, #45B6F5 85.55%) !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 15px rgba(93, 93, 255, 0.4);
-}
-
-.fab-inner i {
-    transform: none !important;    /* 確保圖示正立 */
-    width: 28px;
-    height: 28px;
-    color: white;
-}
-
-/* =========================================
-   8. 完整日曆分頁樣式
-   ========================================= */
-
-/* 日曆標題列修正 */
-#page-calendar .nav-header {
-    padding: 10px 25px;
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-#page-calendar .header-right-icons {
-    display: flex;
-    gap: 18px; /* 圖示間的間距 */
-}
-
-/* 星期標頭：增加左右內距與字體粗細 */
-.calendar-grid-header {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    text-align: center;
-    padding: 20px 25px 15px 25px; /* 增加上下留白 */
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text-muted);
-}
+.fab-inner { transform: rotate(-45deg); color: white; }
 
 /* =========================================
    8. 日曆分頁樣式優化
@@ -469,39 +371,44 @@ input[type="range"]::-webkit-slider-thumb {
     padding: 0; /* 確保容器本身不帶額外間距 */
 }
 
-/* 月份滑動區塊 */
+/* 2. 月份區塊：調整左右 Padding 讓寬度更集中 */
 .month-section {
     min-width: 100%;
     scroll-snap-align: start;
     flex-shrink: 0;
-    padding: 0 25px; /* 保持與標頭一致的對齊線 */
+    /* 調整 10px 25px 分別代表上下與左右的間距 */
+    padding: 10px 25px 0 25px; 
     box-sizing: border-box;
 }
 
-/* 日期網格：調整行距 */
+/* 3. 日期網格：縮小垂直行間距 (row-gap) */
 .calendar-grid-body {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    row-gap: 12px; /* 稍微拉開日期上下間距 */
+    /* 將原先的 15px 縮減為 8px，讓日期看起來更緊湊 */
+    row-gap: 8px; 
+    column-gap: 0; /* 靠 1fr 自動分配 */
     position: relative;
+    z-index: 1;
 }
 
-/* 日期數字與選中圈圈樣式 */
+/* 4. 日期數字容器：微調大小確保圓圈比例精確 */
 .calendar-grid-day .date-val {
-    width: 34px;
-    height: 34px;
+    width: 38px;  /* 稍微增加圓圈感 */
+    height: 38px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 17px;
     border-radius: 50%;
-    margin: 0 auto;
+    transition: background 0.2s;
 }
 
-/* 選中狀態：細白圓圈 */
+/* 5. 選中圓圈：確保與截圖一致的白色邊框 */
 .calendar-grid-day.active .date-val {
-    border: 1px solid #ffffff;
-    font-weight: 600;
+    border: 2px solid #ffffff;
+    background: transparent;
+    font-weight: 700;
 }
 
 /* 6. 星期標頭：同步對齊月份區塊的內距 */
@@ -515,54 +422,6 @@ input[type="range"]::-webkit-slider-thumb {
     font-weight: 600;
     color: var(--text-muted);
 }
-
-/* 週末與非本月顏色微調 */
-.calendar-grid-day.sunday .date-val { color: #f16565; }
-.calendar-grid-day.saturday .date-val { color: #a3e635; }
-.calendar-grid-day.not-current .date-val { color: #3a3a4c;
-
-/* 非本月日期變淡 */
-.calendar-grid-day.not-current .date-val {
-    color: #3a3a4c;
-}
-
-/* =========================================
-   9. 下方記錄列表樣式 (仿影片下方收支)
-   ========================================= */
-.daily-record-list {
-    background: var(--card);
-    border-radius: 20px 20px 0 0;
-    margin-top: 10px;
-    padding: 20px;
-}
-
-.record-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-}
-
-.record-icon {
-    width: 40px;
-    height: 40px;
-    background: #2a2a3c;
-    border-radius: 50%;
-    margin-right: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.calendar-footer-line {
-    width: 40px;
-    height: 4px;
-    background: #3a3a4c;
-    border-radius: 2px;
-    margin: 30px auto 0;
-}
-
-
 
 /* iOS Switch 開關 */
 .switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
