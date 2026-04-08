@@ -415,9 +415,9 @@ input[type="range"]::-webkit-slider-thumb {
     display: flex;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
-    background: var(--bg);
+    background: var(--bg); /* 保持背景色一致 */
     width: 100%;
-    padding: 0; /* 確保容器本身不帶額外間距 */
+    padding: 0;
 }
 
 /* 2. 月份區塊：調整左右 Padding 讓寬度更集中 */
@@ -425,20 +425,32 @@ input[type="range"]::-webkit-slider-thumb {
     min-width: 100%;
     scroll-snap-align: start;
     flex-shrink: 0;
-    /* 上 5px, 左右 30px, 下 0 */
-    padding: 5px 30px 0 30px; 
+    padding: 10px 25px 20px 25px; /* 增加底部 Padding 給陰影呼吸空間 */
     box-sizing: border-box;
+    position: relative;
+    z-index: 10; /* 確保陰影浮於上方 */
 }
 
-/* 3. 日期網格：縮小垂直行間距 (row-gap) */
+/* 3. 日期網格：加入陰影的核心 */
 .calendar-grid-body {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    /* 這裡從 15px 縮小到 5px，會讓日期上下看起來更靠近，更像影片中的樣式 */
-    row-gap: 5px; 
-    column-gap: 0;
-    position: relative;
-    z-index: 1;
+    row-gap: 12px;
+    
+    /* === 關鍵修改：增加陰影與圓角效果 === */
+    background: var(--bg); /* 確保陰影背景不透光 */
+    border-radius: 24px;   /* 增加一點圓角 */
+    padding: 20px 0;       /* 給陰影預留一點內距 */
+    
+    /* 仿截圖中的深色陰影 */
+    box-shadow: 
+        0 12px 24px rgba(0, 0, 0, 0.5), /* 主要陰影 */
+        0 4px 8px rgba(0, 0, 0, 0.3);   /* 次要陰影增加層次感 */
+}
+
+/* 確保不顯示月份浮水印 */
+.month-label {
+    display: none !important;
 }
 
 /* 4. 日期數字容器：微調大小確保圓圈比例精確 */
