@@ -197,12 +197,22 @@
   
 <style>
     
-    /* 圓形按鈕與導覽列啟動狀態 */
-    .tab-item.active { color: #5d5dff; }
+}
+
+    /* 讓圖示不干擾點擊，確保 JS 抓到的是外層 div */
+.tab-item i, .tab-fab i {
+    pointer-events: none;
+}
+
+/* 強制 Active 狀態變色與放大 */
+.tab-item.active i, .tab-fab.active .fab-inner i {
+    color: #5d5dff !important;
+    stroke: #5d5dff !important;
+    transform: scale(1.15) !important;
+    transition: all 0.2s ease;
+}
+
     
-    .tab-fab {
-        bottom: 20px !important;
-    }
     .fab-inner {
         border-radius: 50% !important;
         transform: none !important;
