@@ -423,10 +423,11 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 /* 點擊後或選中時的顏色變化 */
-.tab-item.active i {
+tab-item.active i {
     color: #5d5dff !important;
-    transform: scale(1.15);    /* 放大倍率稍微增加，回饋感更強 */
+    stroke: #5d5dff !important;
 }
+
 
 /* 讓圖示不干擾點擊事件 */
 .tab-item i {
