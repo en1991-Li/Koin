@@ -456,25 +456,15 @@ input[type="range"]::-webkit-slider-thumb {
     width: 100%;
 }
 
-/* 每個月份區塊佔滿寬度 */
-.month-section {
-    min-width: 100%;
-    scroll-snap-align: start;
-    padding: 10px 20px 20px;
-    position: relative;
+/* 移除月份背景浮水印 (例如影片與圖片中的 "4月") */
+.month-label {
+    display: none !important;
 }
 
-/* 月份背景浮水印 (例如 4月) */
-.month-label {
-    position: absolute;
-    top: 40%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 80px;
-    font-weight: 900;
-    color: rgba(255, 255, 255, 0.03); 
-    z-index: 0;
-    pointer-events: none;
+/* 同時建議調整月份區塊的間距，確保移除陰影後佈局依然美觀 */
+.month-section {
+    padding-bottom: 20px;
+    min-height: auto; /* 移除陰影後不需要固定的最小高度來支撐背景字 */
 }
 
 /* 網格與圓圈效果 */
