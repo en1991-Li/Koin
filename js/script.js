@@ -166,7 +166,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 通用頁面切換 (你原本就有的，保持不變)
 function showPage(pageId) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    // 確保 DOM 載入後執行
+document.addEventListener('DOMContentLoaded', () => {
+    const tabItems = document.querySelectorAll('.tab-item');
+
+    tabItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // 1. 先移除所有項目的 active 樣式
+            tabItems.forEach(tab => tab.classList.remove('active'));
+            
+            // 2. 為當前被點擊的圖案加上 active (這會觸換 CSS 中的藍色)
+            this.classList.add('active');
+
+            // 3. 取得要切換的頁面 ID (假設你原本就有這段邏輯)
+            const pageId = this.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+            if (pageId) {
+                showPage(pageId); // 呼叫你原本的切換頁面函數
+            }
+        });
+    });
+});
+
     document.getElementById(pageId).classList.add('active');
 }
 
