@@ -425,8 +425,8 @@ input[type="range"]::-webkit-slider-thumb {
     min-width: 100%;
     scroll-snap-align: start;
     flex-shrink: 0;
-    /* 調整 10px 25px 分別代表上下與左右的間距 */
-    padding: 10px 25px 0 25px; 
+    /* 上 5px, 左右 30px, 下 0 */
+    padding: 5px 30px 0 30px; 
     box-sizing: border-box;
 }
 
@@ -434,28 +434,28 @@ input[type="range"]::-webkit-slider-thumb {
 .calendar-grid-body {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    /* 將原先的 15px 縮減為 8px，讓日期看起來更緊湊 */
-    row-gap: 8px; 
-    column-gap: 0; /* 靠 1fr 自動分配 */
+    /* 這裡從 15px 縮小到 5px，會讓日期上下看起來更靠近，更像影片中的樣式 */
+    row-gap: 5px; 
+    column-gap: 0;
     position: relative;
     z-index: 1;
 }
 
 /* 4. 日期數字容器：微調大小確保圓圈比例精確 */
 .calendar-grid-day .date-val {
-    width: 38px;  /* 稍微增加圓圈感 */
-    height: 38px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 17px;
+    font-size: 16px; /* 稍微縮小字體，視覺感更精緻 */
     border-radius: 50%;
-    transition: background 0.2s;
+    margin: 0 auto; /* 確保在 Grid 單元格中置中 */
 }
 
 /* 5. 選中圓圈：確保與截圖一致的白色邊框 */
 .calendar-grid-day.active .date-val {
-    border: 2px solid #ffffff;
+    border: 1.5px solid #ffffff; /* 稍微減細線條，更符合現代 UI */
     background: transparent;
     font-weight: 700;
 }
@@ -465,12 +465,13 @@ input[type="range"]::-webkit-slider-thumb {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     text-align: center;
-    /* 左右 25px 必須與 .month-section 一致，否則「週一」會對不齊日期 */
-    padding: 15px 25px 10px 25px; 
+    padding: 15px 30px 10px 30px; /* 增加左右到 30px */
     font-size: 11px;
     font-weight: 600;
     color: var(--text-muted);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
+
 
 /* iOS Switch 開關 */
 .switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
