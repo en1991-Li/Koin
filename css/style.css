@@ -456,15 +456,18 @@ input[type="range"]::-webkit-slider-thumb {
     width: 100%;
 }
 
-/* 移除月份背景浮水印 (例如影片與圖片中的 "4月") */
+/* 移除月份背景浮水印  */
 .month-label {
     display: none !important;
 }
 
-/* 同時建議調整月份區塊的間距，確保移除陰影後佈局依然美觀 */
+/* 每個月份區塊：寬度維持 100% 但縮減內容邊距 */
 .month-section {
-    padding-bottom: 20px;
-    min-height: auto; /* 移除陰影後不需要固定的最小高度來支撐背景字 */
+    min-width: 100%;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    padding: 0 15px; /* 這裡控制左右留白，數值愈小愈緊湊 */
+    box-sizing: border-box;
 }
 
 /* 網格與圓圈效果 */
