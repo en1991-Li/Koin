@@ -75,12 +75,15 @@ body, html {
     background: var(--bg);
 }
 
-.page-title {
+/* 確保標題在 header 中間，不受兩側圖示長度影響 */
+.nav-header .page-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     font-size: 18px;
     font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    margin: 0;
+    white-space: nowrap;
 }
 
 .page {
@@ -107,10 +110,11 @@ body, html {
 .balance-hero {
     display: flex;
     flex-direction: column;
-    align-items: center; /* 水平置中 */
-    justify-content: center;
+    align-items: center;      /* 水平置中 */
+    justify-content: center;   /* 垂直置中 */
     text-align: center;
-    padding: 20px 0;
+    padding: 30px 20px;       /* 增加一點間距感 */
+    width: 100%;
 }
 
 .balance-hero .amount {
@@ -118,16 +122,16 @@ body, html {
     font-weight: 900;
     letter-spacing: -2px;
     margin: 5px 0;
-    width: 100%; /* 確保佔滿寬度以利置中 */
+    display: block;           /* 確保是區塊元素以利對齊 */
 }
 
-/* 新增帳戶頁面的文字置中 */
+/* 3. 新增帳戶頁面 (add-acc-hero) 同步置中 */
 .add-acc-hero {
     display: flex;
     flex-direction: column;
-    align-items: center; /* 水平置中 */
-    padding: 30px 20px;
+    align-items: center;      /* 置中圖示與文字 */
     text-align: center;
+    padding: 40px 20px;
 }
 
 .hero-balance {
