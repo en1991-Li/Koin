@@ -102,15 +102,15 @@ body, html {
 /* =========================================
    4. 帳戶總覽樣式
    ========================================= */
-.balance-hero {
-    text-align: center;
-    padding: 15px 0;
-}
+/* 帳戶總覽（首頁）的文字置中 */
 
-.balance-hero .label {
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--text-muted);
+.balance-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 水平置中 */
+    justify-content: center;
+    text-align: center;
+    padding: 20px 0;
 }
 
 .balance-hero .amount {
@@ -118,6 +118,38 @@ body, html {
     font-weight: 900;
     letter-spacing: -2px;
     margin: 5px 0;
+    width: 100%; /* 確保佔滿寬度以利置中 */
+}
+
+/* 新增帳戶頁面的文字置中 */
+.add-acc-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 水平置中 */
+    padding: 30px 20px;
+    text-align: center;
+}
+
+.hero-balance {
+    width: 100%;
+    text-align: center;
+}
+
+.hero-balance .val {
+    font-size: 52px;
+    font-weight: 900;
+    display: block; /* 確保數字獨佔一行並置中 */
+}
+
+/* 如果有備註欄位，也一併置中 */
+.memo-field {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 14px;
+    text-align: center; /* 文字輸入置中 */
+    width: 100%;
+    outline: none;
 }
 
 .sub-stats {
