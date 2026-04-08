@@ -2,25 +2,74 @@
 let selectedDate = new Date(2026, 3, 8); // 預設選中 2026/04/08
 const weekdays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
 
-/**
- * 渲染完整 12 個月的日曆
- */
-function renderFullYearCalendar() {
-    const container = document.getElementById('calendar-scroll-body');
-    if (!container) return;
+function renderYearlyCalendar() {
+    const slider = document.getElementById('calendar-month-slider');
+    if (!slider) return;
 
-    container.innerHTML = '';
-
-    // 生成 2026 年的 1 到 12 月
+    slider.innerHTML = '';
     for (let m = 0; m < 12; m++) {
-        const monthDate = new Date(2026, m, 1);
-        container.appendChild(createMonthGrid(monthDate));
+        slider.appendChild(createMonthGrid(new Date(2026, m, 1)));
     }
 
-    // 初始化標題與自動滾動
-    updateHeaderTitle(2026, selectedDate.getMonth());
-    setupScrollObserver();
+    // 初始滾動到當前月份 (4月)
+    setTimeout(() => {
+        const april = slider.children[3];
+        april.scrollIntoView({ inline: 'start' });
+    }, 100);
+
+    // 監聽水平滾動以更新標題
+    slider.addEventListener('scroll', () => {
+        const index = Math.round(slider.scrollLeft / slider.offsetWidth);
+        updateHeaderTitle(2026, index);
+    });
 }
+
+function createMonthGrid(date) {
+    const month = date.getMonth();
+    const year = date.getFullYear();
+    const section = document.createElement('div');
+    section.className = 'month-section';
+    
+    section.innerHTML = `<div class="month-label">${month + 1}月</div>`;
+    const grid = document.createElement('div');
+    grid.className = 'calendar-grid-body';
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // 填補空格
+    for (let i = 0; i < firstDay; i++) {
+        const empty = document.createElement('div');
+        empty.className = 'calendar-grid-day not-current';
+        grid.appendChild(empty);
+    }
+
+    // 填日期
+    for (let i = 1; i <= daysInMonth; i++) {
+        const dayDiv = document.createElement('div');
+        const isSelected = (year === 2026 && month === 3 && i === 8);
+        const dayOfWeek = new Date(year, month, i).getDay();
+        
+        dayDiv.className = `calendar-grid-day current ${isSelected ? 'active' : ''} ${dayOfWeek === 0 ? 'sunday' : ''} ${dayOfWeek === 6 ? 'saturday' : ''}`;
+        dayDiv.innerHTML = `<span class="date-val">${i < 10 ? '0'+i : i}</span>`;
+        
+        dayDiv.onclick = () => {
+            document.querySelectorAll('.calendar-grid-day').forEach(d => d.classList.remove('active'));
+            dayDiv.classList.add('active');
+            // 此處呼叫更新下方記錄的函數
+            renderDailyDetails(`${year}/${(month+1).toString().padStart(2,'0')}/${i.toString().padStart(2,'0')}`);
+        };
+        grid.appendChild(dayDiv);
+    }
+    section.appendChild(grid);
+    return section;
+}
+
+function updateHeaderTitle(year, month) {
+    const title = document.getElementById('full-calendar-month');
+    if (title) title.innerText = `${year}/${(month + 1).toString().padStart(2, '0')}`;
+}
+
 
 /**
  * 建立單個月份的網格結構
