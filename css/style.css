@@ -390,7 +390,7 @@ input[type="range"]::-webkit-slider-thumb {
 .tab-fab {
     /* 移除原本的 absolute 定位，讓它參與 flex 佈局以維持間距一致 */
     position: relative; 
-    bottom: 15px !important; /* 讓圓形按鈕稍微浮起 */
+    bottom: 18px !important; /* 讓圓形按鈕稍微浮起 */
     z-index: 110;
 }
 
@@ -405,7 +405,7 @@ input[type="range"]::-webkit-slider-thumb {
 /* 導覽項目基礎樣式 */
 .tab-item {
     color: var(--text-muted); /* 預設為灰色 */
-    font-size: 26px;          /* 從 22px 調大至 26px */
+    font-size: 28px;    
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -423,7 +423,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 /* 如果你想讓中間的 FAB 也有顏色變化 */
-.tab-fab:active .fab-inner {
+.tab-fab:active .fab-inner i {
     filter: brightness(1.2);   /* 點擊時讓漸層變亮 */
     transform: scale(0.95);    /* 按下的縮放感 */
 }
