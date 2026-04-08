@@ -170,7 +170,19 @@ function setupScrollObserver() {
     sections.forEach(section => observer.observe(section));
 }
 
-// 頁面載入執行
 document.addEventListener('DOMContentLoaded', () => {
-    renderFullYearCalendar();
+    // 渲染 12 個月
+    renderYearlyCalendar(); 
+    
+    // 初始化中間按鈕的點擊事件，確保切換到日曆頁面時能看到內容
+    const fabBtn = document.querySelector('.tab-fab');
+    if (fabBtn) {
+        fabBtn.onclick = () => {
+            showPage('page-calendar');
+            // 切換頁面後重新計算一次寬度 (防止滑動失效)
+            const slider = document.getElementById('calendar-month-slider');
+            if (slider) slider.scrollLeft = slider.offsetWidth * 3; // 預設跳到 4 月
+        };
+    }
 });
+
