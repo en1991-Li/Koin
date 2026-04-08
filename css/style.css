@@ -367,28 +367,43 @@ input[type="range"]::-webkit-slider-thumb {
 /* =========================================
    7. 底部導覽列與開關
    ========================================= */
+/* 底部導覽列主體 */
 .tab-bar {
-    position: absolute; bottom: 0; width: 100%; height: 85px;
+    position: absolute; 
+    bottom: 0;           /* 貼齊底部 */
+    width: 100%; 
+    height: 75px;        /* 稍微縮減高度，讓視覺感下移 */
     background: var(--tab-bg);
     backdrop-filter: blur(15px);
     border-top: 1px solid var(--border);
-    display: flex; justify-content: space-around; align-items: center;
-    padding-bottom: 20px; z-index: 100;
+    display: flex; 
+    justify-content: space-around; 
+    align-items: center;
+    padding-bottom: 10px; /* 縮減原本的 20px 留白，讓圖示整體下移 */
+    z-index: 100;
 }
 
-.tab-item { color: var(--text-muted); font-size: 24px; cursor: pointer; }
-.tab-item.active { color: var(--blue); }
-
+/* 中間圓形按鈕 (FAB) */
 .tab-fab {
-    width: 55px; height: 55px;
-    background: linear-gradient(135deg, #a78bfa, #5ac8fa);
-    transform: translateY(-20px) rotate(45deg);
-    border-radius: 14px;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 4px 15px rgba(90, 200, 250, 0.4);
+    /* 原本是 20px，改為 10px 讓按鈕跟著下移 */
+    bottom: 10px !important; 
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 110;
 }
 
-.fab-inner { transform: rotate(-45deg); color: white; }
+.fab-inner {
+    width: 52px;  /* 稍微縮小一點點，看起來會更精緻且空間感更足 */
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135.47deg, #A16CFD 15.05%, #6E88F9 52.81%, #45B6F5 85.55%) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(93, 93, 255, 0.4);
+}
+
 
 /* iOS Switch 開關 */
 .switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
