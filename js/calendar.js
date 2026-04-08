@@ -83,6 +83,9 @@ document.addEventListener('DOMContentLoaded', renderFullCalendar);
 
 
 
+
+
+
 document.addEventListener('DOMContentLoaded', () => {
     initCalendarStrip();
     // 初始渲染一次詳細內容
