@@ -367,7 +367,6 @@ input[type="range"]::-webkit-slider-thumb {
 /* =========================================
    7. 底部導覽列與開關
    ========================================= */
-/* 底部導覽列主體 */
 .tab-bar {
     position: absolute; 
     bottom: 0; 
@@ -376,63 +375,72 @@ input[type="range"]::-webkit-slider-thumb {
     background: var(--tab-bg);
     backdrop-filter: blur(15px);
     border-top: 1px solid var(--border);
-    
-    /* 關鍵修改：使用 center 配合 gap，或增加左右 padding */
     display: flex; 
-    justify-content: center; /* 改為置中 */
-    gap: 35px;               /* 設定圖示之間的固定間距 */
+    justify-content: center; 
+    gap: 30px;               /* 稍微縮小間距，確保在小手機不跑版 */
     align-items: center;
-    padding-bottom: 10px; 
+    padding-bottom: 12px;    /* 增加底部邊距，符合 iOS Home Indicator 視覺 */
     z-index: 100;
 }
 
 /* 針對中間 FAB 按鈕的特殊處理 */
 .tab-fab {
-    /* 移除原本的 absolute 定位，讓它參與 flex 佈局以維持間距一致 */
     position: relative; 
-    bottom: 18px !important; /* 讓圓形按鈕稍微浮起 */
+    bottom: 20px !important; 
     z-index: 110;
+    cursor: pointer;
 }
 
-/* 中間大按鈕圖示同步調大 */
+.fab-inner {
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #A16CFD, #6E88F9, #45B6F5);
+    box-shadow: 0 4px 15px rgba(93, 93, 255, 0.4);
+    width: 56px;
+    height: 56px;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 .fab-inner i {
-    width: 32px;  /* 從 28px 調大至 32px */
-    height: 32px;
-    color: white;
-    transition: transform 0.2s ease;
+    width: 28px;
+    height: 28px;
+    color: white !important; /* 強制白色 */
 }
 
 /* 導覽項目基礎樣式 */
 .tab-item {
-    color: var(--text-muted); /* 預設為灰色 */
-    font-size: 28px;    
+    color: var(--text-muted);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;              /* 稍微加大觸控區域 */
-    height: 40px;
-    transition: all 0.2s ease; /* 增加平滑過渡效果 */
+    width: 44px;              /* 稍微增加觸控寬度 */
+    height: 44px;
+    transition: all 0.2s ease;
     position: relative;
 }
 
 /* 點擊後或選中時的顏色變化 */
-   .tab-item.active i {
+.tab-item.active i {
     color: #5d5dff !important;
     stroke: #5d5dff !important;
-    transform: scale(1.1);    /* 點擊時輕微放大，增加回饋感 */
+    transform: scale(1.15);    /* 放大倍率稍微增加，回饋感更強 */
 }
 
-/* 讓圖示不干擾點擊事件，確保點擊能傳給 div */
+/* 讓圖示不干擾點擊事件 */
 .tab-item i {
+    width: 26px;              /* 統一圖示大小 */
+    height: 26px;
     pointer-events: none;
+    transition: all 0.2s ease;
 }
 
-
-/* 如果你想讓中間的 FAB 也有顏色變化 */
-.tab-fab:active .fab-inner i {
-    filter: brightness(1.2);   /* 點擊時讓漸層變亮 */
-    transform: scale(0.95);    /* 按下的縮放感 */
+/* FAB 按下效果 */
+.tab-fab:active .fab-inner {
+    transform: scale(0.92);
+    filter: brightness(1.1);
 }
 
 
