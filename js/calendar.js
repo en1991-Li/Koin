@@ -1,27 +1,40 @@
-// 設定目前顯示的起始月份
-let currentViewDate = new Date(2026, 3, 1); 
+// 1. 設定初始日期與狀態
+let selectedDate = new Date(2026, 3, 8); // 預設選中 2026/04/08
+const weekdays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
 
-function renderInfiniteCalendar() {
+/**
+ * 渲染完整 12 個月的日曆
+ */
+function renderFullYearCalendar() {
     const container = document.getElementById('calendar-scroll-body');
     if (!container) return;
 
     container.innerHTML = '';
 
-    // 生成前後各三個月，共七個月
-    for (let i = -3; i <= 3; i++) {
-        const monthDate = new Date(2026, 3 + i, 1);
+    // 生成 2026 年的 1 到 12 月
+    for (let m = 0; m < 12; m++) {
+        const monthDate = new Date(2026, m, 1);
         container.appendChild(createMonthGrid(monthDate));
     }
+
+    // 初始化標題與自動滾動
+    updateHeaderTitle(2026, selectedDate.getMonth());
+    setupScrollObserver();
 }
 
+/**
+ * 建立單個月份的網格結構
+ */
 function createMonthGrid(date) {
     const month = date.getMonth();
     const year = date.getFullYear();
     
     const section = document.createElement('div');
     section.className = 'month-section';
+    // 設定 data 屬性供滾動偵測使用
+    section.setAttribute('data-year', year);
+    section.setAttribute('data-month', month);
     
-    // 背景大大的月份字樣
     const label = document.createElement('div');
     label.className = 'month-label';
     label.innerText = `${month + 1}月`;
@@ -33,14 +46,14 @@ function createMonthGrid(date) {
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    // 1. 填空位 (維持網格對齊)
+    // 1. 填充上個月空位
     for (let i = 0; i < firstDay; i++) {
         const empty = document.createElement('div');
         empty.className = 'calendar-grid-day not-current';
         grid.appendChild(empty);
     }
 
-    // 2. 填日期
+    // 2. 填充日期
     for (let i = 1; i <= daysInMonth; i++) {
         const dayDiv = document.createElement('div');
         const isSelected = (year === selectedDate.getFullYear() && 
@@ -53,10 +66,17 @@ function createMonthGrid(date) {
         dayDiv.innerHTML = `<span class="date-val">${i < 10 ? '0' + i : i}</span>`;
         
         dayDiv.onclick = () => {
-            selectedDate = new Date(year, month, i);
+            // 清除舊選取並更新新選取
             document.querySelectorAll('.calendar-grid-day').forEach(d => d.classList.remove('active'));
             dayDiv.classList.add('active');
-            updateHeaderTitle(year, month);
+            
+            // 更新全域選中日期
+            selectedDate = new Date(year, month, i);
+            
+            // 如果有同步函數（如更新首頁列表），在此呼叫
+            if (typeof updateAllCalendars === "function") {
+                updateAllCalendars(year, month, i);
+            }
         };
         
         grid.appendChild(dayDiv);
@@ -66,15 +86,42 @@ function createMonthGrid(date) {
     return section;
 }
 
-// 更新 Header 顯示的年月
+/**
+ * 更新頂部標題 (2026/04)
+ */
 function updateHeaderTitle(year, month) {
     const title = document.getElementById('full-calendar-month');
-    if (title) title.innerText = `${year}/${(month + 1).toString().padStart(2, '0')}`;
+    if (title) {
+        title.innerText = `${year}/${(month + 1).toString().padStart(2, '0')}`;
+    }
 }
 
-// 監聽滾動以切換 Header 的年月 (選配，提升擬真度)
-document.getElementById('calendar-scroll-body')?.addEventListener('scroll', (e) => {
-    // 這裡可以加入 logic 偵測目前最靠近頂端的月份區塊，並更新 Header
-});
+/**
+ * 監聽滾動：當月份進入視野時更新標題
+ */
+function setupScrollObserver() {
+    const container = document.getElementById('calendar-scroll-body');
+    const sections = document.querySelectorAll('.month-section');
 
-document.addEventListener('DOMContentLoaded', renderInfiniteCalendar);
+    const observerOptions = {
+        root: container,
+        threshold: 0.3 // 當月份區塊出現 30% 時觸發標題切換
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const year = entry.target.getAttribute('data-year');
+                const month = parseInt(entry.target.getAttribute('data-month'));
+                updateHeaderTitle(year, month);
+            }
+        });
+    }, observerOptions);
+
+    sections.forEach(section => observer.observe(section));
+}
+
+// 頁面載入執行
+document.addEventListener('DOMContentLoaded', () => {
+    renderFullYearCalendar();
+});
