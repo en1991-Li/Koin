@@ -402,30 +402,32 @@ input[type="range"]::-webkit-slider-thumb {
     transition: transform 0.2s ease;
 }
 
-/* 中間按鈕點擊效果 */
-.tab-fab:active .fab-inner {
-    transform: scale(0.9); /* 點擊時縮小回饋 */
-    filter: brightness(1.1); /* 點擊時稍微變亮 */
-}
-
-/* 導覽圖示大小微調 */
+/* 導覽項目基礎樣式 */
 .tab-item {
-    color: var(--text-muted);
-    font-size: 26px; /* 從 22px 調大至 26px */
+    color: var(--text-muted); /* 預設為灰色 */
+    font-size: 26px;          /* 從 22px 調大至 26px */
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 45px;
-    height: 45px;
-    transition: all 0.2s ease; /* 增加顏色與縮放的轉場效果 */
+    width: 50px;              /* 稍微加大觸控區域 */
+    height: 50px;
+    transition: all 0.2s ease; /* 增加平滑過渡效果 */
+    position: relative;
 }
 
-/* 點擊時的顏色變化與輕微縮放回饋 */
-.tab-item:active, .tab-item.active {
-    color: var(--blue); /* 點擊或啟用時變為藍色 */
-    transform: scale(0.9); /* 點擊時輕微縮小，增加物理按鈕感 */
+/* 點擊後或選中時的顏色變化 */
+.tab-item.active {
+    color: var(--blue);       /* 變為你定義的藍色 */
+    transform: scale(1.1);    /* 點擊時輕微放大，增加回饋感 */
 }
+
+/* 如果你想讓中間的 FAB 也有顏色變化 */
+.tab-fab:active .fab-inner {
+    filter: brightness(1.2);   /* 點擊時讓漸層變亮 */
+    transform: scale(0.95);    /* 按下的縮放感 */
+}
+
 
 /* =========================================
    8. 日曆分頁樣式優化
