@@ -371,7 +371,7 @@ input[type="range"]::-webkit-slider-thumb {
     position: absolute; 
     bottom: 0; 
     width: 100%; 
-    height: 75px;            /* 從 75px 調高到 85px */
+    height: 85px;            /* 從 75px 調高到 85px */
     background: var(--tab-bg);
     backdrop-filter: blur(15px);
     border-top: 1px solid var(--border);
