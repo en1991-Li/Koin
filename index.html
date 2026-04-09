@@ -194,151 +194,100 @@
     <div class="daily-details-section" id="daily-details-list">
         </div>
 </section>
- <style>
- <style>
-    /* --- 導覽列核心樣式 (大圖示優化) --- */
-    .tab-bar {
-        position: absolute; 
-        bottom: 0; 
-        width: 100%; 
-        height: 85px;            
-        background: rgba(28, 28, 40, 0.95); 
-        backdrop-filter: blur(15px);
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        display: flex; 
-        justify-content: center; 
-        gap: 25px;               
-        align-items: center;
-        padding-bottom: 10px;
-        z-index: 100;
-    }
+  
+<style>
+   
+    /* 讓中間的層疊圖示被選中時也變藍色 */
+.tab-fab.active .fab-inner i {
+    color: #5d5dff !important;
+    stroke: #5d5dff !important;
+    transform: scale(1.15);
+}
 
-    .tab-item {
-        color: #888;             
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 55px;             
-        height: 55px;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+/* 確保圖示不會攔截點擊事件 */
+.tab-item i, .tab-fab i, .fab-inner {
+    pointer-events: none;
+}
+/* 但外層需要恢復點擊功能 */
+.tab-item, .tab-fab {
+    pointer-events: auto;
+}
 
-    /* 確保所有導覽列圖示統一調大 */
-    .tab-item i, .tab-fab i {
-        width: 32px !important;  
-        height: 32px !important;
-        pointer-events: none;    
-        transition: all 0.3s ease;
-    }
 
-    /* 選中狀態：變藍、放大、發光 */
-    .tab-item.active i, 
-    .tab-fab.active .fab-inner i {
-        color: #5d5dff !important;
-        stroke: #5d5dff !important;
-        transform: scale(1.25);  
-        filter: drop-shadow(0 0 5px rgba(93, 93, 255, 0.5));
-    }
+    .calendar-strip-container {
+    background: #1c1c28;
+    padding: 10px 0;
+    border-bottom: 1px solid #2c2c3e;
+}
 
-    /* 中間 FAB 圓圈加大 */
-    .tab-fab {
-        position: relative; 
-        bottom: 20px; 
-        z-index: 110;
-        cursor: pointer;
-    }
+.calendar-strip {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 0 10px;
+    gap: 15px;
+}
 
-    .fab-inner {
-        width: 68px;             
-        height: 68px;
-        border-radius: 50% !important;
-        background: linear-gradient(135deg, #A16CFD, #6E88F9, #45B6F5) !important;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 6px 20px rgba(93, 93, 255, 0.4);
-        transition: transform 0.2s ease;
-    }
+.calendar-strip::-webkit-scrollbar {
+    display: none; /* 隱藏滾動條 */
+}
 
-    .tab-item:active, .tab-fab:active .fab-inner {
-        transform: scale(0.9);
-    }
+.calendar-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 45px;
+    cursor: pointer;
+}
 
-    /* --- 日曆頁面專屬樣式 --- */
-    .calendar-strip-container {
-        background: #1c1c28;
-        padding: 10px 0;
-        border-bottom: 1px solid #2c2c3e;
-    }
+.calendar-day .weekday {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 8px;
+}
 
-    .calendar-strip {
-        display: flex;
-        overflow-x: auto;
-        scroll-behavior: smooth;
-        padding: 0 10px;
-        gap: 15px;
-    }
+.calendar-day .date-num {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #fff;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
 
-    .calendar-strip::-webkit-scrollbar {
-        display: none;
-    }
+/* 選中狀態：白色外圈 */
+.calendar-day.active .date-num {
+    border: 2px solid #fff;
+    font-weight: bold;
+}
 
-    .calendar-day {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-width: 45px;
-        cursor: pointer;
-    }
+/* 週末顏色模擬 (週日紅、週六綠) */
+.calendar-day.sunday .weekday, .calendar-day.sunday .date-num { color: #ff5d5d; }
+.calendar-day.saturday .weekday, .calendar-day.saturday .date-num { color: #5dff5d; }
 
-    .calendar-day .weekday {
-        font-size: 11px;
-        color: #888;
-        margin-bottom: 8px;
-    }
-
-    .calendar-day .date-num {
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 16px;
-        color: #fff;
-        border-radius: 50%;
-        transition: all 0.2s;
-    }
-
-    /* 選中日期樣式 */
-    .calendar-day.active .date-num {
-        border: 2px solid #fff;
-        font-weight: bold;
-    }
-
-    .calendar-day.sunday .weekday, .calendar-day.sunday .date-num { color: #ff5d5d; }
-    .calendar-day.saturday .weekday, .calendar-day.saturday .date-num { color: #5dff5d; }
-</style>   
-
+</style>
 
 <nav class="tab-bar">
-    <div class="tab-item active" onclick="showPage('page-overview', this)">
-        <i data-lucide="archive"></i>
-    </div>
-    <div class="tab-item" onclick="showPage('page-projects', this)">
-        <i data-lucide="wallet"></i>
-    </div>
-    
-    <div class="tab-fab" onclick="showPage('page-calendar', this)"> 
-        <div class="fab-inner"><i data-lucide="layers"></i></div>
-    </div>
-    
-    <div class="tab-item" onclick="showPage('page-trends', this)">
-        <i data-lucide="trending-up"></i>
-    </div>
-    <div class="tab-item" onclick="showPage('page-settings', this)">
-        <i data-lucide="sliders-horizontal"></i>
-    </div>
+    <div class="tab-item active" onclick="showPage('page-overview', this)">
+        <i data-lucide="archive"></i>
+    </div>
+    <div class="tab-item" onclick="showPage('page-projects', this)">
+        <i data-lucide="wallet"></i>
+    </div>
+    
+    <div class="tab-fab" onclick="showPage('page-calendar', this)"> 
+        <div class="fab-inner"><i data-lucide="layers"></i></div>
+    </div>
+    
+    <div class="tab-item" onclick="showPage('page-trends', this)">
+        <i data-lucide="trending-up"></i>
+    </div>
+    <div class="tab-item" onclick="showPage('page-settings', this)">
+        <i data-lucide="sliders-horizontal"></i>
+    </div>
 </nav>
 
 <script src="js/projects.js"></script>       
@@ -347,30 +296,35 @@
     </div>
 
     <script>
-        lucide.createIcons();
-
-        function showPage(pageId) {
+    
+        function showPage(pageId, element) {
     // 1. 切換頁面顯示
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const target = document.getElementById(pageId);
     if (target) target.classList.add('active');
 
-    // 2. 更新導覽列圖示顏色
-    const tabs = document.querySelectorAll('.tab-bar .tab-item');
-    tabs.forEach(tab => tab.classList.remove('active'));
+    // 2. 更新導覽列狀態
+    // 移除所有項目的 active 類別 (包含 tab-item 和 tab-fab)
+    document.querySelectorAll('.tab-item, .tab-fab').forEach(tab => tab.classList.remove('active'));
 
-    if (pageId === 'page-overview') tabs[0].classList.add('active');
-    if (pageId === 'page-projects') tabs[1].classList.add('active');
-    
-    // 3. 處理中間按鈕的特殊狀態 (如果需要)
-    const fab = document.querySelector('.tab-fab');
-    if (pageId === 'page-calendar') {
-        fab.style.opacity = "1";
+    if (element) {
+        // 如果是直接點擊導覽列
+        element.classList.add('active');
     } else {
-        fab.style.opacity = "0.9";
+        // 如果是透過代碼跳轉 (例如點擊 + 號跳轉)
+        const tabs = document.querySelectorAll('.tab-bar .tab-item');
+        if (pageId === 'page-overview') tabs[0].classList.add('active');
+        if (pageId === 'page-projects') tabs[1].classList.add('active');
+        if (pageId === 'page-calendar') document.querySelector('.tab-fab').classList.add('active');
     }
-}
 
+    // 3. 處理中間按鈕透明度與圖示重繪
+    const fab = document.querySelector('.tab-fab');
+    fab.style.opacity = (pageId === 'page-calendar') ? "1" : "0.9";
+    
+    // 重新觸發圖示渲染，確保顏色正確套用
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
 
         function closeModal(id) {
             document.getElementById(id).style.display = 'none';
