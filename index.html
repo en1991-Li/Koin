@@ -195,94 +195,131 @@
         </div>
 </section>
   
-<style>
-    
-}
+ <style>
+    /* --- 導覽列核心樣式 (大圖示優化) --- */
+    .tab-bar {
+        position: absolute; 
+        bottom: 0; 
+        width: 100%; 
+        height: 85px;            
+        background: rgba(28, 28, 40, 0.95); 
+        backdrop-filter: blur(15px);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex; 
+        justify-content: center; 
+        gap: 25px;               
+        align-items: center;
+        padding-bottom: 10px;
+        z-index: 100;
+    }
 
-    /* 讓圖示不干擾點擊，確保 JS 抓到的是外層 div */
-.tab-item i, .tab-fab i {
-    pointer-events: none;
-}
-
-/* 強制 Active 狀態變色與放大 */
-.tab-item.active i, .tab-fab.active .fab-inner i {
-    color: #5d5dff !important;
-    stroke: #5d5dff !important;
-    transform: scale(1.15) !important;
-    transition: all 0.2s ease;
-}
-
-    
-    .fab-inner {
-        border-radius: 50% !important;
-        transform: none !important;
+    .tab-item {
+        color: #888;             
+        cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135.47deg, #A16CFD 15.05%, #6E88F9 52.81%, #45B6F5 85.55%) !important;
-        box-shadow: 0 4px 15px rgba(93, 93, 255, 0.4);
-        width: 56px;
-        height: 56px;
+        width: 55px;             
+        height: 55px;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .fab-inner i {
-        transform: none !important;
-        color: white;
+
+    /* 確保所有導覽列圖示統一調大 */
+    .tab-item i, .tab-fab i {
+        width: 32px !important;  
+        height: 32px !important;
+        pointer-events: none;    
+        transition: all 0.3s ease;
     }
+
+    /* 選中狀態：變藍、放大、發光 */
+    .tab-item.active i, 
+    .tab-fab.active .fab-inner i {
+        color: #5d5dff !important;
+        stroke: #5d5dff !important;
+        transform: scale(1.25);  
+        filter: drop-shadow(0 0 5px rgba(93, 93, 255, 0.5));
+    }
+
+    /* 中間 FAB 圓圈加大 */
+    .tab-fab {
+        position: relative; 
+        bottom: 20px; 
+        z-index: 110;
+        cursor: pointer;
+    }
+
+    .fab-inner {
+        width: 68px;             
+        height: 68px;
+        border-radius: 50% !important;
+        background: linear-gradient(135deg, #A16CFD, #6E88F9, #45B6F5) !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 6px 20px rgba(93, 93, 255, 0.4);
+        transition: transform 0.2s ease;
+    }
+
+    .tab-item:active, .tab-fab:active .fab-inner {
+        transform: scale(0.9);
+    }
+ <style>
+    /* --- 日曆頁面專屬樣式 --- */
     .calendar-strip-container {
-    background: #1c1c28;
-    padding: 10px 0;
-    border-bottom: 1px solid #2c2c3e;
-}
+        background: #1c1c28;
+        padding: 10px 0;
+        border-bottom: 1px solid #2c2c3e;
+    }
 
-.calendar-strip {
-    display: flex;
-    overflow-x: auto;
-    scroll-behavior: smooth;
-    padding: 0 10px;
-    gap: 15px;
-}
+    .calendar-strip {
+        display: flex;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        padding: 0 10px;
+        gap: 15px;
+    }
 
-.calendar-strip::-webkit-scrollbar {
-    display: none; /* 隱藏滾動條 */
-}
+    .calendar-strip::-webkit-scrollbar {
+        display: none;
+    }
 
-.calendar-day {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 45px;
-    cursor: pointer;
-}
+    .calendar-day {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 45px;
+        cursor: pointer;
+    }
 
-.calendar-day .weekday {
-    font-size: 11px;
-    color: #888;
-    margin-bottom: 8px;
-}
+    .calendar-day .weekday {
+        font-size: 11px;
+        color: #888;
+        margin-bottom: 8px;
+    }
 
-.calendar-day .date-num {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    color: #fff;
-    border-radius: 50%;
-    transition: all 0.2s;
-}
+    .calendar-day .date-num {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        color: #fff;
+        border-radius: 50%;
+        transition: all 0.2s;
+    }
 
-/* 選中狀態：白色外圈 */
-.calendar-day.active .date-num {
-    border: 2px solid #fff;
-    font-weight: bold;
-}
+    /* 選中日期樣式 */
+    .calendar-day.active .date-num {
+        border: 2px solid #fff;
+        font-weight: bold;
+    }
 
-/* 週末顏色模擬 (週日紅、週六綠) */
-.calendar-day.sunday .weekday, .calendar-day.sunday .date-num { color: #ff5d5d; }
-.calendar-day.saturday .weekday, .calendar-day.saturday .date-num { color: #5dff5d; }
+    .calendar-day.sunday .weekday, .calendar-day.sunday .date-num { color: #ff5d5d; }
+    .calendar-day.saturday .weekday, .calendar-day.saturday .date-num { color: #5dff5d; }
+</style>   
 
-</style>
 
 <nav class="tab-bar">
     <div class="tab-item active" onclick="showPage('page-overview', this)">
