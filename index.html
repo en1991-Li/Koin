@@ -1,425 +1,379 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Koin記帳</title>
-    <link rel="stylesheet" href="css/style.css">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        .form-select, .form-date {
-            background: transparent;
-            border: none;
-            color: #FFFFFF;
-            font-size: 15px;
-            text-align: right;
-            outline: none;
-            direction: rtl;
-            appearance: none;
-        }
-        .clickable-val {
-            color: #ffffff;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .text-blue { color: #5d5dff; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Koin記帳</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .form-select, .form-date {
+            background: transparent;
+            border: none;
+            color: #FFFFFF;
+            font-size: 15px;
+            text-align: right;
+            outline: none;
+            direction: rtl;
+            appearance: none;
+        }
+        .clickable-val {
+            color: #ffffff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .text-blue { color: #5d5dff; }
+    </style>
 </head>
 <body>
-           <div class="phone-container">
-    <section id="page-overview" class="page active">
-        <header class="nav-header">
-            <i data-lucide="eye" class="s-icon"></i>
-            <h1 class="page-title">帳戶總覽</h1>
-            <div style="display: flex; gap: 15px;">
-                <i data-lucide="maximize" class="s-icon"></i>
-                <i data-lucide="plus" class="s-icon" onclick="showPage('page-add-account')"></i>
-            </div>
-        </header>
-    
-            <div class="content-scroll no-scrollbar">
-                <div class="balance-hero">
-                    <div class="label">總額 TWD</div>
-                    <div class="amount" id="total-balance">0</div>
-                    <div class="sub-stats">
-                        <span>總資產 <span class="text-green">0</span></span>
-                        <span>總負債 <span class="text-red">0</span></span>
-                    </div>
-                </div>
+           <div class="phone-container">
+    <section id="page-overview" class="page active">
+        <header class="nav-header">
+            <i data-lucide="eye" class="s-icon"></i>
+            <h1 class="page-title">帳戶總覽</h1>
+            <div style="display: flex; gap: 15px;">
+                <i data-lucide="maximize" class="s-icon"></i>
+                <i data-lucide="plus" class="s-icon" onclick="showPage('page-add-account')"></i>
+            </div>
+        </header>
+    
+            <div class="content-scroll no-scrollbar">
+                <div class="balance-hero">
+                    <div class="label">總額 TWD</div>
+                    <div class="amount" id="total-balance">0</div>
+                    <div class="sub-stats">
+                        <span>總資產 <span class="text-green">0</span></span>
+                        <span>總負債 <span class="text-red">0</span></span>
+                    </div>
+                </div>
 
-                <div class="account-list">
-                    <div class="group-item">
-                        <span class="group-name">+ 現金 </span>
-                        <span class="group-value text-red">-$0</span>
-                    </div>
-                    <div class="group-item">
-                        <span class="group-name">+ 銀行 </span>
-                        <span class="group-value text-green">+$0</span>
-                    </div>
-                </div>
-            </div>
-        </section>
+                <div class="account-list">
+                    <div class="group-item">
+                        <span class="group-name">+ 現金 </span>
+                        <span class="group-value text-red">-$0</span>
+                    </div>
+                    <div class="group-item">
+                        <span class="group-name">+ 銀行 </span>
+                        <span class="group-value text-green">+$0</span>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-        <section id="page-add-account" class="page">
-            <header class="nav-header">
-                <i data-lucide="x" class="s-icon" onclick="showPage('page-overview')"></i>
-                <h1 class="page-title">新增帳戶 <i data-lucide="info" class="s-icon" style="width:14px"></i></h1>
-                <i data-lucide="check" class="s-icon" onclick="showPage('page-overview')"></i>
-            </header>
+        <section id="page-add-account" class="page">
+            <header class="nav-header">
+                <i data-lucide="x" class="s-icon" onclick="showPage('page-overview')"></i>
+                <h1 class="page-title">新增帳戶 <i data-lucide="info" class="s-icon" style="width:14px"></i></h1>
+                <i data-lucide="check" class="s-icon" onclick="showPage('page-overview')"></i>
+            </header>
 
-            <div class="content-scroll no-scrollbar">
-                <div class="add-acc-hero">
-                    <div class="icon-box"><i data-lucide="credit-card" style="width: 32px; height: 32px;"></i></div>
-                    <div class="hero-balance">
-                        <div class="label">餘額 TWD</div>
-                        <div class="val text-green" id="add-display-amount">0</div>
-                    </div>
-                </div>
+            <div class="content-scroll no-scrollbar">
+                <div class="add-acc-hero">
+                    <div class="icon-box"><i data-lucide="credit-card" style="width: 32px; height: 32px;"></i></div>
+                    <div class="hero-balance">
+                        <div class="label">餘額 TWD</div>
+                        <div class="val text-green" id="add-display-amount">0</div>
+                    </div>
+                </div>
 
-                <div class="form-group">
-                    <div class="form-row">
-                        <label>名稱</label>
-                        <input type="text" placeholder="尚未設定" class="text-right">
-                    </div>
-                    <div class="form-row" onclick="openGroupPicker()" style="cursor: pointer;">
-                        <label>帳戶分組</label>
-                        <span id="selected-group-text" class="clickable-val">現金 <i data-lucide="chevron-right" class="s-icon"></i></span>
-                    </div>
-                    <div class="form-row">
-                        <label>初始金額</label>
-                        <input type="number" value="0" class="text-right">
-                    </div>
+                <div class="form-group">
+                    <div class="form-row">
+                        <label>名稱</label>
+                        <input type="text" placeholder="尚未設定" class="text-right">
+                    </div>
+                    <div class="form-row" onclick="openGroupPicker()" style="cursor: pointer;">
+                        <label>帳戶分組</label>
+                        <span id="selected-group-text" class="clickable-val">現金 <i data-lucide="chevron-right" class="s-icon"></i></span>
+                    </div>
+                    <div class="form-row">
+                        <label>初始金額</label>
+                        <input type="number" value="0" class="text-right">
+                    </div>
 
-                    <div class="form-row" onclick="openCyclePicker()" style="cursor: pointer;">
-                        <label>帳單週期</label>
-                        <span id="main-cycle-display" class="clickable-val">每月月底 <i data-lucide="chevron-right" class="s-icon"></i></span>
-                    </div>
+                    <div class="form-row" onclick="openCyclePicker()" style="cursor: pointer;">
+                        <label>帳單週期</label>
+                        <span id="main-cycle-display" class="clickable-val">每月月底 <i data-lucide="chevron-right" class="s-icon"></i></span>
+                    </div>
 
-                    <div class="form-row">
-                        <label>信用帳戶</label>
-                        <label class="switch">
-                            <input type="checkbox" id="in-is-credit" onchange="toggleCreditFields()">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
+                    <div class="form-row">
+                        <label>信用帳戶</label>
+                        <label class="switch">
+                            <input type="checkbox" id="in-is-credit" onchange="toggleCreditFields()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
 
-                    <div id="credit-extra-fields" style="display: none;">
-                        <div class="form-row sub-row" onclick="openDueDateModal()" style="cursor: pointer;">
-                            <label>— 繳款期限</label>
-                            <span id="due-date-display" class="clickable-val text-blue">尚未設定 <i data-lucide="chevron-right" class="s-icon"></i></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+                    <div id="credit-extra-fields" style="display: none;">
+                        <div class="form-row sub-row" onclick="openDueDateModal()" style="cursor: pointer;">
+                            <label>— 繳款期限</label>
+                            <span id="due-date-display" class="clickable-val text-blue">尚未設定 <i data-lucide="chevron-right" class="s-icon"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-        <div id="group-picker-modal" class="modal-overlay" style="display: none;">
-            <div class="modal-content">
-                <div class="modal-header">帳戶分組</div>
-                <div class="modal-options">
-                    <div class="option-item" onclick="selectGroup('現金')">現金</div>
-                    <div class="option-item" onclick="selectGroup('銀行')">銀行</div>
-                    <div class="option-item" onclick="selectGroup('數位銀行')">數位銀行</div>
-                    <div class="option-item" onclick="selectGroup('信用卡')">信用卡</div>
-                </div>
-                <div class="modal-footer">
-                    <button onclick="closeModal('group-picker-modal')">取消</button>
-                    <button class="btn-confirm" onclick="confirmCycle()">確定</button>
-                </div>
-            </div>
-        </div>
+        <div id="group-picker-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">帳戶分組</div>
+                <div class="modal-options">
+                    <div class="option-item" onclick="selectGroup('現金')">現金</div>
+                    <div class="option-item" onclick="selectGroup('銀行')">銀行</div>
+                    <div class="option-item" onclick="selectGroup('數位銀行')">數位銀行</div>
+                    <div class="option-item" onclick="selectGroup('信用卡')">信用卡</div>
+                </div>
+                <div class="modal-footer">
+                    <button onclick="closeModal('group-picker-modal')">取消</button>
+                    <button class="btn-confirm" onclick="confirmCycle()">確定</button>
+                </div>
+            </div>
+        </div>
 
-        <div id="cycle-picker-modal" class="modal-overlay" style="display: none;">
-            <div class="modal-content" style="padding: 24px;">
-                <div class="modal-header" style="border:none; padding-bottom: 0;">帳單週期</div>
-                
-                <div style="text-align: center; margin: 20px 0;">
-                    <div id="modal-cycle-range" style="font-size: 18px; font-weight: 800; color: #5d5dff;">每月月底</div>
-                    <div id="modal-cycle-note" class="text-muted" style="font-size: 13px; margin-top: 8px;">帳單結帳日：每月月底</div>
-                </div>
+        <div id="cycle-picker-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-content" style="padding: 24px;">
+                <div class="modal-header" style="border:none; padding-bottom: 0;">帳單週期</div>
+                
+                <div style="text-align: center; margin: 20px 0;">
+                    <div id="modal-cycle-range" style="font-size: 18px; font-weight: 800; color: #5d5dff;">每月月底</div>
+                    <div id="modal-cycle-note" class="text-muted" style="font-size: 13px; margin-top: 8px;">帳單結帳日：每月月底</div>
+                </div>
 
-                <div class="slider-container" style="padding: 10px 0;">
-                    <input type="range" id="cycle-slider" min="1" max="31" value="31" style="width: 100%;" oninput="updateCycleText(this.value)">
-                    <div style="display: flex; justify-content: space-between; font-size: 11px; color: #888; margin-top: 8px;">
-                        <span>1 號</span>
-                        <span>15 號</span>
-                        <span>月底</span>
-                    </div>
-                </div>
+                <div class="slider-container" style="padding: 10px 0;">
+                    <input type="range" id="cycle-slider" min="1" max="31" value="31" style="width: 100%;" oninput="updateCycleText(this.value)">
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; color: #888; margin-top: 8px;">
+                        <span>1 號</span>
+                        <span>15 號</span>
+                        <span>月底</span>
+                    </div>
+                </div>
 
-                <div class="modal-footer" style="margin-top: 25px; border: none; gap: 10px; display: flex;">
-                    <button style="flex: 1; background: #39394d; border-radius: 12px; color: white; border: none; padding: 12px;" onclick="closeModal('cycle-picker-modal')">取消</button>
-                    <button class="btn-confirm" style="flex: 1; background: #5d5dff; color: white; border-radius: 12px; border: none; padding: 12px;" onclick="confirmCycle()">確定</button>
-                </div>
-            </div>
-        </div>
+                <div class="modal-footer" style="margin-top: 25px; border: none; gap: 10px; display: flex;">
+                    <button style="flex: 1; background: #39394d; border-radius: 12px; color: white; border: none; padding: 12px;" onclick="closeModal('cycle-picker-modal')">取消</button>
+                    <button class="btn-confirm" style="flex: 1; background: #5d5dff; color: white; border-radius: 12px; border: none; padding: 12px;" onclick="confirmCycle()">確定</button>
+                </div>
+            </div>
+        </div>
 
-        <div id="due-date-type-modal" class="modal-overlay" style="display: none;">
-            <div class="modal-content" style="width: 280px; text-align: center; padding: 20px;">
-                <div style="font-weight: 700; margin-bottom: 20px;">繳款期限</div>
-                <button class="option-item" onclick="selectDueDateType('固定日期')" style="width: 100%; margin-bottom: 10px;">每月固定第幾日</button>
-                <button class="option-item" onclick="selectDueDateType('結帳日後')" style="width: 100%;">結帳日後第幾日</button>
-                <div class="modal-footer"><button onclick="closeModal('due-date-type-modal')">取消</button></div>
-            </div>
-        </div>
-        
-        <section id="page-projects" class="page">
-    <header class="nav-header">
-        <div style="width: 24px;"></div> <h1 class="page-title">專案總覽</h1>
-        <i data-lucide="plus" class="s-icon"></i>
-    </header>
-    <div class="content-scroll no-scrollbar" id="projects-list-container">
-        </div>
-   </section>
+        <div id="due-date-type-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-content" style="width: 280px; text-align: center; padding: 20px;">
+                <div style="font-weight: 700; margin-bottom: 20px;">繳款期限</div>
+                <button class="option-item" onclick="selectDueDateType('固定日期')" style="width: 100%; margin-bottom: 10px;">每月固定第幾日</button>
+                <button class="option-item" onclick="selectDueDateType('結帳日後')" style="width: 100%;">結帳日後第幾日</button>
+                <div class="modal-footer"><button onclick="closeModal('due-date-type-modal')">取消</button></div>
+            </div>
+        </div>
+        
+        <section id="page-projects" class="page">
+    <header class="nav-header">
+        <div style="width: 24px;"></div> <h1 class="page-title">專案總覽</h1>
+        <i data-lucide="plus" class="s-icon"></i>
+    </header>
+    <div class="content-scroll no-scrollbar" id="projects-list-container">
+        </div>
+   </section>
 
 <section id="page-calendar" class="page">
-    <header class="nav-header">
-        <i data-lucide="bell" class="s-icon"></i> 
-        <h1 class="page-title" id="full-calendar-month">2026/04</h1>
-        <div style="display: flex; gap: 15px;">
-            <i data-lucide="calendar-range" class="s-icon"></i>
-            <i data-lucide="search" class="s-icon"></i>
-        </div>
-    </header>
+    <header class="nav-header">
+        <i data-lucide="bell" class="s-icon"></i> 
+        <h1 class="page-title" id="full-calendar-month">2026/04</h1>
+        <div style="display: flex; gap: 15px;">
+            <i data-lucide="calendar-range" class="s-icon"></i>
+            <i data-lucide="search" class="s-icon"></i>
+        </div>
+    </header>
 
-    <div class="calendar-grid-header">
-        <span>週日</span><span>週一</span><span>週二</span><span>週三</span><span>週四</span><span>週五</span><span>週六</span>
-    </div>
+    <div class="calendar-grid-header">
+        <span>週日</span><span>週一</span><span>週二</span><span>週三</span><span>週四</span><span>週五</span><span>週六</span>
+    </div>
 
-    <div class="calendar-horizontal-container no-scrollbar" id="calendar-month-slider">
-        </div>
+    <div class="calendar-horizontal-container no-scrollbar" id="calendar-month-slider">
+        </div>
 
-    <div class="daily-details-section" id="daily-details-list">
-        </div>
+    <div class="daily-details-section" id="daily-details-list">
+        </div>
 </section>
-  
- <style>
-    /* --- 導覽列核心樣式 (大圖示優化) --- */
-    .tab-bar {
-        position: absolute; 
-        bottom: 0; 
-        width: 100%; 
-        height: 85px;            
-        background: rgba(28, 28, 40, 0.95); 
-        backdrop-filter: blur(15px);
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        display: flex; 
-        justify-content: center; 
-        gap: 25px;               
-        align-items: center;
-        padding-bottom: 10px;
-        z-index: 100;
-    }
+  
+<style>
+   
+    /* 讓中間的層疊圖示被選中時也變藍色 */
+.tab-fab.active .fab-inner i {
+    color: #5d5dff !important;
+    stroke: #5d5dff !important;
+    transform: scale(1.15);
+}
 
-    .tab-item {
-        color: #888;             
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 55px;             
-        height: 55px;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* 確保所有導覽列圖示統一調大 */
-    .tab-item i, .tab-fab i {
-        width: 32px !important;  
-        height: 32px !important;
-        pointer-events: none;    
-        transition: all 0.3s ease;
-    }
-
-    /* 選中狀態：變藍、放大、發光 */
-    .tab-item.active i, 
-    .tab-fab.active .fab-inner i {
-        color: #5d5dff !important;
-        stroke: #5d5dff !important;
-        transform: scale(1.25);  
-        filter: drop-shadow(0 0 5px rgba(93, 93, 255, 0.5));
-    }
-
-    /* 中間 FAB 圓圈加大 */
-    .tab-fab {
-        position: relative; 
-        bottom: 20px; 
-        z-index: 110;
-        cursor: pointer;
-    }
-
-    .fab-inner {
-        width: 68px;             
-        height: 68px;
-        border-radius: 50% !important;
-        background: linear-gradient(135deg, #A16CFD, #6E88F9, #45B6F5) !important;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 6px 20px rgba(93, 93, 255, 0.4);
-        transition: transform 0.2s ease;
-    }
-
-    .tab-item:active, .tab-fab:active .fab-inner {
-        transform: scale(0.9);
-    }
- <style>
-    /* --- 日曆頁面專屬樣式 --- */
-    .calendar-strip-container {
-        background: #1c1c28;
-        padding: 10px 0;
-        border-bottom: 1px solid #2c2c3e;
-    }
-
-    .calendar-strip {
-        display: flex;
-        overflow-x: auto;
-        scroll-behavior: smooth;
-        padding: 0 10px;
-        gap: 15px;
-    }
-
-    .calendar-strip::-webkit-scrollbar {
-        display: none;
-    }
-
-    .calendar-day {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-width: 45px;
-        cursor: pointer;
-    }
-
-    .calendar-day .weekday {
-        font-size: 11px;
-        color: #888;
-        margin-bottom: 8px;
-    }
-
-    .calendar-day .date-num {
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 16px;
-        color: #fff;
-        border-radius: 50%;
-        transition: all 0.2s;
-    }
-
-    /* 選中日期樣式 */
-    .calendar-day.active .date-num {
-        border: 2px solid #fff;
-        font-weight: bold;
-    }
-
-    .calendar-day.sunday .weekday, .calendar-day.sunday .date-num { color: #ff5d5d; }
-    .calendar-day.saturday .weekday, .calendar-day.saturday .date-num { color: #5dff5d; }
-</style>   
-
-
-<nav class="tab-bar">
-    <div class="tab-item active" onclick="showPage('page-overview', this)">
-        <i data-lucide="archive"></i>
-    </div>
-    <div class="tab-item" onclick="showPage('page-projects', this)">
-        <i data-lucide="wallet"></i>
-    </div>
-    
-    <div class="tab-fab" onclick="showPage('page-calendar', this)"> 
-        <div class="fab-inner"><i data-lucide="layers"></i></div>
-    </div>
-    
-    <div class="tab-item" onclick="showPage('page-trends', this)">
-        <i data-lucide="trending-up"></i>
-    </div>
-    <div class="tab-item" onclick="showPage('page-settings', this)">
-        <i data-lucide="sliders-horizontal"></i>
-    </div>
-</nav>
-
-<script src="js/projects.js"></script>       
-<script src="js/calendar.js"></script>
-
-    </div>
-
-    <script>
-        lucide.createIcons();
-
-        function showPage(pageId) {
-    // 1. 切換頁面顯示
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    const target = document.getElementById(pageId);
-    if (target) target.classList.add('active');
-
-    // 2. 更新導覽列圖示顏色
-    const tabs = document.querySelectorAll('.tab-bar .tab-item');
-    tabs.forEach(tab => tab.classList.remove('active'));
-
-    if (pageId === 'page-overview') tabs[0].classList.add('active');
-    if (pageId === 'page-projects') tabs[1].classList.add('active');
-    
-    // 3. 處理中間按鈕的特殊狀態 (如果需要)
-    const fab = document.querySelector('.tab-fab');
-    if (pageId === 'page-calendar') {
-        fab.style.opacity = "1";
-    } else {
-        fab.style.opacity = "0.9";
-    }
+/* 確保圖示不會攔截點擊事件 */
+.tab-item i, .tab-fab i, .fab-inner {
+    pointer-events: none;
+}
+/* 但外層需要恢復點擊功能 */
+.tab-item, .tab-fab {
+    pointer-events: auto;
 }
 
 
-        function closeModal(id) {
-            document.getElementById(id).style.display = 'none';
-        }
+ .calendar-strip-container {
+    background: #1c1c28;
+    padding: 10px 0;
+    border-bottom: 1px solid #2c2c3e;
+}
 
-        function openGroupPicker() { document.getElementById('group-picker-modal').style.display = 'flex'; }
-        function selectGroup(name) {
-            document.getElementById('selected-group-text').innerHTML = `${name} <i data-lucide="chevron-right" class="s-icon"></i>`;
-            lucide.createIcons();
-            closeModal('group-picker-modal');
-        }
+.calendar-strip {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 0 10px;
+    gap: 15px;
+}
 
-        // 帳單週期邏輯
-        function openCyclePicker() { document.getElementById('cycle-picker-modal').style.display = 'flex'; }
-        
-        // 滑桿拖動時更新彈窗內的文字
-        function updateCycleText(val) {
-            const rangeDisplay = document.getElementById('modal-cycle-range');
-            const noteDisplay = document.getElementById('modal-cycle-note');
-            if (val == 31) {
-                rangeDisplay.innerText = "每月月底";
-                noteDisplay.innerText = "帳單結帳日：每月月底";
-            } else {
-                rangeDisplay.innerText = `每月 ${val} 號`;
-                noteDisplay.innerText = `帳單結帳日：每月 ${val} 號`;
-            }
-        }
+.calendar-strip::-webkit-scrollbar {
+    display: none; /* 隱藏滾動條 */
+}
 
-        // 點擊確定後更新主頁面文字
-        function confirmCycle() {
-            const val = document.getElementById('cycle-slider').value;
-            const displayText = val == 31 ? "每月月底" : `每月 ${val} 號`;
-            document.getElementById('main-cycle-display').innerHTML = `${displayText} <i data-lucide="chevron-right" class="s-icon"></i>`;
-            lucide.createIcons();
-            closeModal('cycle-picker-modal');
-        }
+.calendar-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 45px;
+    cursor: pointer;
+}
 
-        function openDueDateModal() { document.getElementById('due-date-type-modal').style.display = 'flex'; }
-        function selectDueDateType(type) {
-            document.getElementById('due-date-display').innerHTML = `${type} <i data-lucide="chevron-right" class="s-icon"></i>`;
-            lucide.createIcons();
-            closeModal('due-date-type-modal');
-        }
+.calendar-day .weekday {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 8px;
+}
 
-        function toggleCreditFields() {
-            const isCredit = document.getElementById('in-is-credit').checked;
-            document.getElementById('credit-extra-fields').style.display = isCredit ? 'block' : 'none';
-            document.getElementById('add-display-amount').className = isCredit ? 'val text-red' : 'val text-green';
-        }
-    </script>
+.calendar-day .date-num {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #fff;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+/* 選中狀態：白色外圈 */
+.calendar-day.active .date-num {
+    border: 2px solid #fff;
+    font-weight: bold;
+}
+
+/* 週末顏色模擬 (週日紅、週六綠) */
+.calendar-day.sunday .weekday, .calendar-day.sunday .date-num { color: #ff5d5d; }
+.calendar-day.saturday .weekday, .calendar-day.saturday .date-num { color: #5dff5d; }
+
+</style>
+
+<nav class="tab-bar">
+    <div class="tab-item active" onclick="showPage('page-overview', this)">
+        <i data-lucide="archive"></i>
+    </div>
+    <div class="tab-item" onclick="showPage('page-projects', this)">
+        <i data-lucide="wallet"></i>
+    </div>
+    
+    <div class="tab-fab" onclick="showPage('page-calendar', this)"> 
+        <div class="fab-inner"><i data-lucide="layers"></i></div>
+    </div>
+    
+    <div class="tab-item" onclick="showPage('page-trends', this)">
+        <i data-lucide="trending-up"></i>
+    </div>
+    <div class="tab-item" onclick="showPage('page-settings', this)">
+        <i data-lucide="sliders-horizontal"></i>
+    </div>
+</nav>
+
+<script src="js/projects.js"></script>       
+<script src="js/calendar.js"></script>
+
+    </div>
+
+    <script>
+    
+        function showPage(pageId, element) {
+    // 1. 切換頁面顯示
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById(pageId);
+    if (target) target.classList.add('active');
+
+    // 2. 更新導覽列狀態
+    // 移除所有項目的 active 類別 (包含 tab-item 和 tab-fab)
+    document.querySelectorAll('.tab-item, .tab-fab').forEach(tab => tab.classList.remove('active'));
+
+    if (element) {
+        // 如果是直接點擊導覽列
+        element.classList.add('active');
+    } else {
+        // 如果是透過代碼跳轉 (例如點擊 + 號跳轉)
+        const tabs = document.querySelectorAll('.tab-bar .tab-item');
+        if (pageId === 'page-overview') tabs[0].classList.add('active');
+        if (pageId === 'page-projects') tabs[1].classList.add('active');
+        if (pageId === 'page-calendar') document.querySelector('.tab-fab').classList.add('active');
+    }
+
+    // 3. 處理中間按鈕透明度與圖示重繪
+    const fab = document.querySelector('.tab-fab');
+    fab.style.opacity = (pageId === 'page-calendar') ? "1" : "0.9";
+    
+    // 重新觸發圖示渲染，確保顏色正確套用
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function openGroupPicker() { document.getElementById('group-picker-modal').style.display = 'flex'; }
+        function selectGroup(name) {
+            document.getElementById('selected-group-text').innerHTML = `${name} <i data-lucide="chevron-right" class="s-icon"></i>`;
+            lucide.createIcons();
+            closeModal('group-picker-modal');
+        }
+
+        // 帳單週期邏輯
+        function openCyclePicker() { document.getElementById('cycle-picker-modal').style.display = 'flex'; }
+        
+        // 滑桿拖動時更新彈窗內的文字
+        function updateCycleText(val) {
+            const rangeDisplay = document.getElementById('modal-cycle-range');
+            const noteDisplay = document.getElementById('modal-cycle-note');
+            if (val == 31) {
+                rangeDisplay.innerText = "每月月底";
+                noteDisplay.innerText = "帳單結帳日：每月月底";
+            } else {
+                rangeDisplay.innerText = `每月 ${val} 號`;
+                noteDisplay.innerText = `帳單結帳日：每月 ${val} 號`;
+            }
+        }
+
+        // 點擊確定後更新主頁面文字
+        function confirmCycle() {
+            const val = document.getElementById('cycle-slider').value;
+            const displayText = val == 31 ? "每月月底" : `每月 ${val} 號`;
+            document.getElementById('main-cycle-display').innerHTML = `${displayText} <i data-lucide="chevron-right" class="s-icon"></i>`;
+            lucide.createIcons();
+            closeModal('cycle-picker-modal');
+        }
+
+        function openDueDateModal() { document.getElementById('due-date-type-modal').style.display = 'flex'; }
+        function selectDueDateType(type) {
+            document.getElementById('due-date-display').innerHTML = `${type} <i data-lucide="chevron-right" class="s-icon"></i>`;
+            lucide.createIcons();
+            closeModal('due-date-type-modal');
+        }
+
+        function toggleCreditFields() {
+            const isCredit = document.getElementById('in-is-credit').checked;
+            document.getElementById('credit-extra-fields').style.display = isCredit ? 'block' : 'none';
+            document.getElementById('add-display-amount').className = isCredit ? 'val text-red' : 'val text-green';
+        }
+    </script>
 </body>
 </html>
