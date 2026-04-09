@@ -368,19 +368,52 @@ input[type="range"]::-webkit-slider-thumb {
    7. 底部導覽列與開關
    ========================================= */
 .tab-bar {
-    position: absolute; 
-    bottom: 0; 
-    width: 100%; 
-    height: 85px;            
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 85px;
     background: var(--tab-bg);
     backdrop-filter: blur(15px);
     border-top: 1px solid var(--border);
-    display: flex; 
-    justify-content: center; 
-    gap: 30px;               /* 稍微縮小間距，給大圖案留空間 */
+    display: flex;
+    justify-content: center;
+    gap: 30px;
     align-items: center;
-    padding-bottom: 15px;    
+    padding-bottom: 15px;
     z-index: 100;
+}
+
+.tab-item {
+    color: var(--text-muted);
+    width: 54px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.tab-item i {
+    width: 32px;
+    height: 32px;
+}
+
+.tab-item.active i {
+    color: #5d5dff;
+    stroke: #5d5dff;
+    transform: scale(1.15);
+}
+
+/* FAB 特殊處理 */
+.tab-fab .fab-inner {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #A16CFD, #6E88F9, #45B6F5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 20px rgba(93, 93, 255, 0.4);
 }
 
 /* 針對中間 FAB 按鈕的特殊處理 */
@@ -391,52 +424,12 @@ input[type="range"]::-webkit-slider-thumb {
     cursor: pointer;
 }
 
-.fab-inner {
-    width: 68px;              /* 從 64px 再調大一點 */
-    height: 68px;             
-    border-radius: 50%;
-    background: linear-gradient(135deg, #A16CFD, #6E88F9, #45B6F5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 6px 20px rgba(93, 93, 255, 0.4);
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
 .fab-inner i {
     width: 36px;              /* FAB 圖案同步調大 */
     height: 36px;
     color: white !important;
 }
 
-/* 導覽項目基礎樣式 */
-.tab-item {
-    color: var(--text-muted);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 54px;              /* 容器調大，確保能包住圖案並增加熱區 */
-    height: 54px;             
-    transition: all 0.2s ease;
-    position: relative;
-}
-
-/* 點擊後或選中時的顏色變化 */
-/* 修正：增加 i 以確保直接作用在圖案上 */
-.tab-item.active i {
-    color: #5d5dff !important;
-    stroke: #5d5dff !important;
-    transform: scale(1.15);    /* 既然已經調大圖案，縮放倍率稍微收斂才不會變形 */
-}
-
-/* 讓圖示不干擾點擊事件 */
-.tab-item i {
-    width: 32px;              /* 圖案主體調大至 32px */
-    height: 32px;
-    pointer-events: none;
-    transition: all 0.2s ease;
-}
 
 /* FAB 按下效果 */
 .tab-fab:active .fab-inner {
