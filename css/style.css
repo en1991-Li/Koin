@@ -371,15 +371,15 @@ input[type="range"]::-webkit-slider-thumb {
     position: absolute; 
     bottom: 0; 
     width: 100%; 
-    height: 85px;            /* 從 75px 調高到 85px */
+    height: 85px;            
     background: var(--tab-bg);
     backdrop-filter: blur(15px);
     border-top: 1px solid var(--border);
     display: flex; 
     justify-content: center; 
-    gap: 35px;               /* 稍微加大間距 */
+    gap: 30px;               /* 稍微縮小間距，給大圖案留空間 */
     align-items: center;
-    padding-bottom: 10px;    /* 增加底部邊距，更符合現代全螢幕手機 */
+    padding-bottom: 15px;    
     z-index: 100;
 }
 
@@ -392,47 +392,48 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .fab-inner {
-    width: 64px;              /* 從 56px 調大至 64px */
-    height: 64px;             /* 從 56px 調大至 64px */
+    width: 68px;              /* 從 64px 再調大一點 */
+    height: 68px;             
     border-radius: 50%;
     background: linear-gradient(135deg, #A16CFD, #6E88F9, #45B6F5);
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: 0 6px 20px rgba(93, 93, 255, 0.4);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .fab-inner i {
-    width: 32px;
-    height: 32px;
+    width: 36px;              /* FAB 圖案同步調大 */
+    height: 36px;
+    color: white !important;
 }
 
 /* 導覽項目基礎樣式 */
 .tab-item {
     color: var(--text-muted);
-    font-size: 28px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;              /* 從 44px 調小至 40px */
-    height: 40px;             /* 從 44px 調大至 40px */
+    width: 54px;              /* 容器調大，確保能包住圖案並增加熱區 */
+    height: 54px;             
     transition: all 0.2s ease;
     position: relative;
 }
 
 /* 點擊後或選中時的顏色變化 */
-.tab-item:active, .tab-item.active {
+/* 修正：增加 i 以確保直接作用在圖案上 */
+.tab-item.active i {
     color: #5d5dff !important;
     stroke: #5d5dff !important;
-    transform: scale(1.2);    /* 從 1.15 調大至 1.2 */
+    transform: scale(1.15);    /* 既然已經調大圖案，縮放倍率稍微收斂才不會變形 */
 }
-
 
 /* 讓圖示不干擾點擊事件 */
 .tab-item i {
-    width: 40px;              /* 統一圖示大小 */
-    height: 40px;
+    width: 32px;              /* 圖案主體調大至 32px */
+    height: 32px;
     pointer-events: none;
     transition: all 0.2s ease;
 }
@@ -442,7 +443,6 @@ input[type="range"]::-webkit-slider-thumb {
     transform: scale(0.92);
     filter: brightness(1.1);
 }
-
 
 /* =========================================
    8. 日曆分頁樣式優化
