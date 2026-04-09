@@ -405,7 +405,6 @@ input[type="range"]::-webkit-slider-thumb {
 .fab-inner i {
     width: 32px;
     height: 32px;
-    color: white !important; /* 強制白色 */
 }
 
 /* 導覽項目基礎樣式 */
