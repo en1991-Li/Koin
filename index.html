@@ -263,12 +263,11 @@
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
    }
    
-
-    .fab-inner i {
-        width: 36px   /* FAB 內的圖示也同步調大 */
-        height: 36px
-        color: white !important;
-    }
+.fab-inner i {
+    width: 36px !important;  /* 加上分號與 !important 確保覆蓋 */
+    height: 36px !important; /* 加上分號 */
+    color: white !important;
+}
 
     /* FAB 按下效果 */
 .tab-fab:active .fab-inner {
