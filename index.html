@@ -196,24 +196,37 @@
 </section>
   
 <style>
-   
-    /* 讓中間的層疊圖示被選中時也變藍色 */
-.tab-fab.active .fab-inner i {
-    color: #5d5dff !important;
-    stroke: #5d5dff !important;
-    transform: scale(1.15);
-}
+    
 
-/* 確保圖示不會攔截點擊事件 */
-.tab-item i, .tab-fab i, .fab-inner {
+    /* 讓圖示不干擾點擊，確保 JS 抓到的是外層 div */
+.tab-item i, .tab-fab i {
     pointer-events: none;
 }
-/* 但外層需要恢復點擊功能 */
-.tab-item, .tab-fab {
-    pointer-events: auto;
+
+/* 強制 Active 狀態變色與放大 */
+.tab-item.active i, .tab-fab.active .fab-inner i {
+    color: #5d5dff !important;
+    stroke: #5d5dff !important;
+    transform: scale(1.15) !important;
+    transition: all 0.2s ease;
 }
 
-
+    
+    .fab-inner {
+        border-radius: 50% !important;
+        transform: none !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135.47deg, #A16CFD 15.05%, #6E88F9 52.81%, #45B6F5 85.55%) !important;
+        box-shadow: 0 4px 15px rgba(93, 93, 255, 0.4);
+        width: 56px;
+        height: 56px;
+    }
+    .fab-inner i {
+        transform: none !important;
+        color: white;
+    }
     .calendar-strip-container {
     background: #1c1c28;
     padding: 10px 0;
@@ -296,35 +309,30 @@
     </div>
 
     <script>
-    
-        function showPage(pageId, element) {
+        lucide.createIcons();
+
+        function showPage(pageId) {
     // 1. 切換頁面顯示
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const target = document.getElementById(pageId);
     if (target) target.classList.add('active');
 
-    // 2. 更新導覽列狀態
-    // 移除所有項目的 active 類別 (包含 tab-item 和 tab-fab)
-    document.querySelectorAll('.tab-item, .tab-fab').forEach(tab => tab.classList.remove('active'));
+    // 2. 更新導覽列圖示顏色
+    const tabs = document.querySelectorAll('.tab-bar .tab-item');
+    tabs.forEach(tab => tab.classList.remove('active'));
 
-    if (element) {
-        // 如果是直接點擊導覽列
-        element.classList.add('active');
-    } else {
-        // 如果是透過代碼跳轉 (例如點擊 + 號跳轉)
-        const tabs = document.querySelectorAll('.tab-bar .tab-item');
-        if (pageId === 'page-overview') tabs[0].classList.add('active');
-        if (pageId === 'page-projects') tabs[1].classList.add('active');
-        if (pageId === 'page-calendar') document.querySelector('.tab-fab').classList.add('active');
-    }
-
-    // 3. 處理中間按鈕透明度與圖示重繪
-    const fab = document.querySelector('.tab-fab');
-    fab.style.opacity = (pageId === 'page-calendar') ? "1" : "0.9";
+    if (pageId === 'page-overview') tabs[0].classList.add('active');
+    if (pageId === 'page-projects') tabs[1].classList.add('active');
     
-    // 重新觸發圖示渲染，確保顏色正確套用
-    if (typeof lucide !== 'undefined') lucide.createIcons();
+    // 3. 處理中間按鈕的特殊狀態 (如果需要)
+    const fab = document.querySelector('.tab-fab');
+    if (pageId === 'page-calendar') {
+        fab.style.opacity = "1";
+    } else {
+        fab.style.opacity = "0.9";
+    }
 }
+
 
         function closeModal(id) {
             document.getElementById(id).style.display = 'none';
