@@ -431,8 +431,8 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* 讓圖示不干擾點擊事件 */
 .tab-item i {
-    width: 30px;              /* 統一圖示大小 */
-    height: 30px;
+    width: 40px;              /* 統一圖示大小 */
+    height: 40px;
     pointer-events: none;
     transition: all 0.2s ease;
 }
