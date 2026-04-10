@@ -39,10 +39,6 @@ function showPage(pageId, element) {
         showPage('page-overview');
     }
 
-   // 彈窗控制
-  function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-  function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
    // 帳戶分組選取
    function selectGroup(name) {
     const display = document.getElementById('selected-group-text');
@@ -53,48 +49,70 @@ function showPage(pageId, element) {
     closeModal('group-picker-modal');
 }
 
+// --- 基礎彈窗控制 ---
+function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
+// --- 帳單週期邏輯 ---
+function openCyclePicker() { openModal('cycle-picker-modal'); }
 
-// 開啟帳戶分組彈窗 (對應 HTML 裡的 onclick="openGroupPicker()")
-function openGroupPicker() {
-    openModal('group-picker-modal');
+function updateCycleText(val) {
+    const rangeDisplay = document.getElementById('modal-date-range');
+    const noteDisplay = document.getElementById('modal-cycle-note');
+    const year = 2026, month = 4; // 可改為動態抓取
+    
+    let start, end, text;
+    if (val == 31) {
+        start = `${year}/04/01`; end = `${year}/04/30`; text = "每月月底";
+    } else {
+        const day = parseInt(val);
+        // 模仿影片：顯示前月到當月的區間
+        start = `${year}/03/${String(day + 1).padStart(2, '0')}`;
+        end = `${year}/04/${String(day).padStart(2, '0')}`;
+        text = `每月 ${day} 號`;
+    }
+    rangeDisplay.innerText = `${start} – ${end}`;
+    noteDisplay.innerText = `帳單結帳日：${text}`;
 }
 
-let currentDueMode = 'fixed'; // 'fixed' 或 'offset'
+function confirmCycle() {
+    const val = document.getElementById('cycle-slider').value;
+    const text = (val == 31) ? "每月月底" : `每月 ${val} 號`;
+    document.getElementById('main-cycle-display').innerHTML = `${text} <i data-lucide="chevron-right" class="s-icon"></i>`;
+    lucide.createIcons();
+    closeModal('cycle-picker-modal');
+}
+
+// --- 繳款期限邏輯 (雙層模式) ---
+let currentDueMode = 'fixed';
 let selectedDueDay = 1;
 
-// 開啟彈窗
 function openDueDateModal() {
-    backToDueMode(); // 每次開啟都先顯示第一層
+    backToDueMode();
     openModal('due-date-modal');
 }
 
-// 進入第二層滾輪
 function enterDueDetail(mode) {
     currentDueMode = mode;
     document.getElementById('due-mode-selection').style.display = 'none';
     document.getElementById('due-mode-footer').style.display = 'none';
     document.getElementById('due-detail-picker').style.display = 'block';
     
-    // 生成列表
     const list = document.getElementById('picker-scroll-list');
     list.innerHTML = '';
-    const prefix = (mode === 'fixed') ? '每月第 ' : '結帳日後 ';
+    const prefix = (mode === 'fixed') ? '每月第 ' : '結帳後 ';
     
     for (let i = 1; i <= 31; i++) {
         const item = document.createElement('div');
-        item.className = 'picker-item';
+        item.className = `picker-item ${i === selectedDueDay ? 'selected' : ''}`;
         item.innerText = `${prefix}${i} 日`;
-        item.onclick = () => selectPickerItem(item, i);
-        if(i === selectedDueDay) item.classList.add('selected');
+        item.onclick = function() {
+            document.querySelectorAll('.picker-item').forEach(p => p.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedDueDay = i;
+        };
         list.appendChild(item);
     }
-}
-
-function selectPickerItem(el, day) {
-    document.querySelectorAll('.picker-item').forEach(i => i.classList.remove('selected'));
-    el.classList.add('selected');
-    selectedDueDay = day;
 }
 
 function backToDueMode() {
@@ -104,95 +122,41 @@ function backToDueMode() {
 }
 
 function confirmDueDate() {
-    const display = document.getElementById('due-date-display');
     const prefix = (currentDueMode === 'fixed') ? '每月' : '結帳後';
-    const text = `${prefix}${selectedDueDay}日`;
-    
-    if (display) {
-        display.innerHTML = `${text} <i data-lucide="chevron-right" class="s-icon"></i>`;
-        lucide.createIcons();
-    }
+    document.getElementById('due-date-display').innerHTML = `${prefix}${selectedDueDay}日 <i data-lucide="chevron-right" class="s-icon"></i>`;
+    lucide.createIcons();
     closeModal('due-date-modal');
 }
 
-
-    // 更改彈窗標題為「繳款期限」以利區分
-    const header = document.querySelector('#cycle-picker-modal .modal-header');
-    if (header) header.innerText = "繳款期限";
-}
-
-function updateCycleText(val) {
-    const rangeDisplay = document.getElementById('modal-date-range');
-    const noteDisplay = document.getElementById('modal-cycle-note');
-    
-    // 取得當前年份與月份 (也可以從你頁面上的 2026/04 抓取)
-    const now = new Date();
-    const year = 2026; // 建議從 id="full-calendar-month" 抓取
-    const month = 4;    // 4月
-    
-    let startDate, endDate, cycleText;
-
-    if (val == 31) {
-        // 每月月底的情況
-        startDate = `${year}/${String(month).padStart(2, '0')}/01`;
-        endDate = `${year}/${String(month).padStart(2, '0')}/30`; // 4月只有30天
-        cycleText = "每月月底";
-    } else {
-        // 指定日期的情況 (例如 12 號，區間可能是 03/13 - 04/12)
-        const day = parseInt(val);
-        cycleText = `每月 ${day} 號`;
-        
-        // 簡單邏輯：顯示當月的區間
-        // 若要完全模仿影片，需計算「前一個月的 day+1」到「當月的 day」
-        const prevMonth = month - 1;
-        startDate = `${year}/${String(prevMonth).padStart(2, '0')}/${String(day + 1).padStart(2, '0')}`;
-        endDate = `${year}/${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
-    }
-
-    if (rangeDisplay) rangeDisplay.innerText = `${startDate} – ${endDate}`;
-    if (noteDisplay) noteDisplay.innerText = `帳單結帳日：${cycleText}`;
-}
-
-// 修正 confirmCycle 確保同步更新
-function confirmCycle() {
-    const val = document.getElementById('cycle-slider').value;
-    const displayText = (val == 31) ? "每月月底" : `每月 ${val} 號`;
-    
-    const modal = document.getElementById('cycle-picker-modal');
-    const targetId = (modal.dataset.mode === 'dueDate') ? 'due-date-display' : 'main-cycle-display';
-    
-    const displayElement = document.getElementById(targetId);
-    if (displayElement) {
-        displayElement.innerHTML = `${displayText} <i data-lucide="chevron-right" class="s-icon"></i>`;
-    }
-
+// --- 帳戶分組 ---
+function openGroupPicker() { openModal('group-picker-modal'); }
+function selectGroup(name) {
+    document.getElementById('selected-group-text').innerHTML = `${name} <i data-lucide="chevron-right" class="s-icon"></i>`;
     lucide.createIcons();
-    closeModal('cycle-picker-modal');
+    closeModal('group-picker-modal');
 }
 
-
-    // 重置狀態
-    modal.dataset.mode = '';
-    modal.querySelector('.modal-header').innerText = "帳單週期";
-    
-  
-// 確保 openCyclePicker 也正常運作
-function openCyclePicker() {
-    const modal = document.getElementById('cycle-picker-modal');
-    modal.dataset.mode = 'cycle';
-    modal.querySelector('.modal-header').innerText = "帳單週期";
-    openModal('cycle-picker-modal');
-}
-
-
-// 信用帳戶聯動
+// --- 信用帳戶開關 ---
 function toggleCreditFields() {
     const isCredit = document.getElementById('in-is-credit').checked;
-    const extraFields = document.getElementById('credit-extra-fields');
-    const displayAmount = document.getElementById('add-display-amount');
-    
-    if (extraFields) extraFields.style.display = isCredit ? 'block' : 'none';
-    if (displayAmount) {
-        displayAmount.className = isCredit ? 'val text-red' : 'val text-green';
-    }
+    document.getElementById('credit-extra-fields').style.display = isCredit ? 'block' : 'none';
+    document.getElementById('add-display-amount').className = isCredit ? 'val text-red' : 'val text-green';
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
