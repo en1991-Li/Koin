@@ -24,19 +24,31 @@ document.addEventListener('DOMContentLoaded', () => {
  * @param {HTMLElement} element - 被點擊的按鈕 (由 HTML 傳入 this)
  */
 function showPage(pageId, element) {
-    // 1. 切換分頁
+    // 1. 切換頁面本體
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(pageId).classList.add('active');
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) targetPage.classList.add('active');
 
-    // 2. 切換導覽列狀態
-    document.querySelectorAll('.tab-item, .tab-fab').forEach(tab => tab.classList.remove('active'));
-    
+    // 2. 清除所有導覽按鈕的標亮狀態
+    const allTabs = document.querySelectorAll('.tab-item, .tab-fab');
+    allTabs.forEach(tab => tab.classList.remove('active'));
+
+    // 3. 處理標亮邏輯
     if (element) {
+        // 如果是直接點擊導覽列進入
         element.classList.add('active');
+    } else {
+        // 如果是點擊頁面內的 "+" 跳轉，自動找對應的導覽按鈕
+        // 我們找 onclick 屬性包含該 pageId 的按鈕
+        const autoTab = document.querySelector(`.tab-bar [onclick*="${pageId}"]`);
+        if (autoTab) autoTab.classList.add('active');
     }
-    
-    // 3. 重新整理圖示
-    lucide.createIcons();
+
+    // 4. 特殊處理：進入「新增頁面」時讓導覽列半透明 (可選)
+    document.querySelector('.tab-bar').style.opacity = (pageId === 'page-add-account') ? "0.6" : "1";
+
+    // 5. 重新渲染圖示
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 // =========================================
