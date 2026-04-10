@@ -43,15 +43,51 @@ function updateCycleText(val) {
     if(noteDisplay) noteDisplay.innerText = `帳單結帳日：${text}`;
 }
 
+// 開啟帳戶分組彈窗 (對應 HTML 裡的 onclick="openGroupPicker()")
+function openGroupPicker() {
+    openModal('group-picker-modal');
+}
+
+// 開啟繳款期限彈窗 (對應 HTML 裡的 onclick="openDueDateModal()")
+function openDueDateModal() {
+    // 這裡我們共用 cycle-picker-modal 的邏輯，或者你可以建立專屬的 due-date-modal
+    // 暫時將其導向週期選擇，或根據你的 HTML 結構調整
+    openModal('cycle-picker-modal');
+    
+    // 更改彈窗標題為「繳款期限」以利區分
+    const header = document.querySelector('#cycle-picker-modal .modal-header');
+    if (header) header.innerText = "繳款期限";
+}
+
+/**
+ * 修正後的 confirmCycle
+ * 讓它能判斷現在是在設定「帳單週期」還是「繳款期限」
+ */
 function confirmCycle() {
     const val = document.getElementById('cycle-slider').value;
     const displayText = (val == 31) ? "每月月底" : `每月 ${val} 號`;
-    const mainDisplay = document.getElementById('main-cycle-display');
-    if(mainDisplay) {
-        mainDisplay.innerHTML = `${displayText} <i data-lucide="chevron-right" class="s-icon"></i>`;
-        lucide.createIcons();
+    
+    const header = document.querySelector('#cycle-picker-modal .modal-header');
+    
+    if (header && header.innerText === "繳款期限") {
+        // 更新繳款期限顯示
+        const dueDateDisplay = document.getElementById('due-date-display');
+        if (dueDateDisplay) {
+            dueDateDisplay.innerHTML = `${displayText} <i data-lucide="chevron-right" class="s-icon"></i>`;
+        }
+    } else {
+        // 更新帳單週期顯示
+        const mainDisplay = document.getElementById('main-cycle-display');
+        if (mainDisplay) {
+            mainDisplay.innerHTML = `${displayText} <i data-lucide="chevron-right" class="s-icon"></i>`;
+        }
     }
+
+    lucide.createIcons();
     closeModal('cycle-picker-modal');
+    
+    // 恢復標題預設值，避免下次開啟出錯
+    if (header) header.innerText = "帳單週期";
 }
 
 // 信用帳戶聯動
