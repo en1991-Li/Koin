@@ -165,30 +165,41 @@
         </nav>
     </div>
 
-<script src="js/script.js"></script>    
-<script src="js/projects.js"></script>
-<script src="js/calendar.js"></script>
+    <script src="js/script.js"></script>       
+    <script src="js/projects.js"></script>
+    <script src="js/calendar.js"></script>
 
-<script>
-    // 初始化
-    document.addEventListener('DOMContentLoaded', () => {
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-        
-        // 初始切換到首頁，確保狀態同步
-        showPage('page-overview', document.querySelector('.tab-item'));
-    });
+    <script>
+        // 彈窗控制
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function openGroupPicker() { document.getElementById('group-picker-modal').style.display = 'flex'; }
+        function selectGroup(name) {
+            document.getElementById('selected-group-text').innerHTML = `${name} <i data-lucide="chevron-right" class="s-icon"></i>`;
+            lucide.createIcons();
+            closeModal('group-picker-modal');
+        }
 
-    // 這些與數據處理相關的邏輯，建議之後移入 script.js 以便管理
-    function saveAccount() {
-        const name = document.getElementById('acc-name').value;
-        const amount = document.getElementById('acc-amount').value;
-        if(!name) return alert("請輸入帳戶名稱");
-        
-        console.log("儲存帳戶:", { name, amount });
-        showPage('page-overview');
-    }
-</script>
+        function openCyclePicker() { document.getElementById('cycle-picker-modal').style.display = 'flex'; }
+        function updateCycleText(val) {
+            const rangeDisplay = document.getElementById('modal-cycle-range');
+            rangeDisplay.innerText = val == 31 ? "每月月底" : `每月 ${val} 號`;
+        }
+        function confirmCycle() {
+            const val = document.getElementById('cycle-slider').value;
+            const displayText = val == 31 ? "每月月底" : `每月 ${val} 號`;
+            document.getElementById('main-cycle-display').innerHTML = `${displayText} <i data-lucide="chevron-right" class="s-icon"></i>`;
+            lucide.createIcons();
+            closeModal('cycle-picker-modal');
+        }
 
+        function toggleCreditFields() {
+            const isCredit = document.getElementById('in-is-credit').checked;
+            document.getElementById('credit-extra-fields').style.display = isCredit ? 'block' : 'none';
+            document.getElementById('add-display-amount').className = isCredit ? 'val text-red' : 'val text-green';
+        }
+
+        // 初始化
+        window.onload = () => { if (typeof lucide !== 'undefined') lucide.createIcons(); };
     </script>
 </body>
 </html>
