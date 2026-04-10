@@ -195,8 +195,6 @@
         </div>
 </section>
   
-<style>
-
  <style>
   
  .calendar-strip-container {
@@ -282,35 +280,6 @@
 
     <script>
     
-        function showPage(pageId, element) {
-    // 1. 切換頁面顯示
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    const target = document.getElementById(pageId);
-    if (target) target.classList.add('active');
-
-    // 2. 更新導覽列狀態
-    // 移除所有項目的 active 類別 (包含 tab-item 和 tab-fab)
-    document.querySelectorAll('.tab-item, .tab-fab').forEach(tab => tab.classList.remove('active'));
-
-    if (element) {
-        // 如果是直接點擊導覽列
-        element.classList.add('active');
-    } else {
-        // 如果是透過代碼跳轉 (例如點擊 + 號跳轉)
-        const tabs = document.querySelectorAll('.tab-bar .tab-item');
-        if (pageId === 'page-overview') tabs[0].classList.add('active');
-        if (pageId === 'page-projects') tabs[1].classList.add('active');
-        if (pageId === 'page-calendar') document.querySelector('.tab-fab').classList.add('active');
-    }
-
-    // 3. 處理中間按鈕透明度與圖示重繪
-    const fab = document.querySelector('.tab-fab');
-    fab.style.opacity = (pageId === 'page-calendar') ? "1" : "0.9";
-    
-    // 重新觸發圖示渲染，確保顏色正確套用
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-}
-
         function closeModal(id) {
             document.getElementById(id).style.display = 'none';
         }
