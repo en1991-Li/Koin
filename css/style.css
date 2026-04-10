@@ -282,6 +282,42 @@ body, html {
     transform: scale(0.98);
 }
 
+.due-date-picker .option-item {
+    background: #39394d;
+    margin: 10px 0;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.picker-container {
+    max-height: 200px;
+    overflow-y: auto;
+    margin: 15px 0;
+    mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+}
+
+.picker-item {
+    padding: 12px;
+    text-align: center;
+    color: #888;
+    transition: 0.2s;
+}
+
+.picker-item.selected {
+    color: #5d5dff;
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+/* 讓 Modal 看起來更像選單 */
+.due-date-picker {
+    width: 85%;
+    max-width: 320px;
+}
+
+
 /* 驚嘆號圖示框 */
 .icon-circle {
     width: 50px;
