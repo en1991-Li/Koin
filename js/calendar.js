@@ -1,75 +1,37 @@
-// 1. 設定初始日期與狀態
-let selectedDate = new Date(2026, 3, 8); // 預設選中 2026/04/08
-const weekdays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+/**
+ * Koin 日曆核心邏輯 - calendar.js
+ */
 
+// 1. 設定初始選中狀態 (2026/04/08)
+let selectedDate = new Date(2026, 3, 8); 
+
+document.addEventListener('DOMContentLoaded', () => {
+    // 渲染全年度日曆
+    renderYearlyCalendar();
+    
+    // 初始化滾動監聽 (IntersectionObserver)
+    setupScrollObserver();
+});
+
+/**
+ * 渲染全年度日曆
+ */
 function renderYearlyCalendar() {
     const slider = document.getElementById('calendar-month-slider');
     if (!slider) return;
 
     slider.innerHTML = '';
+    // 生成 2026 年 1-12 月
     for (let m = 0; m < 12; m++) {
         slider.appendChild(createMonthGrid(new Date(2026, m, 1)));
     }
 
-    // 初始滾動到當前月份 (4月)
+    // 當切換到日曆頁面時，確保滾動到 4 月
+    // 這邊在 showPage 呼叫時處理會更準確，但在這裡先做預設滾動
     setTimeout(() => {
-        const april = slider.children[3];
-        april.scrollIntoView({ inline: 'start' });
-    }, 100);
-
-    // 監聽水平滾動以更新標題
-    slider.addEventListener('scroll', () => {
-        const index = Math.round(slider.scrollLeft / slider.offsetWidth);
-        updateHeaderTitle(2026, index);
-    });
+        scrollToMonth(3); // 跳轉到 4 月 (Index 3)
+    }, 300);
 }
-
-function createMonthGrid(date) {
-    const month = date.getMonth();
-    const year = date.getFullYear();
-    const section = document.createElement('div');
-    section.className = 'month-section';
-    
-    section.innerHTML = `<div class="month-label">${month + 1}月</div>`;
-    const grid = document.createElement('div');
-    grid.className = 'calendar-grid-body';
-
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    // 填補空格
-    for (let i = 0; i < firstDay; i++) {
-        const empty = document.createElement('div');
-        empty.className = 'calendar-grid-day not-current';
-        grid.appendChild(empty);
-    }
-
-    // 填日期
-    for (let i = 1; i <= daysInMonth; i++) {
-        const dayDiv = document.createElement('div');
-        const isSelected = (year === 2026 && month === 3 && i === 8);
-        const dayOfWeek = new Date(year, month, i).getDay();
-        
-        dayDiv.className = `calendar-grid-day current ${isSelected ? 'active' : ''} ${dayOfWeek === 0 ? 'sunday' : ''} ${dayOfWeek === 6 ? 'saturday' : ''}`;
-        dayDiv.innerHTML = `<span class="date-val">${i < 10 ? '0'+i : i}</span>`;
-        
-        dayDiv.onclick = () => {
-            document.querySelectorAll('.calendar-grid-day').forEach(d => d.classList.remove('active'));
-            dayDiv.classList.add('active');
-            // 此處呼叫更新下方記錄的函數
-            renderDailyDetails(`${year}/${(month+1).toString().padStart(2,'0')}/${i.toString().padStart(2,'0')}`);
-        };
-        grid.appendChild(dayDiv);
-    }
-    section.appendChild(grid);
-    return section;
-}
-
-function updateHeaderTitle(year, month) {
-    const title = document.getElementById('full-calendar-month');
-    if (title) title.innerText = `${year}/${(month + 1).toString().padStart(2, '0')}`;
-}
-
 
 /**
  * 建立單個月份的網格結構
@@ -80,10 +42,10 @@ function createMonthGrid(date) {
     
     const section = document.createElement('div');
     section.className = 'month-section';
-    // 設定 data 屬性供滾動偵測使用
     section.setAttribute('data-year', year);
     section.setAttribute('data-month', month);
     
+    // 雖然 CSS 設為隱藏，但 data 屬性留著給標籤用
     const label = document.createElement('div');
     label.className = 'month-label';
     label.innerText = `${month + 1}月`;
@@ -115,16 +77,16 @@ function createMonthGrid(date) {
         dayDiv.innerHTML = `<span class="date-val">${i < 10 ? '0' + i : i}</span>`;
         
         dayDiv.onclick = () => {
-            // 清除舊選取並更新新選取
+            // 清除該容器內的所有 active
             document.querySelectorAll('.calendar-grid-day').forEach(d => d.classList.remove('active'));
             dayDiv.classList.add('active');
             
-            // 更新全域選中日期
             selectedDate = new Date(year, month, i);
+            console.log("當前選中：", selectedDate.toLocaleDateString());
             
-            // 如果有同步函數（如更新首頁列表），在此呼叫
-            if (typeof updateAllCalendars === "function") {
-                updateAllCalendars(year, month, i);
+            // 此處可擴充：更新下方的每日明細列表
+            if (typeof renderDailyDetails === "function") {
+                renderDailyDetails(selectedDate);
             }
         };
         
@@ -149,12 +111,12 @@ function updateHeaderTitle(year, month) {
  * 監聽滾動：當月份進入視野時更新標題
  */
 function setupScrollObserver() {
-    const container = document.getElementById('calendar-scroll-body');
-    const sections = document.querySelectorAll('.month-section');
+    const container = document.getElementById('calendar-month-slider');
+    if (!container) return;
 
     const observerOptions = {
         root: container,
-        threshold: 0.3 // 當月份區塊出現 30% 時觸發標題切換
+        threshold: 0.6 // 提高門檻，確保過半才切換標題
     };
 
     const observer = new IntersectionObserver((entries) => {
@@ -167,22 +129,21 @@ function setupScrollObserver() {
         });
     }, observerOptions);
 
-    sections.forEach(section => observer.observe(section));
+    // 等待元素渲染後再開始觀察
+    setTimeout(() => {
+        document.querySelectorAll('.month-section').forEach(section => observer.observe(section));
+    }, 500);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    // 渲染 12 個月
-    renderYearlyCalendar(); 
-    
-    // 初始化中間按鈕的點擊事件，確保切換到日曆頁面時能看到內容
-    const fabBtn = document.querySelector('.tab-fab');
-    if (fabBtn) {
-        fabBtn.onclick = () => {
-            showPage('page-calendar');
-            // 切換頁面後重新計算一次寬度 (防止滑動失效)
-            const slider = document.getElementById('calendar-month-slider');
-            if (slider) slider.scrollLeft = slider.offsetWidth * 3; // 預設跳到 4 月
-        };
+/**
+ * 工具：滾動到特定月份
+ */
+function scrollToMonth(monthIndex) {
+    const slider = document.getElementById('calendar-month-slider');
+    if (slider && slider.children[monthIndex]) {
+        slider.scrollTo({
+            left: slider.children[monthIndex].offsetLeft,
+            behavior: 'smooth'
+        });
     }
-});
-
+}
