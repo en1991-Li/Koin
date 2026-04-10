@@ -170,33 +170,6 @@
     <script src="js/calendar.js"></script>
 
     <script>
-        // 彈窗控制
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function openGroupPicker() { document.getElementById('group-picker-modal').style.display = 'flex'; }
-        function selectGroup(name) {
-            document.getElementById('selected-group-text').innerHTML = `${name} <i data-lucide="chevron-right" class="s-icon"></i>`;
-            lucide.createIcons();
-            closeModal('group-picker-modal');
-        }
-
-        function openCyclePicker() { document.getElementById('cycle-picker-modal').style.display = 'flex'; }
-        function updateCycleText(val) {
-            const rangeDisplay = document.getElementById('modal-cycle-range');
-            rangeDisplay.innerText = val == 31 ? "每月月底" : `每月 ${val} 號`;
-        }
-        function confirmCycle() {
-            const val = document.getElementById('cycle-slider').value;
-            const displayText = val == 31 ? "每月月底" : `每月 ${val} 號`;
-            document.getElementById('main-cycle-display').innerHTML = `${displayText} <i data-lucide="chevron-right" class="s-icon"></i>`;
-            lucide.createIcons();
-            closeModal('cycle-picker-modal');
-        }
-
-        function toggleCreditFields() {
-            const isCredit = document.getElementById('in-is-credit').checked;
-            document.getElementById('credit-extra-fields').style.display = isCredit ? 'block' : 'none';
-            document.getElementById('add-display-amount').className = isCredit ? 'val text-red' : 'val text-green';
-        }
 
         // 初始化
         window.onload = () => { if (typeof lucide !== 'undefined') lucide.createIcons(); };
