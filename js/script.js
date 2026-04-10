@@ -29,16 +29,90 @@ function showPage(pageId, element) {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-    // 這些與數據處理相關的邏輯，建議之後移入 script.js 以便管理
-    function saveAccount() {
-        const name = document.getElementById('acc-name').value;
-        const amount = document.getElementById('acc-amount').value;
-        if(!name) return alert("請輸入帳戶名稱");
-        
-        console.log("儲存帳戶:", { name, amount });
-        showPage('page-overview');
-    }
+   // 1. 儲存帳戶並同步
+function saveAccount() {
+    const name = document.getElementById('acc-name').value;
+    const amount = parseFloat(document.getElementById('acc-amount').value) || 0;
+    const isCredit = document.getElementById('in-is-credit').checked;
+    const group = document.getElementById('selected-group-text').innerText.trim();
 
+    if (!name) return alert("請輸入帳戶名稱");
+
+    const newAccount = {
+        id: Date.now(),
+        name: name,
+        amount: amount,
+        isCredit: isCredit,
+        group: group
+    };
+
+    // 取得舊資料並存入
+    const accounts = JSON.parse(localStorage.getItem('koin_accounts') || '[]');
+    accounts.push(newAccount);
+    localStorage.setItem('koin_accounts', JSON.stringify(accounts));
+
+    alert("儲存成功！");
+    
+    // 重置表單
+    document.getElementById('acc-name').value = '';
+    document.getElementById('acc-amount').value = '0';
+    
+    // 更新首頁列表並跳轉
+    renderAccountList();
+    showPage('page-overview');
+}
+
+// 2. 動態渲染總覽列表
+function renderAccountList() {
+    const accounts = JSON.parse(localStorage.getItem('koin_accounts') || '[]');
+    const listContainer = document.querySelector('.account-list');
+    const totalBalanceEl = document.getElementById('total-balance');
+    
+    let total = 0;
+    let asset = 0;
+    let debt = 0;
+
+    // 清空現有列表
+    listContainer.innerHTML = '';
+
+    accounts.forEach(acc => {
+        // 計算總額
+        if (acc.isCredit) {
+            debt += acc.amount;
+            total -= acc.amount;
+        } else {
+            asset += acc.amount;
+            total += acc.amount;
+        }
+
+        // 建立 HTML 元素
+        const item = document.createElement('div');
+        item.className = 'group-item';
+        item.innerHTML = `
+            <span class="group-name">${acc.isCredit ? '💳' : '💰'} ${acc.name} (${acc.group})</span>
+            <span class="group-value ${acc.isCredit ? 'text-red' : 'text-green'}">
+                ${acc.isCredit ? '-' : ''}$${acc.amount.toLocaleString()}
+            </span>
+        `;
+        listContainer.appendChild(item);
+    });
+
+    // 更新頂部總額數字
+    if (totalBalanceEl) totalBalanceEl.innerText = total.toLocaleString();
+    
+    // 更新總資產/總負債文字 (如果有對應 ID)
+    const stats = document.querySelectorAll('.sub-stats span span');
+    if (stats.length >= 2) {
+        stats[0].innerText = asset.toLocaleString(); // 總資產
+        stats[1].innerText = debt.toLocaleString();  // 總負債
+    }
+}
+
+// 3. 頁面載入時初始化
+document.addEventListener('DOMContentLoaded', () => {
+    renderAccountList();
+});
+   
    // 帳戶分組選取
    function selectGroup(name) {
     const display = document.getElementById('selected-group-text');
