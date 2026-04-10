@@ -1,40 +1,43 @@
 /**
- * Koin 日曆核心邏輯 - calendar.js
+ * Koin 動態日曆選擇器 - calendar.js
  */
 
-// 1. 設定初始選中狀態 (2026/04/08)
-let selectedDate = new Date(2026, 3, 8); 
+// 1. 設定初始狀態
+let selectedDate = new Date(2026, 4, 10); // 預設為今天 2026/04/10
+const calendarData = {
+    startYear: 2025,
+    endYear: 2027
+};
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 渲染全年度日曆
-    renderYearlyCalendar();
-    
-    // 初始化滾動監聽 (IntersectionObserver)
+    renderInfiniteCalendar();
     setupScrollObserver();
 });
 
 /**
- * 渲染全年度日曆
+ * 自動生成指定年份區間的所有月份
  */
-function renderYearlyCalendar() {
+function renderInfiniteCalendar() {
     const slider = document.getElementById('calendar-month-slider');
     if (!slider) return;
 
     slider.innerHTML = '';
-    // 生成 2026 年 1-12 月
-    for (let m = 0; m < 12; m++) {
-        slider.appendChild(createMonthGrid(new Date(2026, m, 1)));
+
+    // 從 2025 到 2027 遍歷年份與月份
+    for (let y = calendarData.startYear; y <= calendarData.endYear; y++) {
+        for (let m = 0; m < 12; m++) {
+            slider.appendChild(createMonthGrid(new Date(y, m, 1)));
+        }
     }
 
-    // 當切換到日曆頁面時，確保滾動到 4 月
-    // 這邊在 showPage 呼叫時處理會更準確，但在這裡先做預設滾動
+    // 預設滾動到「今天」所在的月份
     setTimeout(() => {
-        scrollToMonth(3); // 跳轉到 4 月 (Index 3)
-    }, 300);
+        focusOnCurrentMonth();
+    }, 100);
 }
 
 /**
- * 建立單個月份的網格結構
+ * 建立單個月份的網格 (包含日期點擊邏輯)
  */
 function createMonthGrid(date) {
     const month = date.getMonth();
@@ -45,7 +48,7 @@ function createMonthGrid(date) {
     section.setAttribute('data-year', year);
     section.setAttribute('data-month', month);
     
-    // 雖然 CSS 設為隱藏，但 data 屬性留著給標籤用
+    // 月份標籤 (1月, 2月...)
     const label = document.createElement('div');
     label.className = 'month-label';
     label.innerText = `${month + 1}月`;
@@ -72,22 +75,21 @@ function createMonthGrid(date) {
                             i === selectedDate.getDate());
         
         const dayOfWeek = new Date(year, month, i).getDay();
-        dayDiv.className = `calendar-grid-day current ${isSelected ? 'active' : ''} ${dayOfWeek === 0 ? 'sunday' : ''} ${dayOfWeek === 6 ? 'saturday' : ''}`;
         
+        // 標記今日、週末與選中狀態
+        dayDiv.className = `calendar-grid-day current ${isSelected ? 'active' : ''} ${dayOfWeek === 0 ? 'sunday' : ''} ${dayOfWeek === 6 ? 'saturday' : ''}`;
         dayDiv.innerHTML = `<span class="date-val">${i < 10 ? '0' + i : i}</span>`;
         
+        // 點擊事件：選取日期並更新 UI
         dayDiv.onclick = () => {
-            // 清除該容器內的所有 active
+            // 清除全域所有的 active 狀態
             document.querySelectorAll('.calendar-grid-day').forEach(d => d.classList.remove('active'));
             dayDiv.classList.add('active');
             
             selectedDate = new Date(year, month, i);
-            console.log("當前選中：", selectedDate.toLocaleDateString());
             
-            // 此處可擴充：更新下方的每日明細列表
-            if (typeof renderDailyDetails === "function") {
-                renderDailyDetails(selectedDate);
-            }
+            // 這裡可以觸發儲存或顯示該日帳目的功能
+            updateDailyInfo(selectedDate);
         };
         
         grid.appendChild(dayDiv);
@@ -98,52 +100,57 @@ function createMonthGrid(date) {
 }
 
 /**
- * 更新頂部標題 (2026/04)
+ * 輔助：自動滾動到當前選中的月份
  */
-function updateHeaderTitle(year, month) {
-    const title = document.getElementById('full-calendar-month');
-    if (title) {
-        title.innerText = `${year}/${(month + 1).toString().padStart(2, '0')}`;
+function focusOnCurrentMonth() {
+    const slider = document.getElementById('calendar-month-slider');
+    const currentMonthSection = slider.querySelector(
+        `[data-year="${selectedDate.getFullYear()}"][data-month="${selectedDate.getMonth()}"]`
+    );
+    
+    if (currentMonthSection) {
+        slider.scrollTo({
+            left: currentMonthSection.offsetLeft,
+            behavior: 'auto' // 初始跳轉用 auto，使用者操作用 smooth
+        });
     }
 }
 
 /**
- * 監聽滾動：當月份進入視野時更新標題
+ * 更新頂部標題與資料顯示
+ */
+function updateHeaderTitle(year, month) {
+    const title = document.getElementById('full-calendar-month');
+    if (title) title.innerText = `${year}/${(month + 1).toString().padStart(2, '0')}`;
+}
+
+function updateDailyInfo(date) {
+    // 範例：更新下方列表的標題
+    const listTitle = document.getElementById('daily-details-list');
+    if (listTitle) {
+        console.log("切換日期至：", date.toLocaleDateString());
+    }
+}
+
+/**
+ * 監聽水平滾動，動態更新標題
  */
 function setupScrollObserver() {
     const container = document.getElementById('calendar-month-slider');
     if (!container) return;
 
-    const observerOptions = {
-        root: container,
-        threshold: 0.6 // 提高門檻，確保過半才切換標題
-    };
-
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 const year = entry.target.getAttribute('data-year');
-                const month = parseInt(entry.target.getAttribute('data-month'));
-                updateHeaderTitle(year, month);
+                const month = entry.target.getAttribute('data-month');
+                updateHeaderTitle(year, parseInt(month));
             }
         });
-    }, observerOptions);
+    }, { root: container, threshold: 0.6 });
 
-    // 等待元素渲染後再開始觀察
+    // 延遲觀察確保 DOM 已渲染
     setTimeout(() => {
-        document.querySelectorAll('.month-section').forEach(section => observer.observe(section));
+        document.querySelectorAll('.month-section').forEach(s => observer.observe(s));
     }, 500);
-}
-
-/**
- * 工具：滾動到特定月份
- */
-function scrollToMonth(monthIndex) {
-    const slider = document.getElementById('calendar-month-slider');
-    if (slider && slider.children[monthIndex]) {
-        slider.scrollTo({
-            left: slider.children[monthIndex].offsetLeft,
-            behavior: 'smooth'
-        });
-    }
 }
