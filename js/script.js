@@ -112,6 +112,39 @@ function renderAccountList() {
 document.addEventListener('DOMContentLoaded', () => {
     renderAccountList();
 });
+
+function saveProject() {
+    const name = document.getElementById('proj-name').value;
+    const note = document.getElementById('proj-note').value;
+
+    if (!name) {
+        alert("請輸入專案名稱");
+        return;
+    }
+
+    const newProject = {
+        id: Date.now(),
+        name: name,
+        note: note,
+        date: new Date().toLocaleDateString()
+    };
+
+    // 儲存到 LocalStorage (存放在不同的 Key)
+    const projects = JSON.parse(localStorage.getItem('koin_projects') || '[]');
+    projects.push(newProject);
+    localStorage.setItem('koin_projects', JSON.stringify(projects));
+
+    alert("專案儲存成功！");
+    
+    // 清除欄位並回原頁面
+    document.getElementById('proj-name').value = '';
+    document.getElementById('proj-note').value = '';
+    
+    // 呼叫渲染專案列表的功能 (如果你已經有在 projects.js 寫渲染邏輯)
+    if (typeof renderProjectList === 'function') renderProjectList();
+    
+    showPage('page-projects');
+}
    
    // 帳戶分組選取
    function selectGroup(name) {
