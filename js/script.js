@@ -116,33 +116,29 @@ document.addEventListener('DOMContentLoaded', () => {
 function saveProject() {
     const name = document.getElementById('proj-name').value;
     const note = document.getElementById('proj-note').value;
+    const isStats = document.querySelector('#page-add-project .switch input[type="checkbox"]:nth-of-type(3)')?.checked || false;
 
-    if (!name) {
-        alert("請輸入專案名稱");
-        return;
-    }
+    if (!name) return alert("請輸入專案名稱");
 
     const newProject = {
-        id: Date.now(),
         name: name,
-        note: note,
-        date: new Date().toLocaleDateString()
+        icon: "piggy-bank", // 預設圖示
+        date: "2026/04/01 － 2026/04/30",
+        amount: 0,
+        isStats: isStats, // 根據開關決定是否顯示「統計專案」標籤
+        note: note
     };
 
-    // 儲存到 LocalStorage (存放在不同的 Key)
     const projects = JSON.parse(localStorage.getItem('koin_projects') || '[]');
     projects.push(newProject);
     localStorage.setItem('koin_projects', JSON.stringify(projects));
 
-    alert("專案儲存成功！");
+    // 關鍵：重新渲染列表
+    renderProjectsPage();
     
-    // 清除欄位並回原頁面
+    // 清空並跳轉回列表頁
     document.getElementById('proj-name').value = '';
     document.getElementById('proj-note').value = '';
-    
-    // 呼叫渲染專案列表的功能 (如果你已經有在 projects.js 寫渲染邏輯)
-    if (typeof renderProjectList === 'function') renderProjectList();
-    
     showPage('page-projects');
 }
    
