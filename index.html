@@ -168,22 +168,6 @@
     <script src="js/projects.js"></script>       
     <script src="js/calendar.js"></script>
     <script>
-        // 頁面切換邏輯 (已優化)
-        function showPage(pageId, element) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            const target = document.getElementById(pageId);
-            if (target) target.classList.add('active');
-
-            document.querySelectorAll('.tab-item, .tab-fab').forEach(tab => tab.classList.remove('active'));
-            if (element) {
-                element.classList.add('active');
-            } else {
-                const autoTab = document.querySelector(`.tab-bar [onclick*="${pageId}"]`);
-                if (autoTab) autoTab.classList.add('active');
-            }
-
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        }
 
         // 彈窗控制
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
