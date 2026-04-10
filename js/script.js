@@ -106,6 +106,14 @@ function confirmCycle() {
     closeModal('cycle-picker-modal');
 }
 
+// 確保 openCyclePicker 也正常運作
+function openCyclePicker() {
+    const modal = document.getElementById('cycle-picker-modal');
+    modal.dataset.mode = 'cycle';
+    modal.querySelector('.modal-header').innerText = "帳單週期";
+    openModal('cycle-picker-modal');
+}
+
 
 // 信用帳戶聯動
 function toggleCreditFields() {
