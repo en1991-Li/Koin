@@ -60,12 +60,62 @@ function openGroupPicker() {
     openModal('group-picker-modal');
 }
 
-// 開啟繳款期限彈窗 (對應 HTML 裡的 onclick="openDueDateModal()")
+let currentDueMode = 'fixed'; // 'fixed' 或 'offset'
+let selectedDueDay = 1;
+
+// 開啟彈窗
 function openDueDateModal() {
-    // 這裡我們共用 cycle-picker-modal 的邏輯，或者你可以建立專屬的 due-date-modal
-    // 暫時將其導向週期選擇，或根據你的 HTML 結構調整
-    openModal('cycle-picker-modal');
+    backToDueMode(); // 每次開啟都先顯示第一層
+    openModal('due-date-modal');
+}
+
+// 進入第二層滾輪
+function enterDueDetail(mode) {
+    currentDueMode = mode;
+    document.getElementById('due-mode-selection').style.display = 'none';
+    document.getElementById('due-mode-footer').style.display = 'none';
+    document.getElementById('due-detail-picker').style.display = 'block';
     
+    // 生成列表
+    const list = document.getElementById('picker-scroll-list');
+    list.innerHTML = '';
+    const prefix = (mode === 'fixed') ? '每月第 ' : '結帳日後 ';
+    
+    for (let i = 1; i <= 31; i++) {
+        const item = document.createElement('div');
+        item.className = 'picker-item';
+        item.innerText = `${prefix}${i} 日`;
+        item.onclick = () => selectPickerItem(item, i);
+        if(i === selectedDueDay) item.classList.add('selected');
+        list.appendChild(item);
+    }
+}
+
+function selectPickerItem(el, day) {
+    document.querySelectorAll('.picker-item').forEach(i => i.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedDueDay = day;
+}
+
+function backToDueMode() {
+    document.getElementById('due-mode-selection').style.display = 'block';
+    document.getElementById('due-mode-footer').style.display = 'flex';
+    document.getElementById('due-detail-picker').style.display = 'none';
+}
+
+function confirmDueDate() {
+    const display = document.getElementById('due-date-display');
+    const prefix = (currentDueMode === 'fixed') ? '每月' : '結帳後';
+    const text = `${prefix}${selectedDueDay}日`;
+    
+    if (display) {
+        display.innerHTML = `${text} <i data-lucide="chevron-right" class="s-icon"></i>`;
+        lucide.createIcons();
+    }
+    closeModal('due-date-modal');
+}
+
+
     // 更改彈窗標題為「繳款期限」以利區分
     const header = document.querySelector('#cycle-picker-modal .modal-header');
     if (header) header.innerText = "繳款期限";
