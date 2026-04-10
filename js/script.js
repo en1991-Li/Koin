@@ -53,14 +53,7 @@ function showPage(pageId, element) {
     closeModal('group-picker-modal');
 }
 
-// 週期選擇滑桿
-function updateCycleText(val) {
-    const rangeDisplay = document.getElementById('modal-cycle-range');
-    const noteDisplay = document.getElementById('modal-cycle-note');
-    const text = (val == 31) ? "每月月底" : `每月 ${val} 號`;
-    if(rangeDisplay) rangeDisplay.innerText = text;
-    if(noteDisplay) noteDisplay.innerText = `帳單結帳日：${text}`;
-}
+
 
 // 開啟帳戶分組彈窗 (對應 HTML 裡的 onclick="openGroupPicker()")
 function openGroupPicker() {
@@ -78,34 +71,61 @@ function openDueDateModal() {
     if (header) header.innerText = "繳款期限";
 }
 
+function updateCycleText(val) {
+    const rangeDisplay = document.getElementById('modal-date-range');
+    const noteDisplay = document.getElementById('modal-cycle-note');
+    
+    // 取得當前年份與月份 (也可以從你頁面上的 2026/04 抓取)
+    const now = new Date();
+    const year = 2026; // 建議從 id="full-calendar-month" 抓取
+    const month = 4;    // 4月
+    
+    let startDate, endDate, cycleText;
 
+    if (val == 31) {
+        // 每月月底的情況
+        startDate = `${year}/${String(month).padStart(2, '0')}/01`;
+        endDate = `${year}/${String(month).padStart(2, '0')}/30`; // 4月只有30天
+        cycleText = "每月月底";
+    } else {
+        // 指定日期的情況 (例如 12 號，區間可能是 03/13 - 04/12)
+        const day = parseInt(val);
+        cycleText = `每月 ${day} 號`;
+        
+        // 簡單邏輯：顯示當月的區間
+        // 若要完全模仿影片，需計算「前一個月的 day+1」到「當月的 day」
+        const prevMonth = month - 1;
+        startDate = `${year}/${String(prevMonth).padStart(2, '0')}/${String(day + 1).padStart(2, '0')}`;
+        endDate = `${year}/${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
+    }
+
+    if (rangeDisplay) rangeDisplay.innerText = `${startDate} – ${endDate}`;
+    if (noteDisplay) noteDisplay.innerText = `帳單結帳日：${cycleText}`;
+}
+
+// 修正 confirmCycle 確保同步更新
 function confirmCycle() {
-    const modal = document.getElementById('cycle-picker-modal');
     const val = document.getElementById('cycle-slider').value;
     const displayText = (val == 31) ? "每月月底" : `每月 ${val} 號`;
     
-    if (modal.dataset.mode === 'dueDate') {
-        // 更新「繳款期限」文字
-        const dueDateDisplay = document.getElementById('due-date-display');
-        if (dueDateDisplay) {
-            dueDateDisplay.innerHTML = `${displayText} <i data-lucide="chevron-right" class="s-icon"></i>`;
-        }
-    } else {
-        // 更新「帳單週期」文字
-        const mainDisplay = document.getElementById('main-cycle-display');
-        if (mainDisplay) {
-            mainDisplay.innerHTML = `${displayText} <i data-lucide="chevron-right" class="s-icon"></i>`;
-        }
+    const modal = document.getElementById('cycle-picker-modal');
+    const targetId = (modal.dataset.mode === 'dueDate') ? 'due-date-display' : 'main-cycle-display';
+    
+    const displayElement = document.getElementById(targetId);
+    if (displayElement) {
+        displayElement.innerHTML = `${displayText} <i data-lucide="chevron-right" class="s-icon"></i>`;
     }
+
+    lucide.createIcons();
+    closeModal('cycle-picker-modal');
+}
+
 
     // 重置狀態
     modal.dataset.mode = '';
     modal.querySelector('.modal-header').innerText = "帳單週期";
     
-    lucide.createIcons();
-    closeModal('cycle-picker-modal');
-}
-
+  
 // 確保 openCyclePicker 也正常運作
 function openCyclePicker() {
     const modal = document.getElementById('cycle-picker-modal');
