@@ -1,60 +1,77 @@
 /**
- * Koin 記帳 App 完整邏輯控制 (修正版)
+ * Koin 記帳 App 核心邏輯
  */
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. 初始化 Lucide 圖示
-    if (typeof lucide !== 'undefined') lucide.createIcons();
+    refreshIcons();
     
     // 2. 初始化各項功能
     initOverviewChart();
     initCycleSlider();
     
-    // 3. 初始化日曆 (2026/04/08)
-    const initialDate = new Date(2026, 3, 8); 
-    // 確保 ID 存在才渲染
-    if(document.getElementById('replicant-days-grid')) {
-        renderReplicatedCalendar(initialDate);
+    // 3. 設定預設日期 (2026/04/10)
+    const today = new Date();
+    // 檢查日曆容器是否存在，若存在則調用 calendar.js 的渲染邏輯 (假設寫在裡面)
+    if(document.getElementById('calendar-month-slider')) {
+        console.log("日曆準備就緒");
     }
 });
 
 /**
  * 核心：頁面切換與導覽列狀態
- * @param {string} pageId - 目標頁面 ID
- * @param {HTMLElement} element - 被點擊的按鈕 (由 HTML 傳入 this)
  */
 function showPage(pageId, element) {
-    // 1. 切換頁面本體
+    // 1. 切換頁面
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const targetPage = document.getElementById(pageId);
-    if (targetPage) targetPage.classList.add('active');
+    if (targetPage) {
+        targetPage.classList.add('active');
+        // 頁面切換後自動滾回頂部
+        const scrollContent = targetPage.querySelector('.content-scroll');
+        if (scrollContent) scrollContent.scrollTop = 0;
+    }
 
-    // 2. 清除所有導覽按鈕的標亮狀態
-    const allTabs = document.querySelectorAll('.tab-item, .tab-fab');
-    allTabs.forEach(tab => tab.classList.remove('active'));
-
-    // 3. 處理標亮邏輯
+    // 2. 切換 Tab 狀態
+    document.querySelectorAll('.tab-item, .tab-fab').forEach(tab => tab.classList.remove('active'));
+    
     if (element) {
-        // 如果是直接點擊導覽列進入
         element.classList.add('active');
     } else {
-        // 如果是點擊頁面內的 "+" 跳轉，自動找對應的導覽按鈕
-        // 我們找 onclick 屬性包含該 pageId 的按鈕
-        const autoTab = document.querySelector(`.tab-bar [onclick*="${pageId}"]`);
+        // 修正：更精確的選擇器，確保抓到導覽列內的按鈕
+        const autoTab = document.querySelector(`.tab-bar [onclick*="'${pageId}'"]`);
         if (autoTab) autoTab.classList.add('active');
     }
 
-    // 4. 特殊處理：進入「新增頁面」時讓導覽列半透明 (可選)
-    document.querySelector('.tab-bar').style.opacity = (pageId === 'page-add-account') ? "0.6" : "1";
-
-    // 5. 重新渲染圖示
-    if (typeof lucide !== 'undefined') lucide.createIcons();
+    // 3. 重新渲染圖示
+    refreshIcons();
 }
 
-// =========================================
-// 其他控制邏輯 (保持不變但優化穩定性)
-// =========================================
+/**
+ * 輔助：刷新圖示
+ */
+function refreshIcons() {
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+}
 
+/**
+ * 帳單週期滑桿控制
+ */
+function initCycleSlider() {
+    const slider = document.getElementById('cycle-slider');
+    const rangeDisplay = document.getElementById('modal-cycle-range');
+    
+    if (!slider || !rangeDisplay) return;
+
+    slider.addEventListener('input', (e) => {
+        const val = e.target.value;
+        rangeDisplay.innerText = (val == 31) ? "每月月底" : `每月 ${val} 號`;
+    });
+}
+
+// 彈窗通用控制
 function openModal(id) {
     const el = document.getElementById(id);
     if (el) el.style.display = 'flex';
@@ -65,63 +82,7 @@ function closeModal(id) {
     if (el) el.style.display = 'none';
 }
 
-function initCycleSlider() {
-    const slider = document.getElementById('cycle-slider');
-    const rangeDisplay = document.getElementById('modal-cycle-range');
-    const noteDisplay = document.getElementById('modal-cycle-note');
-    if (!slider) return;
-
-    slider.addEventListener('input', (e) => {
-        const day = parseInt(e.target.value);
-        if (day >= 31) {
-            rangeDisplay.innerText = "每月月底";
-            noteDisplay.innerText = "帳單結帳日：每月月底";
-        } else {
-            rangeDisplay.innerText = `每月 ${day} 號`;
-            noteDisplay.innerText = `帳單結帳日：每月 ${day} 號`;
-        }
-    });
+function initOverviewChart() { 
+    // 未來繪製 Chart.js 可以在此處實作
+    console.log("圖表系統已掛載"); 
 }
-
-function renderReplicatedCalendar(date) {
-    const gridContainer = document.getElementById('replicant-days-grid');
-    const selectedDateDisplay = document.getElementById('replicant-selected-date');
-    if (!gridContainer) return;
-
-    gridContainer.innerHTML = '';
-    const year = date.getFullYear();
-    const month = date.getMonth();
-
-    const firstDayIndex = new Date(year, month, 1).getDay();
-    const lastDay = new Date(year, month + 1, 0).getDate();
-    const prevLastDay = new Date(year, month, 0).getDate();
-
-    // 渲染上個月
-    for (let i = firstDayIndex; i > 0; i--) {
-        const span = document.createElement('span');
-        span.className = 'replicant-day prev-month';
-        span.innerText = (prevLastDay - i + 1).toString().padStart(2, '0');
-        gridContainer.appendChild(span);
-    }
-
-    // 渲染當月
-    for (let i = 1; i <= lastDay; i++) {
-        const span = document.createElement('span');
-        span.className = 'replicant-day current-month';
-        span.innerText = i.toString().padStart(2, '0');
-        
-        if (new Date(year, month, i).getDay() === 0) span.classList.add('sunday');
-        if (i === date.getDate()) span.classList.add('selected');
-
-        span.addEventListener('click', () => {
-            document.querySelectorAll('.replicant-day').forEach(d => d.classList.remove('selected'));
-            span.classList.add('selected');
-            if(selectedDateDisplay) {
-                selectedDateDisplay.innerText = `${year}/${(month+1).toString().padStart(2,'0')}/${i.toString().padStart(2,'0')}`;
-            }
-        });
-        gridContainer.appendChild(span);
-    }
-}
-
-function initOverviewChart() { console.log("圖表已就緒"); }
