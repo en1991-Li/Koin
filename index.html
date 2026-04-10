@@ -169,23 +169,7 @@
 <script src="js/calendar.js"></script>
 
 <script>
-    // 初始化
-    document.addEventListener('DOMContentLoaded', () => {
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-        
-        // 初始切換到首頁，確保狀態同步
-        showPage('page-overview', document.querySelector('.tab-item'));
-    });
-
-    // 這些與數據處理相關的邏輯，建議之後移入 script.js 以便管理
-    function saveAccount() {
-        const name = document.getElementById('acc-name').value;
-        const amount = document.getElementById('acc-amount').value;
-        if(!name) return alert("請輸入帳戶名稱");
-        
-        console.log("儲存帳戶:", { name, amount });
-        showPage('page-overview');
-    }
+   
 </script>
 
 </body>
