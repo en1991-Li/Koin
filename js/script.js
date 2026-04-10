@@ -1,16 +1,14 @@
-/** * Koin 核心邏輯整合版
+/**
+ * Koin 核心邏輯整合 - script.js
  */
 
-// 1. 分頁控制
+// 頁面切換核心
 function showPage(pageId, element) {
-    // 隱藏所有頁面
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    
-    // 顯示目標頁
     const target = document.getElementById(pageId);
     if(target) target.classList.add('active');
 
-    // 標亮導覽列
+    // 標亮 Tab
     document.querySelectorAll('.tab-item, .tab-fab').forEach(tab => tab.classList.remove('active'));
     if (element) {
         element.classList.add('active');
@@ -19,44 +17,44 @@ function showPage(pageId, element) {
         if (autoTab) autoTab.classList.add('active');
     }
     
-    // 重新渲染圖示
     if (typeof lucide !== 'undefined') lucide.createIcons();
-    }
+}
 
-        function openCyclePicker() { document.getElementById('cycle-picker-modal').style.display = 'flex'; }
-        function updateCycleText(val) {
-            const rangeDisplay = document.getElementById('modal-cycle-range');
-            rangeDisplay.innerText = val == 31 ? "每月月底" : `每月 ${val} 號`;
-        }
-        function confirmCycle() {
-            const val = document.getElementById('cycle-slider').value;
-            const displayText = val == 31 ? "每月月底" : `每月 ${val} 號`;
-            document.getElementById('main-cycle-display').innerHTML = `${displayText} <i data-lucide="chevron-right" class="s-icon"></i>`;
-            lucide.createIcons();
-            closeModal('cycle-picker-modal');
-        }
-
-        function toggleCreditFields() {
-            const isCredit = document.getElementById('in-is-credit').checked;
-            document.getElementById('credit-extra-fields').style.display = isCredit ? 'block' : 'none';
-            document.getElementById('add-display-amount').className = isCredit ? 'val text-red' : 'val text-green';
-        }
-
-     // 2. 彈窗通用控制
+// 彈窗控制
 function openModal(id) { document.getElementById(id).style.display = 'flex'; }
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-// 3. 帳戶分組選取
+// 帳戶分組選取
 function selectGroup(name) {
     const display = document.getElementById('selected-group-text');
     if (display) {
         display.innerHTML = `${name} <i data-lucide="chevron-right" class="s-icon"></i>`;
-        if (typeof lucide !== 'undefined') lucide.createIcons();
+        lucide.createIcons();
     }
     closeModal('group-picker-modal');
 }
 
-// 4. 信用帳戶欄位聯動
+// 週期選擇滑桿
+function updateCycleText(val) {
+    const rangeDisplay = document.getElementById('modal-cycle-range');
+    const noteDisplay = document.getElementById('modal-cycle-note');
+    const text = (val == 31) ? "每月月底" : `每月 ${val} 號`;
+    if(rangeDisplay) rangeDisplay.innerText = text;
+    if(noteDisplay) noteDisplay.innerText = `帳單結帳日：${text}`;
+}
+
+function confirmCycle() {
+    const val = document.getElementById('cycle-slider').value;
+    const displayText = (val == 31) ? "每月月底" : `每月 ${val} 號`;
+    const mainDisplay = document.getElementById('main-cycle-display');
+    if(mainDisplay) {
+        mainDisplay.innerHTML = `${displayText} <i data-lucide="chevron-right" class="s-icon"></i>`;
+        lucide.createIcons();
+    }
+    closeModal('cycle-picker-modal');
+}
+
+// 信用帳戶聯動
 function toggleCreditFields() {
     const isCredit = document.getElementById('in-is-credit').checked;
     const extraFields = document.getElementById('credit-extra-fields');
