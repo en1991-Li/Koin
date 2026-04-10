@@ -2,6 +2,15 @@
  * Koin 核心邏輯整合 - script.js
  */
 
+ // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        
+        // 初始切換到首頁，確保狀態同步
+        showPage('page-overview', document.querySelector('.tab-item'));
+    });
+
+
 // 頁面切換核心
 function showPage(pageId, element) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -20,12 +29,22 @@ function showPage(pageId, element) {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// 彈窗控制
-function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    // 這些與數據處理相關的邏輯，建議之後移入 script.js 以便管理
+    function saveAccount() {
+        const name = document.getElementById('acc-name').value;
+        const amount = document.getElementById('acc-amount').value;
+        if(!name) return alert("請輸入帳戶名稱");
+        
+        console.log("儲存帳戶:", { name, amount });
+        showPage('page-overview');
+    }
 
-// 帳戶分組選取
-function selectGroup(name) {
+   // 彈窗控制
+  function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+  function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+   // 帳戶分組選取
+   function selectGroup(name) {
     const display = document.getElementById('selected-group-text');
     if (display) {
         display.innerHTML = `${name} <i data-lucide="chevron-right" class="s-icon"></i>`;
