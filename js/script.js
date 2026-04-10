@@ -21,9 +21,28 @@ function showPage(pageId, element) {
     
     // 重新渲染圖示
     if (typeof lucide !== 'undefined') lucide.createIcons();
-}
+    }
 
-// 2. 彈窗通用控制
+        function openCyclePicker() { document.getElementById('cycle-picker-modal').style.display = 'flex'; }
+        function updateCycleText(val) {
+            const rangeDisplay = document.getElementById('modal-cycle-range');
+            rangeDisplay.innerText = val == 31 ? "每月月底" : `每月 ${val} 號`;
+        }
+        function confirmCycle() {
+            const val = document.getElementById('cycle-slider').value;
+            const displayText = val == 31 ? "每月月底" : `每月 ${val} 號`;
+            document.getElementById('main-cycle-display').innerHTML = `${displayText} <i data-lucide="chevron-right" class="s-icon"></i>`;
+            lucide.createIcons();
+            closeModal('cycle-picker-modal');
+        }
+
+        function toggleCreditFields() {
+            const isCredit = document.getElementById('in-is-credit').checked;
+            document.getElementById('credit-extra-fields').style.display = isCredit ? 'block' : 'none';
+            document.getElementById('add-display-amount').className = isCredit ? 'val text-red' : 'val text-green';
+        }
+
+     // 2. 彈窗通用控制
 function openModal(id) { document.getElementById(id).style.display = 'flex'; }
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
