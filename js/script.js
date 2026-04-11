@@ -19,6 +19,13 @@ function showPage(pageId, element) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const target = document.getElementById(pageId);
     if(target) target.classList.add('active');
+    
+    // 特別處理：當進入專案頁面時，強制重新渲染列表
+    if (pageId === 'page-projects') {
+        if (typeof renderProjectsPage === 'function') {
+            renderProjectsPage();
+        }
+    }
 
     // 標亮 Tab
     document.querySelectorAll('.tab-item, .tab-fab').forEach(tab => tab.classList.remove('active'));
