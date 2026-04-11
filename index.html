@@ -270,21 +270,22 @@
         </div>
     </div>
 </div>
-
-
-        <nav class="tab-bar">
-            <div class="tab-item active" onclick="showPage('page-overview', this)"><i data-lucide="archive"></i></div>
-            <div class="tab-item" onclick="showPage('page-projects', this)"><i data-lucide="wallet"></i></div>
-            <div class="tab-fab" onclick="showPage('page-calendar', this)"> 
-                <div class="fab-inner"><i data-lucide="layers"></i></div>
-            </div>
-            <div class="tab-item" onclick="showPage('page-trends', this)"><i data-lucide="trending-up"></i></div>
-            <div class="tab-item" onclick="showPage('page-settings', this)"><i data-lucide="sliders-horizontal"></i></div>
-        </nav>
+ <nav class="tab-bar">
+    <div class="tab-item active" onclick="showPage('page-overview', this)"><i data-lucide="archive"></i></div>
+    <div class="tab-item" onclick="showPage('page-projects', this)"><i data-lucide="wallet"></i></div>
+    
+    <div class="tab-fab" onclick="handleFabClick(this)"> 
+        <div class="fab-inner"><i data-lucide="layers"></i></div>
     </div>
-    <script src="js/script.js"></script>    
-<script src="js/projects.js"></script>
-<script src="js/calendar.js"></script>
+    
+    <div class="tab-item" onclick="showPage('page-trends', this)"><i data-lucide="trending-up"></i></div>
+    <div class="tab-item" onclick="showPage('page-settings', this)"><i data-lucide="sliders-horizontal"></i></div>
+ </nav>
+
+    </div>
+   <script src="js/script.js"></script>    
+   <script src="js/projects.js"></script>
+   <script src="js/calendar.js"></script>
 
 <script>
    
