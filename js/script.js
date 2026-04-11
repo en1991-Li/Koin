@@ -2,14 +2,17 @@
  * Koin 核心邏輯整合 - script.js
  */
 
- // 初始化
-    document.addEventListener('DOMContentLoaded', () => {
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-        
-        // 初始切換到首頁，確保狀態同步
-        showPage('page-overview', document.querySelector('.tab-item'));
-    });
-
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. 初始化 Lucide 圖示
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    
+    // 2. 執行各頁面渲染
+    if (typeof renderAccountList === 'function') renderAccountList();
+    if (typeof renderProjectsPage === 'function') renderProjectsPage(); // 確保這行有執行
+    
+    // 3. 初始切換到首頁
+    showPage('page-overview');
+});
 
 // 頁面切換核心
 function showPage(pageId, element) {
