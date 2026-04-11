@@ -547,6 +547,31 @@ body, html {
 .calendar-grid-day.saturday .date-val { color: #a3e635; }
 .calendar-grid-day.not-current .date-val { color: #3a3a4c; }
 
+.brand-item {
+    text-align: center;
+    font-size: 11px;
+    color: #8a8a8e;
+}
+.brand-icon {
+    width: 50px;
+    height: 50px;
+    background: #2c2c3e;
+    border-radius: 50%;
+    margin: 0 auto 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+.form-btn {
+    background: #2c2c3e;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: 500;
+}
+.text-blue { color: #5d5dff; }
+
 
 
 /* iOS Switch 開關 */
