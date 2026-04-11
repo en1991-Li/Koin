@@ -14,46 +14,65 @@ const defaultProjects = [
     { name: "學習", icon: "pen-tool", date: "26/04/01 － 26/04/30", amount: 0, type: 'neutral' }
 ];
 
-
 function renderProjectsPage() {
     const container = document.getElementById('projects-list-container');
     if (!container) return;
 
-    // 從 LocalStorage 讀取資料
-    const projects = JSON.parse(localStorage.getItem('koin_projects') || '[]');
-
-    // 如果沒有專案，顯示提示訊息
-    if (projects.length === 0) {
-        container.innerHTML = `
-            <div style="text-align: center; color: #8a8a8e; margin-top: 50px;">
-                <p>目前沒有專案</p>
-                <p style="font-size: 12px;">點擊右上角 + 新增</p>
-            </div>
-        `;
-        return;
+    // 從 LocalStorage 讀取資料，若無資料則使用預設數據
+    let projects = JSON.parse(localStorage.getItem('koin_projects'));
+    
+    if (!projects || projects.length === 0) {
+        projects = defaultProjects;
+        // 可選：將預設數據存入 LocalStorage
+        // localStorage.setItem('koin_projects', JSON.stringify(defaultProjects));
     }
 
-    // 有資料時的渲染邏輯
-    container.innerHTML = projects.map(proj => `
-        <div class="project-card" style="background: #2c2c3e; margin: 15px; padding: 20px; border-radius: 16px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <div style="background: #3d3d4d; padding: 10px; border-radius: 12px;">
-                        <i data-lucide="${proj.icon || 'piggy-bank'}" style="color: #fff;"></i>
-                    </div>
-                    <div>
-                        <div style="color: #fff; font-weight: bold;">${proj.name}</div>
-                        <div style="color: #8a8a8e; font-size: 12px;">${proj.date}</div>
-                    </div>
-                </div>
-                <div style="color: #fff; font-weight: bold;">$${proj.amount.toLocaleString()}</div>
-            </div>
-        </div>
-    `).join('');
+    let html = '';
 
-    // 重新驅動圖示
+    projects.forEach(proj => {
+        const iconName = proj.icon || 'piggy-bank';
+        const displayDate = proj.date || "2026/04/01 － 2026/04/30";
+        const amount = proj.amount || 0;
+        
+        // 根據類型判斷顏色 (這裡維持你想要的樣式)
+        let amountColor = '#ffffff'; 
+        if(proj.type === 'expense') amountColor = '#ff5b5b';
+        if(proj.type === 'income') amountColor = '#94d34d';
+
+        html += `
+            <div class="project-row" style="display: flex; align-items: center; padding: 18px 20px; border-bottom: 0.5px solid #2c2c3e;">
+                <div style="width: 44px; height: 44px; background: #2c2c3e; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+                    <i data-lucide="${iconName}" style="width: 20px; height: 20px; color: #fff;"></i>
+                </div>
+                
+                <div style="flex: 1;">
+                    <div style="color: #fff; font-size: 16px; font-weight: 500; margin-bottom: 4px;">${proj.name}</div>
+                    <div style="color: #8a8a8e; font-size: 12px;">${displayDate}</div>
+                </div>
+                
+                <div style="text-align: right;">
+                    <div style="color: ${amountColor}; font-size: 17px; font-weight: 600;">$${amount.toLocaleString()}</div>
+                    ${proj.isStats ? `
+                        <div style="display: inline-block; background: #56aaff; color: #fff; font-size: 10px; padding: 2px 8px; border-radius: 6px; margin-top: 5px; font-weight: bold;">
+                            統計專案
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+
+    // 重新渲染 Lucide 圖示
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
+
+// 初始化
+document.addEventListener('DOMContentLoaded', () => {
+    renderProjectsPage();
+});
+
 
     allProjects.forEach(proj => {
         // 如果是新增的專案，可能沒有 icon，給一個預設的
