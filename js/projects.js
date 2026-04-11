@@ -14,20 +14,46 @@ const defaultProjects = [
     { name: "學習", icon: "pen-tool", date: "26/04/01 － 26/04/30", amount: 0, type: 'neutral' }
 ];
 
-// 2. 渲染函數
+
 function renderProjectsPage() {
     const container = document.getElementById('projects-list-container');
     if (!container) return;
 
-    // 從 LocalStorage 讀取使用者新增的專案，並與預設資料合併
-    const savedProjects = JSON.parse(localStorage.getItem('koin_projects') || '[]');
-    const allProjects = [...savedProjects, ...defaultProjects];
+    // 從 LocalStorage 讀取資料
+    const projects = JSON.parse(localStorage.getItem('koin_projects') || '[]');
 
-    let html = `
-        <div style="padding: 15px 20px; color: #8a8a8e; font-size: 14px; border-bottom: 1px solid #2c2c3e;">
-            － 進行中 (${allProjects.length})
+    // 如果沒有專案，顯示提示訊息
+    if (projects.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; color: #8a8a8e; margin-top: 50px;">
+                <p>目前沒有專案</p>
+                <p style="font-size: 12px;">點擊右上角 + 新增</p>
+            </div>
+        `;
+        return;
+    }
+
+    // 有資料時的渲染邏輯
+    container.innerHTML = projects.map(proj => `
+        <div class="project-card" style="background: #2c2c3e; margin: 15px; padding: 20px; border-radius: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="background: #3d3d4d; padding: 10px; border-radius: 12px;">
+                        <i data-lucide="${proj.icon || 'piggy-bank'}" style="color: #fff;"></i>
+                    </div>
+                    <div>
+                        <div style="color: #fff; font-weight: bold;">${proj.name}</div>
+                        <div style="color: #8a8a8e; font-size: 12px;">${proj.date}</div>
+                    </div>
+                </div>
+                <div style="color: #fff; font-weight: bold;">$${proj.amount.toLocaleString()}</div>
+            </div>
         </div>
-    `;
+    `).join('');
+
+    // 重新驅動圖示
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
 
     allProjects.forEach(proj => {
         // 如果是新增的專案，可能沒有 icon，給一個預設的
