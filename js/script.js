@@ -26,73 +26,57 @@ function showPage(pageId, element) {
             renderProjectsPage();
         }
     }
+
+let isFabPlus = false; // 追蹤中間按鈕是否為加號
+
+function handleFabClick(element) {
+    const iconElement = document.getElementById('fab-icon');
     
-    // 標亮 Tab
-    document.querySelectorAll('.tab-item, .tab-fab').forEach(tab => tab.classList.remove('active'));
-    if (element) {
-        element.classList.add('active');
+    if (!isFabPlus) {
+        // 狀態 1: 從layers變成加號
+        iconElement.setAttribute('data-lucide', 'plus');
+        element.classList.add('fab-active'); // 可以加個 CSS 動畫
+        isFabPlus = true;
     } else {
-        const autoTab = document.querySelector(`.tab-bar [onclick*="${pageId}"]`);
-        if (autoTab) autoTab.classList.add('active');
+        // 狀態 2: 已經是加號，點擊開啟新增紀錄頁面
+        showPage('page-add-record'); // 假設你的新增頁面 ID 是這個
+        
+        // 開啟後可以選擇是否重設回layers圖示
+        resetFab();
     }
     
+    // 重新驅動 Lucide 圖示渲染
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// 全域變數紀錄目前 FAB 狀態
-let isCalendarActive = false;
-
-/**
- * 處理中間圓形按鈕 (FAB) 的點擊邏輯
- */
-function handleFabClick(element) {
-    const fabIcon = document.querySelector('.tab-fab i');
-    const currentPage = document.querySelector('.page.active').id;
-
-    // 邏輯 A：如果目前不在日曆頁，先切換到日曆頁
-    if (currentPage !== 'page-calendar') {
-        showPage('page-calendar', element);
-        // 切換圖示為 plus
-        fabIcon.setAttribute('data-lucide', 'plus');
-        lucide.createIcons();
-    } 
-    // 邏輯 B：如果已經在日曆頁，則開啟「新增記錄」
-    else {
-        showPage('page-add-record');
-        // 進入新增記錄後，將圖示重置回 layers (或保持 plus，依你喜好)
-        fabIcon.setAttribute('data-lucide', 'layers');
-        lucide.createIcons();
+// 重設中間按鈕回layers狀態的函式
+function resetFab() {
+    const iconElement = document.getElementById('fab-icon');
+    const fabElement = document.getElementById('main-fab');
+    if (iconElement) {
+        iconElement.setAttribute('data-lucide', 'layers');
+        fabElement.classList.remove('fab-active');
+        isFabPlus = false;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 }
 
-/**
- * 修改原本的 showPage 函數，確保從其他 Tab 切換時能重置 FAB 圖示
- */
+// 修改原有的 showPage，確保切換到其他頁面時，中間按鈕會重置
 const originalShowPage = window.showPage;
 window.showPage = function(pageId, element) {
-    // 呼叫原本定義在 script.js 的切換邏輯
-    if (typeof originalShowPage === 'function') {
-        originalShowPage(pageId, element);
-    } else {
-        // 基本切換邏輯 (防錯用)
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
-        
-        if (element && element.classList.contains('tab-item')) {
-            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            element.classList.add('active');
-        }
+    if (pageId !== 'page-add-record') {
+        resetFab();
     }
-
-    // 核心連動：如果不是透過 FAB 切換到日曆頁（例如點擊其他地方回來的）
-    // 也要確保 FAB 圖示狀態正確
-    const fabIcon = document.querySelector('.tab-fab i');
-    if (pageId === 'page-calendar') {
-        fabIcon.setAttribute('data-lucide', 'plus');
-    } else if (pageId !== 'page-add-record') {
-        fabIcon.setAttribute('data-lucide', 'layers');
+    
+    // 執行原有的 showPage 邏輯
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+    
+    // 更新導覽列高亮 (排除 FAB)
+    document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
+    if (element && element.classList.contains('tab-item')) {
+        element.classList.add('active');
     }
-    lucide.createIcons();
 };
 
    // 1. 儲存帳戶並同步
