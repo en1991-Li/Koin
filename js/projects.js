@@ -18,60 +18,38 @@ function renderProjectsPage() {
     const container = document.getElementById('projects-list-container');
     if (!container) return;
 
-    // 從 LocalStorage 讀取資料，若無資料則使用預設數據
     let projects = JSON.parse(localStorage.getItem('koin_projects'));
-    
     if (!projects || projects.length === 0) {
         projects = defaultProjects;
-        // 可選：將預設數據存入 LocalStorage
-        // localStorage.setItem('koin_projects', JSON.stringify(defaultProjects));
     }
 
     let html = '';
-
     projects.forEach(proj => {
         const iconName = proj.icon || 'piggy-bank';
         const displayDate = proj.date || "2026/04/01 － 2026/04/30";
         const amount = proj.amount || 0;
-        
-        // 根據類型判斷顏色 (這裡維持你想要的樣式)
-        let amountColor = '#ffffff'; 
-        if(proj.type === 'expense') amountColor = '#ff5b5b';
-        if(proj.type === 'income') amountColor = '#94d34d';
+        let amountColor = (proj.type === 'expense') ? '#ff5b5b' : (proj.type === 'income' ? '#94d34d' : '#ffffff');
 
         html += `
             <div class="project-row" style="display: flex; align-items: center; padding: 18px 20px; border-bottom: 0.5px solid #2c2c3e;">
                 <div style="width: 44px; height: 44px; background: #2c2c3e; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
                     <i data-lucide="${iconName}" style="width: 20px; height: 20px; color: #fff;"></i>
                 </div>
-                
                 <div style="flex: 1;">
                     <div style="color: #fff; font-size: 16px; font-weight: 500; margin-bottom: 4px;">${proj.name}</div>
                     <div style="color: #8a8a8e; font-size: 12px;">${displayDate}</div>
                 </div>
-                
                 <div style="text-align: right;">
                     <div style="color: ${amountColor}; font-size: 17px; font-weight: 600;">$${amount.toLocaleString()}</div>
-                    ${proj.isStats ? `
-                        <div style="display: inline-block; background: #56aaff; color: #fff; font-size: 10px; padding: 2px 8px; border-radius: 6px; margin-top: 5px; font-weight: bold;">
-                            統計專案
-                        </div>
-                    ` : ''}
+                    ${proj.isStats ? `<div style="display: inline-block; background: #56aaff; color: #fff; font-size: 10px; padding: 2px 8px; border-radius: 6px; margin-top: 5px; font-weight: bold;">統計專案</div>` : ''}
                 </div>
             </div>
         `;
     });
 
     container.innerHTML = html;
-
-    // 重新渲染 Lucide 圖示
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
-
-// 初始化
-document.addEventListener('DOMContentLoaded', () => {
-    renderProjectsPage();
-});
 
 
     allProjects.forEach(proj => {
