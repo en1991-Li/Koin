@@ -14,12 +14,13 @@ const defaultProjects = [
     { name: "學習", icon: "pen-tool", date: "26/04/01 － 26/04/30", amount: 0, type: 'neutral' }
 ];
  
- function renderProjectsPage() {
+function renderProjectsPage() {
     const container = document.getElementById('projects-list-container');
     if (!container) return;
 
-    // 取得資料
     let projects = JSON.parse(localStorage.getItem('koin_projects') || '[]');
+    
+    // 如果 LocalStorage 沒資料，就用預設的
     if (projects.length === 0) {
         projects = defaultProjects;
     }
@@ -29,9 +30,11 @@ const defaultProjects = [
         const iconName = proj.icon || 'piggy-bank';
         const displayDate = proj.date || "2026/04/01 － 2026/04/30";
         const amount = proj.amount || 0;
-        let amountColor = '#ffffff';
-        if (proj.type === 'expense') amountColor = '#ff5b5b';
-        if (proj.type === 'income') amountColor = '#94d34d';
+        
+        // 顏色邏輯
+        let amountColor = '#ffffff'; 
+        if(proj.type === 'expense') amountColor = '#ff5b5b';
+        if(proj.type === 'income') amountColor = '#94d34d';
 
         html += `
             <div class="project-row" style="display: flex; align-items: center; padding: 18px 20px; border-bottom: 0.5px solid #2c2c3e;">
@@ -58,7 +61,7 @@ const defaultProjects = [
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// 頁面加載時執行一次
+// 監聽 DOM 加載
 document.addEventListener('DOMContentLoaded', renderProjectsPage);
 
 
