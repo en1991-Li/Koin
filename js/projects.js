@@ -13,13 +13,14 @@ const defaultProjects = [
     { name: "每月統計", icon: "calendar-days", date: "26/04/01 － 26/04/30", amount: 0, type: 'expense', isStats: true },
     { name: "學習", icon: "pen-tool", date: "26/04/01 － 26/04/30", amount: 0, type: 'neutral' }
 ];
-
-function renderProjectsPage() {
+ 
+ function renderProjectsPage() {
     const container = document.getElementById('projects-list-container');
     if (!container) return;
 
-    let projects = JSON.parse(localStorage.getItem('koin_projects'));
-    if (!projects || projects.length === 0) {
+    // 取得資料
+    let projects = JSON.parse(localStorage.getItem('koin_projects') || '[]');
+    if (projects.length === 0) {
         projects = defaultProjects;
     }
 
@@ -28,7 +29,9 @@ function renderProjectsPage() {
         const iconName = proj.icon || 'piggy-bank';
         const displayDate = proj.date || "2026/04/01 － 2026/04/30";
         const amount = proj.amount || 0;
-        let amountColor = (proj.type === 'expense') ? '#ff5b5b' : (proj.type === 'income' ? '#94d34d' : '#ffffff');
+        let amountColor = '#ffffff';
+        if (proj.type === 'expense') amountColor = '#ff5b5b';
+        if (proj.type === 'income') amountColor = '#94d34d';
 
         html += `
             <div class="project-row" style="display: flex; align-items: center; padding: 18px 20px; border-bottom: 0.5px solid #2c2c3e;">
@@ -41,7 +44,11 @@ function renderProjectsPage() {
                 </div>
                 <div style="text-align: right;">
                     <div style="color: ${amountColor}; font-size: 17px; font-weight: 600;">$${amount.toLocaleString()}</div>
-                    ${proj.isStats ? `<div style="display: inline-block; background: #56aaff; color: #fff; font-size: 10px; padding: 2px 8px; border-radius: 6px; margin-top: 5px; font-weight: bold;">統計專案</div>` : ''}
+                    ${proj.isStats ? `
+                        <div style="display: inline-block; background: #56aaff; color: #fff; font-size: 10px; padding: 2px 8px; border-radius: 6px; margin-top: 5px; font-weight: bold;">
+                            統計專案
+                        </div>
+                    ` : ''}
                 </div>
             </div>
         `;
@@ -50,6 +57,9 @@ function renderProjectsPage() {
     container.innerHTML = html;
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
+
+// 頁面加載時執行一次
+document.addEventListener('DOMContentLoaded', renderProjectsPage);
 
 
     allProjects.forEach(proj => {
