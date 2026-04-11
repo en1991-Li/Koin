@@ -29,6 +29,62 @@ function showPage(pageId, element) {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
+// 全域變數紀錄目前 FAB 狀態
+let isCalendarActive = false;
+
+/**
+ * 處理中間圓形按鈕 (FAB) 的點擊邏輯
+ */
+function handleFabClick(element) {
+    const fabIcon = document.querySelector('.tab-fab i');
+    const currentPage = document.querySelector('.page.active').id;
+
+    // 邏輯 A：如果目前不在日曆頁，先切換到日曆頁
+    if (currentPage !== 'page-calendar') {
+        showPage('page-calendar', element);
+        // 切換圖示為 plus
+        fabIcon.setAttribute('data-lucide', 'plus');
+        lucide.createIcons();
+    } 
+    // 邏輯 B：如果已經在日曆頁，則開啟「新增記錄」
+    else {
+        showPage('page-add-record');
+        // 進入新增記錄後，將圖示重置回 layers (或保持 plus，依你喜好)
+        fabIcon.setAttribute('data-lucide', 'layers');
+        lucide.createIcons();
+    }
+}
+
+/**
+ * 修改原本的 showPage 函數，確保從其他 Tab 切換時能重置 FAB 圖示
+ */
+const originalShowPage = window.showPage;
+window.showPage = function(pageId, element) {
+    // 呼叫原本定義在 script.js 的切換邏輯
+    if (typeof originalShowPage === 'function') {
+        originalShowPage(pageId, element);
+    } else {
+        // 基本切換邏輯 (防錯用)
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        
+        if (element && element.classList.contains('tab-item')) {
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            element.classList.add('active');
+        }
+    }
+
+    // 核心連動：如果不是透過 FAB 切換到日曆頁（例如點擊其他地方回來的）
+    // 也要確保 FAB 圖示狀態正確
+    const fabIcon = document.querySelector('.tab-fab i');
+    if (pageId === 'page-calendar') {
+        fabIcon.setAttribute('data-lucide', 'plus');
+    } else if (pageId !== 'page-add-record') {
+        fabIcon.setAttribute('data-lucide', 'layers');
+    }
+    lucide.createIcons();
+};
+
    // 1. 儲存帳戶並同步
 function saveAccount() {
     const name = document.getElementById('acc-name').value;
