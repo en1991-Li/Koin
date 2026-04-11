@@ -29,6 +29,42 @@ function showPage(pageId, element) {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
+// 修改原本的 FAB 點擊邏輯
+function handleFabClick() {
+    const currentPage = document.querySelector('.page.active').id;
+    const fabIcon = document.querySelector('.tab-fab i');
+
+    if (currentPage === 'page-calendar') {
+        // 如果已經在日曆頁，再次點擊進入「新增紀錄」
+        showPage('page-add-record');
+        // 重置圖示為預設 (layers)
+        fabIcon.setAttribute('data-lucide', 'layers');
+    } else {
+        // 如果在其他頁面，切換到日曆頁，並將圖示改為加號 (plus)
+        showPage('page-calendar');
+        fabIcon.setAttribute('data-lucide', 'plus');
+    }
+    lucide.createIcons();
+}
+
+// 修改導覽列 HTML 中的 onclick
+// <div class="tab-fab" onclick="handleFabClick()"> ... </div>
+
+// 同步更新 showPage 函數，確保從其他 tab 切換時圖示正確
+const originalShowPage = window.showPage;
+window.showPage = function(pageId, element) {
+    if (typeof originalShowPage === 'function') originalShowPage(pageId, element);
+    
+    const fabIcon = document.querySelector('.tab-fab i');
+    // 只有在日曆頁時才顯示 + 號，其他頁面顯示層級圖示
+    if (pageId === 'page-calendar') {
+        fabIcon.setAttribute('data-lucide', 'plus');
+    } else {
+        fabIcon.setAttribute('data-lucide', 'layers');
+    }
+    lucide.createIcons();
+};
+
    // 1. 儲存帳戶並同步
 function saveAccount() {
     const name = document.getElementById('acc-name').value;
