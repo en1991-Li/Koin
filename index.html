@@ -183,6 +183,44 @@
             <div class="daily-details-section" id="daily-details-list"></div>
         </section>
 
+        <section id="page-add-record" class="page">
+    <header class="nav-header">
+        <i data-lucide="x" class="s-icon" onclick="showPage('page-calendar')"></i>
+        <h1 class="page-title">新增記錄</h1>
+        <i data-lucide="check" class="s-icon" onclick="saveRecord()"></i>
+    </header>
+
+    <div class="content-scroll no-scrollbar">
+        <div class="record-tabs" style="display: flex; overflow-x: auto; padding: 15px; gap: 20px; color: #8a8a8e;">
+            <span class="active text-blue">建議</span><span>支出</span><span>收入</span><span>轉帳</span><span>應收款項</span>
+        </div>
+
+        <div class="brand-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; padding: 10px 20px;">
+            <div class="brand-item"><div class="brand-icon">🥤</div><p>可不可</p></div>
+            <div class="brand-item"><div class="brand-icon">🏪</div><p>7-11</p></div>
+            <div class="brand-item"><div class="brand-icon">🍔</div><p>麥當勞</p></div>
+            <div class="brand-item"><div class="brand-icon">🏪</div><p>全家</p></div>
+            <div class="brand-item"><div class="brand-icon">🖨️</div><p>影印費</p></div>
+        </div>
+
+        <div class="record-form" style="padding: 20px;">
+            <div class="amount-input-box" style="background: #2c2c3e; border-radius: 15px; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="background: #3d3d4d; padding: 5px 12px; border-radius: 8px;">TWD</span>
+                <span style="font-size: 28px; font-weight: bold;">0 <span style="font-size: 18px; color: #5d5dff;">+</span></span>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+                <div class="form-btn">錢包</div>
+                <div class="form-btn">生活開銷</div>
+                <div class="form-btn">商家</div>
+                <div class="form-btn">單次</div>
+            </div>
+
+            <textarea placeholder="備註" style="width: 100%; background: #2c2c3e; border: none; border-radius: 12px; color: white; padding: 15px; margin-top: 15px; min-height: 100px;"></textarea>
+        </div>
+    </div>
+</section>
+
         <div id="group-picker-modal" class="modal-overlay" style="display: none;">
             <div class="modal-content">
                 <div class="modal-header">帳戶分組</div>
