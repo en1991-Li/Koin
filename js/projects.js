@@ -2,7 +2,7 @@
  * 專案總覽渲染邏輯 - projects.js
  */
 
-// 1. 預設數據
+// 1. 預設數據：確保第一次開啟時有內容
 const defaultProjects = [
     { name: "生活開銷", icon: "glass-water", date: "26/04/01 － 26/04/30", amount: 0, type: 'expense' },
     { name: "投資理財", icon: "trending-up", date: "26/04/01 － 26/04/30", amount: 0, type: 'neutral' },
@@ -18,7 +18,7 @@ function renderProjectsPage() {
     const container = document.getElementById('projects-list-container');
     if (!container) return;
 
-    // 取得資料
+    // 取得資料：優先從 LocalStorage 讀取，若無則使用預設數據
     let projects = JSON.parse(localStorage.getItem('koin_projects') || '[]');
     if (projects.length === 0) {
         projects = defaultProjects;
@@ -30,10 +30,10 @@ function renderProjectsPage() {
         const displayDate = proj.date || "2026/04/01 － 2026/04/30";
         const amount = proj.amount || 0;
         
-        // 顏色邏輯
-        let amountColor = '#ffffff';
-        if (proj.type === 'expense') amountColor = '#ff5b5b';
-        if (proj.type === 'income') amountColor = '#94d34d';
+        // 根據類型判斷文字顏色
+        let amountColor = '#ffffff'; 
+        if(proj.type === 'expense') amountColor = '#ff5b5b';
+        if(proj.type === 'income') amountColor = '#94d34d';
 
         html += `
             <div class="project-row" style="display: flex; align-items: center; padding: 18px 20px; border-bottom: 0.5px solid #2c2c3e;">
@@ -57,8 +57,12 @@ function renderProjectsPage() {
     });
 
     container.innerHTML = html;
-    if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    // 重新渲染 Lucide 圖示
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
 }
 
-// 監聽 DOM 加載執行渲染
+// 監聽 DOM 加載完成後執行一次渲染
 document.addEventListener('DOMContentLoaded', renderProjectsPage);
