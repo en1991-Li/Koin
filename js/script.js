@@ -2,50 +2,61 @@
  * Koin 核心邏輯整合 - script.js
  */
 
- // 初始化
-    document.addEventListener('DOMContentLoaded', () => {
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-        
-        // 初始切換到首頁，確保狀態同步
-        showPage('page-overview', document.querySelector('.tab-item'));
-    });
+document.addEventListener('DOMContentLoaded', () => {
+    renderAccountList();  // 渲染帳戶
+    if (typeof renderProjectsPage === 'function') renderProjectsPage(); // 渲染專案
+    showPage('page-overview'); // 初始顯示首頁
+});
 
-
-// 頁面切換核心
+/**
+ * 頁面切換核心邏輯 (整合版)
+ */
 function showPage(pageId, element) {
+    // 1. 切換頁面主體
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const target = document.getElementById(pageId);
     if(target) target.classList.add('active');
 
-    // 標亮 Tab
+    // 2. 更新 Tab Bar 亮起狀態
     document.querySelectorAll('.tab-item, .tab-fab').forEach(tab => tab.classList.remove('active'));
+    
     if (element) {
         element.classList.add('active');
     } else {
+        // 如果是透過代碼跳轉（如 saveAccount 後），自動找到對應的 Tab 標亮
         const autoTab = document.querySelector(`.tab-bar [onclick*="${pageId}"]`);
         if (autoTab) autoTab.classList.add('active');
     }
-    
+
+    // 3. FAB (中間按鈕) 圖示狀態連動
+    const fabIcon = document.querySelector('.tab-fab i');
+    if (fabIcon) {
+        if (pageId === 'page-calendar') {
+            fabIcon.setAttribute('data-lucide', 'plus'); // 在日曆頁顯示 +
+        } else if (pageId !== 'page-add-record') {
+            fabIcon.setAttribute('data-lucide', 'layers'); // 其他頁面顯示層疊圖示
+        }
+    }
+
+    // 4. 重新渲染 Lucide 圖示
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// 修改原本的 FAB 點擊邏輯
-function handleFabClick() {
+/**
+ * 處理中間圓形按鈕 (FAB) 的點擊邏輯
+ */
+function handleFabClick(element) {
     const currentPage = document.querySelector('.page.active').id;
-    const fabIcon = document.querySelector('.tab-fab i');
 
     if (currentPage === 'page-calendar') {
-        // 如果已經在日曆頁，再次點擊進入「新增紀錄」
+        // 如果已經在日曆頁，點擊加號進入「新增紀錄」
         showPage('page-add-record');
-        // 重置圖示為預設 (layers)
-        fabIcon.setAttribute('data-lucide', 'layers');
     } else {
-        // 如果在其他頁面，切換到日曆頁，並將圖示改為加號 (plus)
-        showPage('page-calendar');
-        fabIcon.setAttribute('data-lucide', 'plus');
+        // 如果在其他頁面，點擊後先切換到日曆頁
+        showPage('page-calendar', element);
     }
-    lucide.createIcons();
 }
+
 
 // 修改導覽列 HTML 中的 onclick
 // <div class="tab-fab" onclick="handleFabClick()"> ... </div>
@@ -143,11 +154,6 @@ function renderAccountList() {
         stats[1].innerText = debt.toLocaleString();  // 總負債
     }
 }
-
-// 3. 頁面載入時初始化
-document.addEventListener('DOMContentLoaded', () => {
-    renderAccountList();
-});
 
 function saveProject() {
     const name = document.getElementById('proj-name').value;
