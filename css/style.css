@@ -402,74 +402,59 @@ body, html {
 /* =========================================
    7. 底部導覽列與開關
    ========================================= */
-.tab-bar {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 75px;
-    background: var(--tab-bg);
-    backdrop-filter: blur(15px);
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    align-items: center;
-    padding-bottom: 15px;
-    z-index: 100;
-}
-
+/* 1. 一般按鈕樣式 */
 .tab-item {
-    color: var(--text-muted);
-    width: 54px;
+    color: var(--text-muted); 
+    width: 60px;
     height: 54px;
     display: flex;
+    flex-direction: column; 
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 
-.tab-item i {
-    width: 32px;
-    height: 32px;
+/* 一般按鈕點擊後的藍色 */
+.tab-item.active {
+    color: #5d5dff !important;
 }
 
-.tab-item.active i {
-    color: #5d5dff;
-    stroke: #5d5dff;
-    transform: scale(1.15);
-}
-
-/* FAB 特殊處理 */
-.tab-fab .fab-inner {
-    width: 68px;
-    height: 68px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #A16CFD, #6E88F9, #45B6F5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 6px 20px rgba(93, 93, 255, 0.4);
-}
-
-/* 針對中間 FAB 按鈕的特殊處理 */
+/* 2. 中間 FAB 樣式 */
 .tab-fab {
-    position: relative; 
-    bottom: 25px !important; 
+    position: relative;
+    bottom: 20px; 
     z-index: 110;
     cursor: pointer;
 }
 
-.fab-inner i {
-    width: 36px;              /* FAB 圖案同步調大 */
-    height: 36px;
-    color: white !important;
+/* 初始狀態：直接就是彩色漸層 */
+.tab-fab .fab-inner {
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    /* 這裡放回你想要的彩色漸層 */
+    background: linear-gradient(135deg, #A16CFD, #6E88F9, #45B6F5) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid var(--bg);
+    box-shadow: 0 4px 15px rgba(110, 136, 249, 0.4);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+.tab-fab .fab-inner i {
+    width: 30px;
+    height: 30px;
+    color: white !important; /* 既然是彩色背景，圖示直接給白色 */
+    transition: all 0.3s ease;
+}
 
-/* FAB 按下效果 */
-.tab-fab:active .fab-inner {
-    transform: scale(0.92);
-    filter: brightness(1.1);
+/* 啟動狀態 (點擊後的效果，例如稍微放大或增強陰影) */
+.tab-fab.fab-active .fab-inner {
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(93, 93, 255, 0.6);
+    filter: brightness(1.1); /* 點擊時讓它亮一點 */
 }
 
 /* =========================================
