@@ -6,41 +6,44 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. 初始化 Lucide 圖示
     if (typeof lucide !== 'undefined') lucide.createIcons();
     
-    // 2. 執行各頁面渲染
+    // 2. 執行各頁面初始渲染
     if (typeof renderAccountList === 'function') renderAccountList();
-    if (typeof renderProjectsPage === 'function') renderProjectsPage(); // 確保這行有執行
+    if (typeof renderProjectsPage === 'function') renderProjectsPage();
     
-    // 3. 初始切換到首頁
-    showPage('page-overview');
+    // 3. 初始切換到帳戶總覽 ( element 傳 null 讓它走自動標亮邏輯 )
+    showPage('page-overview', null);
 });
 
 /**
- * 修正後的 showPage：處理所有 Tab 狀態
+ * 核心分頁切換：處理頁面顯示、導覽列顏色、中間 FAB 圖示
  */
 function showPage(pageId, element) {
-    // 1. 切換頁面顯示
+    // A. 頁面顯示切換
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const target = document.getElementById(pageId);
     if (target) target.classList.add('active');
 
-    // 2. 清除所有導覽列的高亮狀態
+    // B. 清除導覽列狀態
     document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
     const fabElement = document.getElementById('main-fab');
     if (fabElement) fabElement.classList.remove('fab-active');
 
-    // 3. 設定當前按鈕為 Active
+    // C. 處理高亮邏輯
     if (element) {
+        // 點擊觸發：直接讓點擊的對象變 active (變藍色或放大)
         element.classList.add('active');
         if (element.classList.contains('tab-fab')) {
             element.classList.add('fab-active');
         }
     } else {
-        // 程式內部跳轉時自動標亮對應 Tab
+        // 程式內部跳轉：自動尋找對應的按鈕標亮
         const autoTab = document.querySelector(`.tab-bar [onclick*="${pageId}"]`);
         if (autoTab) autoTab.classList.add('active');
+        // 如果是跳轉到日曆，自動幫中間 FAB 放大
+        if (pageId === 'page-calendar' && fabElement) fabElement.classList.add('fab-active');
     }
 
-    // 4. 切換中間圖示：只有日曆與新增頁面是 +，其他都是 layers
+    // D. 處理 FAB 圖示變換 (layers ↔ plus)
     const fabIcon = document.querySelector('.tab-fab i');
     if (fabIcon) {
         if (pageId === 'page-calendar' || pageId === 'page-add-record') {
@@ -50,57 +53,31 @@ function showPage(pageId, element) {
         }
     }
 
-    // 5. 重新驅動 Lucide (圖示才會變換)
+    // E. 重新驅動 Lucide (非常重要：更換圖示後必須重繪)
     if (typeof lucide !== 'undefined') lucide.createIcons();
     
-    // 如果進入專案頁面則重新渲染
+    // 專案頁渲染連動
     if (pageId === 'page-projects' && typeof renderProjectsPage === 'function') {
         renderProjectsPage();
     }
 }
 
 /**
- * 中間按鈕專用處理
+ * 中間按鈕專用處理：控制「去日曆」或「去新增」
  */
 function handleFabClick(element) {
-    const currentPage = document.querySelector('.page.active').id;
-    // 如果目前不在日曆，去日曆；如果在日曆了，去新增頁面
-    if (currentPage !== 'page-calendar') {
+    const activePage = document.querySelector('.page.active');
+    const currentId = activePage ? activePage.id : '';
+
+    if (currentId !== 'page-calendar') {
+        // 不在日曆頁 -> 前往日曆頁，傳入 element 確保彩色按鈕變大
         showPage('page-calendar', element);
     } else {
+        // 已在日曆頁 -> 前往新增記錄
         showPage('page-add-record', element);
     }
 }
 
-/**
- * 修改原本的 showPage 函數，確保從其他 Tab 切換時能重置 FAB 圖示
- */
-const originalShowPage = window.showPage;
-window.showPage = function(pageId, element) {
-    // 呼叫原本定義在 script.js 的切換邏輯
-    if (typeof originalShowPage === 'function') {
-        originalShowPage(pageId, element);
-    } else {
-        // 基本切換邏輯 (防錯用)
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
-        
-        if (element && element.classList.contains('tab-item')) {
-            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            element.classList.add('active');
-        }
-    }
-
-    // 核心連動：如果不是透過 FAB 切換到日曆頁（例如點擊其他地方回來的）
-    // 也要確保 FAB 圖示狀態正確
-    const fabIcon = document.querySelector('.tab-fab i');
-    if (pageId === 'page-calendar') {
-        fabIcon.setAttribute('data-lucide', 'plus');
-    } else if (pageId !== 'page-add-record') {
-        fabIcon.setAttribute('data-lucide', 'layers');
-    }
-    lucide.createIcons();
-};
 
    // 1. 儲存帳戶並同步
 function saveAccount() {
