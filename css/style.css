@@ -412,7 +412,7 @@ body, html {
     border-top: 1px solid var(--border);
     display: flex;
     justify-content: center;
-    gap: 20px; /* 稍微縮小間距讓視覺更集中 */
+    gap: 15px; /* 稍微縮小間距讓視覺更集中 */
     align-items: center;
     padding-bottom: 15px;
     z-index: 100;
@@ -424,7 +424,7 @@ body, html {
     width: 60px;
     height: 54px;
     display: flex;
-    flex-direction: column; /* 讓圖示跟文字垂直排列 */
+    flex-direction: column; 
     align-items: center;
     justify-content: center;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -433,7 +433,7 @@ body, html {
 }
 
 .tab-item i {
-    width: 26px; /* 稍微調整大小更符合 iOS 感 */
+    width: 26px;
     height: 26px;
     transition: all 0.3s ease;
 }
@@ -457,18 +457,17 @@ body, html {
 /* 2. 中間 FAB 特殊處理 */
 .tab-fab {
     position: relative;
-    bottom: 20px; /* 讓按鈕稍微凸出 */
+    bottom: 20px; 
     z-index: 110;
     cursor: pointer;
-    transition: transform 0.2s ease;
 }
 
-/* FAB 初始狀態 (灰色圓圈 + layers 圖示) */
+/* FAB 初始狀態 (灰色圓圈) */
 .tab-fab .fab-inner {
     width: 62px;
     height: 62px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #A16CFD, #6E88F9, #45B6F5);
+    background-color: linear-gradient(135deg, #A16CFD, #6E88F9, #45B6F5);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -480,37 +479,28 @@ body, html {
 .tab-fab .fab-inner i {
     width: 30px;
     height: 30px;
-    color: #8a8a8e; /* 初始圖示顏色 */
+    color: #8a8a8e; /* 初始圖示灰色 */
     transition: all 0.3s ease;
 }
 
-/* FAB 激活狀態 (點擊第一下後：變色、變 + 號) */
-/* 註：JavaScript 會動態加上 .fab-active 類別 */
+/* FAB 激活狀態 (點擊後由 JS 加上 .fab-active) */
 .tab-fab.fab-active .fab-inner {
-    background: linear-gradient(135deg, #6E88F9, #5d5dff) !important; /* 變為藍色漸層 */
+    /* 變為你要求的藍色漸層 */
+    background: linear-gradient(135deg, #A16CFD, #6E88F9, #45B6F5);
     transform: scale(1.1);
     box-shadow: 0 6px 20px rgba(93, 93, 255, 0.5);
     border-color: transparent;
 }
 
 .tab-fab.fab-active .fab-inner i {
-    color: white !important; /* 加號變白色 */
-    transform: rotate(0deg); /* 如果原本有旋轉可以歸零 */
+    color: white !important; /* 變白色圖示 (+號) */
+    stroke: white !important;
 }
 
-/* 按下時的微小回饋 */
+/* 按下時的縮放回饋 */
 .tab-fab:active .fab-inner {
     transform: scale(0.95);
 }
-
-/* =========================================
-   修正原本其他干擾樣式
-   ========================================= */
-/* 移除重複定義的 .tab-item.active i，統一使用上方版本 */
-.tab-item.active i {
-    stroke: #5d5dff;
-}
-
 
 /* =========================================
    8. 日曆分頁樣式優化
