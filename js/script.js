@@ -20,66 +20,60 @@ document.addEventListener('DOMContentLoaded', () => {
  * @param {HTMLElement} element - 被點擊的 HTML 元素 (傳入 this)
  */
 function showPage(pageId, element) {
-    // --- 1. 頁面切換 ---
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    // A. 顯示對應頁面
     const target = document.getElementById(pageId);
-    if (target) target.classList.add('active');
+    if (!target) return; // 防錯：如果找不到頁面 ID 就不執行
 
-    // --- 2. 導覽列狀態重置 ---
-    // 移除所有一般按鈕的藍色高亮
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    target.classList.add('active');
+
+    // B. 清除導覽列所有高亮與放大狀態
     document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
-    // 移除中間按鈕的放大效果
     const fabElement = document.getElementById('main-fab');
     if (fabElement) fabElement.classList.remove('fab-active');
 
-    // --- 3. 設定目前點擊的高亮 ---
+    // C. 設定當前按鈕高亮
     if (element) {
         element.classList.add('active');
         if (element.classList.contains('tab-fab')) {
-            element.classList.add('fab-active'); // 中間按鈕放大
+            element.classList.add('fab-active');
         }
     } else {
-        // 程式內部跳轉 (例如 saveAccount 後)，自動尋找對應 Tab 變藍色
+        // 程式內部跳轉時，自動尋找對應 onclick 的按鈕
         const autoTab = document.querySelector(`.tab-bar [onclick*="${pageId}"]`);
         if (autoTab) autoTab.classList.add('active');
     }
 
-    // --- 4. 中間按鈕圖示切換邏輯 ---
-    const fabIcon = document.querySelector('#main-fab i');
+    // D. 中間圖示連動：判斷是否為「日曆」或「新增」頁面
+    const fabIcon = document.getElementById('fab-icon');
     if (fabIcon) {
-        // 如果在「日曆」或「新增記錄」，圖示變成加號
-        if (pageId === 'page-calendar' || pageId === 'page-add-record') {
-            fabIcon.setAttribute('data-lucide', 'plus');
-        } else {
-            // 其他頁面（專案、帳戶、設定）變回層級
-            fabIcon.setAttribute('data-lucide', 'layers');
-        }
+        const isPlusMode = (pageId === 'page-calendar' || pageId === 'page-add-record');
+        fabIcon.setAttribute('data-lucide', isPlusMode ? 'plus' : 'layers');
     }
 
-    // --- 5. 重新驅動 Lucide (圖示才會變更) ---
-    if (typeof lucide !== 'undefined') lucide.createIcons();
+    // E. 重新驅動 Lucide (非常重要！)
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
 
-    // 專案頁渲染補丁
+    // F. 專案頁面渲染
     if (pageId === 'page-projects' && typeof renderProjectsPage === 'function') {
         renderProjectsPage();
     }
 }
 
 /**
- * 中間按鈕點擊處理
+ * 處理 FAB 點擊：切換日曆或新增記錄
  */
 function handleFabClick(element) {
-    const activePage = document.querySelector('.page.active');
-    const currentId = activePage ? activePage.id : '';
-
-    if (currentId !== 'page-calendar') {
-        // 第一下：跳轉日曆
+    const currentPage = document.querySelector('.page.active').id;
+    if (currentPage !== 'page-calendar') {
         showPage('page-calendar', element);
     } else {
-        // 第二下：跳轉新增記錄
         showPage('page-add-record', element);
     }
 }
+
 
    // 1. 儲存帳戶並同步
 function saveAccount() {
