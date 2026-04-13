@@ -18,35 +18,29 @@ document.addEventListener('DOMContentLoaded', () => {
  * 修正後的 showPage：處理所有 Tab 狀態
  */
 function showPage(pageId, element) {
-    // A. 頁面內容切換
+    // 1. 切換頁面顯示
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const target = document.getElementById(pageId);
-    if(target) target.classList.add('active');
+    if (target) target.classList.add('active');
 
-    // B. 底部導覽列顏色狀態重置
-    // 1. 先讓所有一般按鈕變回灰色
+    // 2. 清除所有導覽列的高亮狀態
     document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
-    // 2. 先讓中間按鈕縮回正常大小
     const fabElement = document.getElementById('main-fab');
     if (fabElement) fabElement.classList.remove('fab-active');
 
-    // C. 根據當前頁面或點擊對象設定 Active
+    // 3. 設定當前按鈕為 Active
     if (element) {
-        // 如果是點擊觸發，直接給該元素加上 active
         element.classList.add('active');
         if (element.classList.contains('tab-fab')) {
             element.classList.add('fab-active');
         }
     } else {
-        // 如果是程式跳轉，尋找對應的 onclick 標籤
+        // 程式內部跳轉時自動標亮對應 Tab
         const autoTab = document.querySelector(`.tab-bar [onclick*="${pageId}"]`);
-        if (autoTab) {
-            autoTab.classList.add('active');
-            if (autoTab.classList.contains('tab-fab')) autoTab.classList.add('fab-active');
-        }
+        if (autoTab) autoTab.classList.add('active');
     }
 
-    // D. 中間圖示連動：只有在日曆或新增頁面才是 +
+    // 4. 切換中間圖示：只有日曆與新增頁面是 +，其他都是 layers
     const fabIcon = document.querySelector('.tab-fab i');
     if (fabIcon) {
         if (pageId === 'page-calendar' || pageId === 'page-add-record') {
@@ -56,27 +50,27 @@ function showPage(pageId, element) {
         }
     }
 
-    // E. 重新渲染 Lucide (極重要，否則圖示切換後會消失)
+    // 5. 重新驅動 Lucide (圖示才會變換)
     if (typeof lucide !== 'undefined') lucide.createIcons();
-
-    // 額外：專案頁渲染
+    
+    // 如果進入專案頁面則重新渲染
     if (pageId === 'page-projects' && typeof renderProjectsPage === 'function') {
         renderProjectsPage();
     }
 }
 
 /**
- * FAB 點擊特殊邏輯
+ * 中間按鈕專用處理
  */
 function handleFabClick(element) {
     const currentPage = document.querySelector('.page.active').id;
+    // 如果目前不在日曆，去日曆；如果在日曆了，去新增頁面
     if (currentPage !== 'page-calendar') {
         showPage('page-calendar', element);
     } else {
         showPage('page-add-record', element);
     }
 }
-
 
 /**
  * 修改原本的 showPage 函數，確保從其他 Tab 切換時能重置 FAB 圖示
