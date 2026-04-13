@@ -3,81 +3,83 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. 初始化 Lucide 圖示
+    // 1. 初始化圖示
     if (typeof lucide !== 'undefined') lucide.createIcons();
     
-    // 2. 執行各頁面初始渲染
-    if (typeof renderAccountList === 'function') renderAccountList();
+    // 2. 初始頁面渲染
+    renderAccountList();
     if (typeof renderProjectsPage === 'function') renderProjectsPage();
     
-    // 3. 初始切換到帳戶總覽 ( element 傳 null 讓它走自動標亮邏輯 )
-    showPage('page-overview', null);
+    // 3. 預設首頁狀態
+    showPage('page-overview');
 });
 
 /**
- * 核心分頁切換：處理頁面顯示、導覽列顏色、中間 FAB 圖示
+ * 核心切換函式
+ * @param {string} pageId - 目標頁面 ID
+ * @param {HTMLElement} element - 被點擊的 HTML 元素 (傳入 this)
  */
 function showPage(pageId, element) {
-    // A. 頁面顯示切換
+    // --- 1. 頁面切換 ---
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const target = document.getElementById(pageId);
     if (target) target.classList.add('active');
 
-    // B. 清除導覽列狀態
+    // --- 2. 導覽列狀態重置 ---
+    // 移除所有一般按鈕的藍色高亮
     document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
+    // 移除中間按鈕的放大效果
     const fabElement = document.getElementById('main-fab');
     if (fabElement) fabElement.classList.remove('fab-active');
 
-    // C. 處理高亮邏輯
+    // --- 3. 設定目前點擊的高亮 ---
     if (element) {
-        // 點擊觸發：直接讓點擊的對象變 active (變藍色或放大)
         element.classList.add('active');
         if (element.classList.contains('tab-fab')) {
-            element.classList.add('fab-active');
+            element.classList.add('fab-active'); // 中間按鈕放大
         }
     } else {
-        // 程式內部跳轉：自動尋找對應的按鈕標亮
+        // 程式內部跳轉 (例如 saveAccount 後)，自動尋找對應 Tab 變藍色
         const autoTab = document.querySelector(`.tab-bar [onclick*="${pageId}"]`);
         if (autoTab) autoTab.classList.add('active');
-        // 如果是跳轉到日曆，自動幫中間 FAB 放大
-        if (pageId === 'page-calendar' && fabElement) fabElement.classList.add('fab-active');
     }
 
-    // D. 處理 FAB 圖示變換 (layers ↔ plus)
-    const fabIcon = document.querySelector('.tab-fab i');
+    // --- 4. 中間按鈕圖示切換邏輯 ---
+    const fabIcon = document.querySelector('#main-fab i');
     if (fabIcon) {
+        // 如果在「日曆」或「新增記錄」，圖示變成加號
         if (pageId === 'page-calendar' || pageId === 'page-add-record') {
             fabIcon.setAttribute('data-lucide', 'plus');
         } else {
+            // 其他頁面（專案、帳戶、設定）變回層級
             fabIcon.setAttribute('data-lucide', 'layers');
         }
     }
 
-    // E. 重新驅動 Lucide (非常重要：更換圖示後必須重繪)
+    // --- 5. 重新驅動 Lucide (圖示才會變更) ---
     if (typeof lucide !== 'undefined') lucide.createIcons();
-    
-    // 專案頁渲染連動
+
+    // 專案頁渲染補丁
     if (pageId === 'page-projects' && typeof renderProjectsPage === 'function') {
         renderProjectsPage();
     }
 }
 
 /**
- * 中間按鈕專用處理：控制「去日曆」或「去新增」
+ * 中間按鈕點擊處理
  */
 function handleFabClick(element) {
     const activePage = document.querySelector('.page.active');
     const currentId = activePage ? activePage.id : '';
 
     if (currentId !== 'page-calendar') {
-        // 不在日曆頁 -> 前往日曆頁，傳入 element 確保彩色按鈕變大
+        // 第一下：跳轉日曆
         showPage('page-calendar', element);
     } else {
-        // 已在日曆頁 -> 前往新增記錄
+        // 第二下：跳轉新增記錄
         showPage('page-add-record', element);
     }
 }
-
 
    // 1. 儲存帳戶並同步
 function saveAccount() {
