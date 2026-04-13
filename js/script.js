@@ -312,6 +312,22 @@ function toggleCreditFields() {
     document.getElementById('add-display-amount').className = isCredit ? 'val text-red' : 'val text-green';
 }
 
+function updateFabState(pageId) {
+    const fabIcon = document.querySelector('.tab-fab i');
+    const fabElement = document.getElementById('main-fab');
+    if (!fabIcon || !fabElement) return;
+
+    // 無論在哪個頁面，我們都保持它有漸層色的 Class
+    // 但根據頁面切換圖示
+    if (pageId === 'page-calendar' || pageId === 'page-add-record') {
+        fabIcon.setAttribute('data-lucide', 'plus');
+        fabElement.classList.add('fab-active'); // 增加放大效果
+    } else {
+        fabIcon.setAttribute('data-lucide', 'layers');
+        fabElement.classList.remove('fab-active'); // 回到正常大小
+    }
+}
+
 
 
 
