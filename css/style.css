@@ -472,12 +472,6 @@ body, html {
     stroke: white !important;
 }
 
-/* 點擊中間按鈕時的放大效果 */
-.tab-fab.fab-active .fab-inner {
-    transform: scale(1.1);
-    box-shadow: 0 8px 25px rgba(93, 93, 255, 0.6);
-}
-
 /* =========================================
    8. 日曆分頁樣式優化
    ========================================= */
