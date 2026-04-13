@@ -400,7 +400,7 @@ body, html {
 .btn-confirm { color: var(--blue) !important; font-weight: 700; border-left: 1px solid var(--border) !important; }
 
 /* =========================================
-   7. 底部導覽列與開關 (已優化藍色高亮與 FAB 切換)
+   7. 底部導覽列與開關
    ========================================= */
 .tab-bar {
     position: absolute;
@@ -412,94 +412,64 @@ body, html {
     border-top: 1px solid var(--border);
     display: flex;
     justify-content: center;
-    gap: 15px; /* 稍微縮小間距讓視覺更集中 */
+    gap: 20px;
     align-items: center;
     padding-bottom: 15px;
     z-index: 100;
 }
 
-/* 1. 一般按鈕樣式 */
 .tab-item {
-    color: var(--text-muted); /* 初始灰色 */
-    width: 60px;
+    color: var(--text-muted);
+    width: 54px;
     height: 54px;
     display: flex;
-    flex-direction: column; 
     align-items: center;
     justify-content: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-    gap: 4px;
+    transition: all 0.2s ease;
 }
 
 .tab-item i {
-    width: 26px;
-    height: 26px;
-    transition: all 0.3s ease;
-}
-
-.tab-item span {
-    font-size: 10px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-/* 點擊後的高亮藍色狀態 */
-.tab-item.active {
-    color: #5d5dff !important;
+    width: 32px;
+    height: 32px;
 }
 
 .tab-item.active i {
-    color: #5d5dff !important;
-    transform: scale(1.1);
+    color: #5d5dff;
+    stroke: #5d5dff;
+    transform: scale(1.15);
 }
 
-/* 2. 中間 FAB 特殊處理 */
+/* FAB 特殊處理 */
+.tab-fab .fab-inner {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #A16CFD, #6E88F9, #45B6F5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 20px rgba(93, 93, 255, 0.4);
+}
+
+/* 針對中間 FAB 按鈕的特殊處理 */
 .tab-fab {
-    position: relative;
-    bottom: 20px; 
+    position: relative; 
+    bottom: 25px !important; 
     z-index: 110;
     cursor: pointer;
 }
 
-/* FAB 初始狀態 (灰色圓圈) */
-.tab-fab .fab-inner {
-    width: 62px;
-    height: 62px;
-    border-radius: 50%;
-    background-color: linear-gradient(135deg, #A16CFD, #6E88F9, #45B6F5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 3px solid var(--bg);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+.fab-inner i {
+    width: 36px;              /* FAB 圖案同步調大 */
+    height: 36px;
+    color: white !important;
 }
 
-.tab-fab .fab-inner i {
-    width: 30px;
-    height: 30px;
-    color: #8a8a8e; /* 初始圖示灰色 */
-    transition: all 0.3s ease;
-}
 
-/* FAB 激活狀態 (點擊後由 JS 加上 .fab-active) */
-.tab-fab.fab-active .fab-inner {
-    /* 變為你要求的藍色漸層 */
-    background: linear-gradient(135deg, #A16CFD, #6E88F9, #45B6F5);
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(93, 93, 255, 0.5);
-    border-color: transparent;
-}
-
-.tab-fab.fab-active .fab-inner i {
-    color: white !important; /* 變白色圖示 (+號) */
-    stroke: white !important;
-}
-
-/* 按下時的縮放回饋 */
+/* FAB 按下效果 */
 .tab-fab:active .fab-inner {
-    transform: scale(0.95);
+    transform: scale(0.92);
+    filter: brightness(1.1);
 }
 
 /* =========================================
