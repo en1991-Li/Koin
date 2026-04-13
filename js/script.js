@@ -6,101 +6,101 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. 初始化 Lucide 圖示
     if (typeof lucide !== 'undefined') lucide.createIcons();
     
-    // 2. 執行渲染
-    renderAccountList();
-    if (typeof renderProjectsPage === 'function') renderProjectsPage();
+    // 2. 執行各頁面渲染
+    if (typeof renderAccountList === 'function') renderAccountList();
+    if (typeof renderProjectsPage === 'function') renderProjectsPage(); // 確保這行有執行
     
     // 3. 初始切換到首頁
     showPage('page-overview');
 });
 
-/**
- * 頁面切換核心
- */
+// 頁面切換核心
 function showPage(pageId, element) {
-    // A. 切換頁面 Active 狀態
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const target = document.getElementById(pageId);
     if(target) target.classList.add('active');
 
-    // B. 強制執行專案頁渲染
-    if (pageId === 'page-projects' && typeof renderProjectsPage === 'function') {
-        renderProjectsPage();
+    // 關鍵修正：進入專案頁面時強制執行渲染
+    if (pageId === 'page-projects') {
+        if (typeof renderProjectsPage === 'function') {
+            renderProjectsPage();
+        }
     }
     
-    // C. 底部導覽列狀態連動 (藍色高亮)
-    // 先移除所有人的 active 與 fab-active
-    document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
-    const fabElement = document.getElementById('main-fab');
-    if (fabElement) fabElement.classList.remove('fab-active');
-
-    // 如果是點擊下方 Tab 觸發的 (element 存在)
+    // 標亮 Tab
+    document.querySelectorAll('.tab-item, .tab-fab').forEach(tab => tab.classList.remove('active'));
     if (element) {
         element.classList.add('active');
-        if (element.classList.contains('tab-fab')) {
-             element.classList.add('fab-active'); // FAB 被點擊時變藍色漸層
-        }
     } else {
-        // 如果是程式內部呼叫 (如 saveAccount 後跳轉)，自動尋找對應 Tab 高亮
         const autoTab = document.querySelector(`.tab-bar [onclick*="${pageId}"]`);
         if (autoTab) autoTab.classList.add('active');
     }
-
-    // D. 核心連動：FAB 圖示與顏色狀態校正
-    updateFabState(pageId);
-
-    // E. 重新驅動 Lucide
+    
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-/**
- * 更新 FAB 按鈕的圖示與樣式狀態
- */
-function updateFabState(pageId) {
-    const fabIcon = document.querySelector('.tab-fab i');
-    const fabElement = document.getElementById('main-fab');
-    if (!fabIcon || !fabElement) return;
-
-    if (pageId === 'page-calendar') {
-        // 在日曆頁：變藍色、變加號
-        fabIcon.setAttribute('data-lucide', 'plus');
-        fabElement.classList.add('fab-active');
-    } else if (pageId === 'page-add-record') {
-        // 在新增頁：通常也維持啟動狀態
-        fabIcon.setAttribute('data-lucide', 'plus');
-        fabElement.classList.add('fab-active');
-    } else {
-        // 其他頁面：變灰色、變回層級圖示
-        fabIcon.setAttribute('data-lucide', 'layers');
-        fabElement.classList.remove('fab-active');
-    }
-}
+// 全域變數紀錄目前 FAB 狀態
+let isCalendarActive = false;
 
 /**
- * 處理中間 FAB 的點擊邏輯
+ * 處理中間圓形按鈕 (FAB) 的點擊邏輯
  */
 function handleFabClick(element) {
+    const fabIcon = document.querySelector('.tab-fab i');
     const currentPage = document.querySelector('.page.active').id;
 
     // 邏輯 A：如果目前不在日曆頁，先切換到日曆頁
     if (currentPage !== 'page-calendar') {
         showPage('page-calendar', element);
+        // 切換圖示為 plus
+        fabIcon.setAttribute('data-lucide', 'plus');
+        lucide.createIcons();
     } 
     // 邏輯 B：如果已經在日曆頁，則開啟「新增記錄」
     else {
-        showPage('page-add-record', element);
+        showPage('page-add-record');
+        // 進入新增記錄後，將圖示重置回 layers (或保持 plus，依你喜好)
+        fabIcon.setAttribute('data-lucide', 'layers');
+        lucide.createIcons();
     }
 }
 
 /**
- * 1. 儲存帳戶並同步
+ * 修改原本的 showPage 函數，確保從其他 Tab 切換時能重置 FAB 圖示
  */
+const originalShowPage = window.showPage;
+window.showPage = function(pageId, element) {
+    // 呼叫原本定義在 script.js 的切換邏輯
+    if (typeof originalShowPage === 'function') {
+        originalShowPage(pageId, element);
+    } else {
+        // 基本切換邏輯 (防錯用)
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        
+        if (element && element.classList.contains('tab-item')) {
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            element.classList.add('active');
+        }
+    }
+
+    // 核心連動：如果不是透過 FAB 切換到日曆頁（例如點擊其他地方回來的）
+    // 也要確保 FAB 圖示狀態正確
+    const fabIcon = document.querySelector('.tab-fab i');
+    if (pageId === 'page-calendar') {
+        fabIcon.setAttribute('data-lucide', 'plus');
+    } else if (pageId !== 'page-add-record') {
+        fabIcon.setAttribute('data-lucide', 'layers');
+    }
+    lucide.createIcons();
+};
+
+   // 1. 儲存帳戶並同步
 function saveAccount() {
     const name = document.getElementById('acc-name').value;
     const amount = parseFloat(document.getElementById('acc-amount').value) || 0;
     const isCredit = document.getElementById('in-is-credit').checked;
-    const groupElement = document.getElementById('selected-group-text');
-    const group = groupElement ? groupElement.innerText.trim() : "未分類";
+    const group = document.getElementById('selected-group-text').innerText.trim();
 
     if (!name) return alert("請輸入帳戶名稱");
 
@@ -112,6 +112,7 @@ function saveAccount() {
         group: group
     };
 
+    // 取得舊資料並存入
     const accounts = JSON.parse(localStorage.getItem('koin_accounts') || '[]');
     accounts.push(newAccount);
     localStorage.setItem('koin_accounts', JSON.stringify(accounts));
@@ -122,23 +123,26 @@ function saveAccount() {
     document.getElementById('acc-name').value = '';
     document.getElementById('acc-amount').value = '0';
     
+    // 更新首頁列表並跳轉
     renderAccountList();
     showPage('page-overview');
 }
 
-/**
- * 2. 動態渲染總覽列表
- */
+// 2. 動態渲染總覽列表
 function renderAccountList() {
     const accounts = JSON.parse(localStorage.getItem('koin_accounts') || '[]');
     const listContainer = document.querySelector('.account-list');
     const totalBalanceEl = document.getElementById('total-balance');
-    if (!listContainer) return;
+    
+    let total = 0;
+    let asset = 0;
+    let debt = 0;
 
-    let total = 0, asset = 0, debt = 0;
+    // 清空現有列表
     listContainer.innerHTML = '';
 
     accounts.forEach(acc => {
+        // 計算總額
         if (acc.isCredit) {
             debt += acc.amount;
             total -= acc.amount;
@@ -147,6 +151,7 @@ function renderAccountList() {
             total += acc.amount;
         }
 
+        // 建立 HTML 元素
         const item = document.createElement('div');
         item.className = 'group-item';
         item.innerHTML = `
@@ -158,17 +163,22 @@ function renderAccountList() {
         listContainer.appendChild(item);
     });
 
+    // 更新頂部總額數字
     if (totalBalanceEl) totalBalanceEl.innerText = total.toLocaleString();
+    
+    // 更新總資產/總負債文字 (如果有對應 ID)
     const stats = document.querySelectorAll('.sub-stats span span');
     if (stats.length >= 2) {
-        stats[0].innerText = asset.toLocaleString();
-        stats[1].innerText = debt.toLocaleString();
+        stats[0].innerText = asset.toLocaleString(); // 總資產
+        stats[1].innerText = debt.toLocaleString();  // 總負債
     }
 }
 
-/**
- * 專案儲存
- */
+// 3. 頁面載入時初始化
+document.addEventListener('DOMContentLoaded', () => {
+    renderAccountList();
+});
+
 function saveProject() {
     const name = document.getElementById('proj-name').value;
     const note = document.getElementById('proj-note').value;
@@ -178,10 +188,10 @@ function saveProject() {
 
     const newProject = {
         name: name,
-        icon: "piggy-bank",
+        icon: "piggy-bank", // 預設圖示
         date: "2026/04/01 － 2026/04/30",
         amount: 0,
-        isStats: isStats,
+        isStats: isStats, // 根據開關決定是否顯示「統計專案」標籤
         note: note
     };
 
@@ -189,41 +199,129 @@ function saveProject() {
     projects.push(newProject);
     localStorage.setItem('koin_projects', JSON.stringify(projects));
 
-    if (typeof renderProjectsPage === 'function') renderProjectsPage();
+    // 關鍵：重新渲染列表
+    renderProjectsPage();
     
+    // 清空並跳轉回列表頁
     document.getElementById('proj-name').value = '';
     document.getElementById('proj-note').value = '';
     showPage('page-projects');
 }
-
-/**
- * 彈窗控制基礎函式
- */
-function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-/**
- * 帳戶分組選取
- */
-function selectGroup(name) {
+   
+   // 帳戶分組選取
+   function selectGroup(name) {
     const display = document.getElementById('selected-group-text');
     if (display) {
         display.innerHTML = `${name} <i data-lucide="chevron-right" class="s-icon"></i>`;
-        if (typeof lucide !== 'undefined') lucide.createIcons();
+        lucide.createIcons();
     }
     closeModal('group-picker-modal');
 }
 
-/**
- * 信用帳戶連動開關
- */
-function toggleCreditFields() {
-    const isCredit = document.getElementById('in-is-credit').checked;
-    const extraFields = document.getElementById('credit-extra-fields');
-    const displayAmt = document.getElementById('add-display-amount');
+// --- 基礎彈窗控制 ---
+function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+// --- 帳單週期邏輯 ---
+function openCyclePicker() { openModal('cycle-picker-modal'); }
+
+function updateCycleText(val) {
+    const rangeDisplay = document.getElementById('modal-date-range');
+    const noteDisplay = document.getElementById('modal-cycle-note');
+    const year = 2026, month = 4; // 可改為動態抓取
     
-    if (extraFields) extraFields.style.display = isCredit ? 'block' : 'none';
-    if (displayAmt) displayAmt.className = isCredit ? 'val text-red' : 'val text-green';
+    let start, end, text;
+    if (val == 31) {
+        start = `${year}/04/01`; end = `${year}/04/30`; text = "每月月底";
+    } else {
+        const day = parseInt(val);
+        // 模仿影片：顯示前月到當月的區間
+        start = `${year}/03/${String(day + 1).padStart(2, '0')}`;
+        end = `${year}/04/${String(day).padStart(2, '0')}`;
+        text = `每月 ${day} 號`;
+    }
+    rangeDisplay.innerText = `${start} – ${end}`;
+    noteDisplay.innerText = `帳單結帳日：${text}`;
 }
 
-// ...其餘日期 Picker (Cycle/DueDate) 邏輯保持不變即可...
+function confirmCycle() {
+    const val = document.getElementById('cycle-slider').value;
+    const text = (val == 31) ? "每月月底" : `每月 ${val} 號`;
+    document.getElementById('main-cycle-display').innerHTML = `${text} <i data-lucide="chevron-right" class="s-icon"></i>`;
+    lucide.createIcons();
+    closeModal('cycle-picker-modal');
+}
+
+// --- 繳款期限邏輯 (雙層模式) ---
+let currentDueMode = 'fixed';
+let selectedDueDay = 1;
+
+function openDueDateModal() {
+    backToDueMode();
+    openModal('due-date-modal');
+}
+
+function enterDueDetail(mode) {
+    currentDueMode = mode;
+    document.getElementById('due-mode-selection').style.display = 'none';
+    document.getElementById('due-mode-footer').style.display = 'none';
+    document.getElementById('due-detail-picker').style.display = 'block';
+    
+    const list = document.getElementById('picker-scroll-list');
+    list.innerHTML = '';
+    const prefix = (mode === 'fixed') ? '每月第 ' : '結帳後 ';
+    
+    for (let i = 1; i <= 31; i++) {
+        const item = document.createElement('div');
+        item.className = `picker-item ${i === selectedDueDay ? 'selected' : ''}`;
+        item.innerText = `${prefix}${i} 日`;
+        item.onclick = function() {
+            document.querySelectorAll('.picker-item').forEach(p => p.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedDueDay = i;
+        };
+        list.appendChild(item);
+    }
+}
+
+function backToDueMode() {
+    document.getElementById('due-mode-selection').style.display = 'block';
+    document.getElementById('due-mode-footer').style.display = 'flex';
+    document.getElementById('due-detail-picker').style.display = 'none';
+}
+
+function confirmDueDate() {
+    const prefix = (currentDueMode === 'fixed') ? '每月' : '結帳後';
+    document.getElementById('due-date-display').innerHTML = `${prefix}${selectedDueDay}日 <i data-lucide="chevron-right" class="s-icon"></i>`;
+    lucide.createIcons();
+    closeModal('due-date-modal');
+}
+
+// --- 帳戶分組 ---
+function openGroupPicker() { openModal('group-picker-modal'); }
+function selectGroup(name) {
+    document.getElementById('selected-group-text').innerHTML = `${name} <i data-lucide="chevron-right" class="s-icon"></i>`;
+    lucide.createIcons();
+    closeModal('group-picker-modal');
+}
+
+// --- 信用帳戶開關 ---
+function toggleCreditFields() {
+    const isCredit = document.getElementById('in-is-credit').checked;
+    document.getElementById('credit-extra-fields').style.display = isCredit ? 'block' : 'none';
+    document.getElementById('add-display-amount').className = isCredit ? 'val text-red' : 'val text-green';
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
