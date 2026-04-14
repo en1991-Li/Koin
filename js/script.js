@@ -60,7 +60,6 @@ function showPage(pageId, element) {
 
 // 1. 模擬資料庫：儲存帳戶的陣列
 let accounts = [
-    { name: '錢包', group: '現金', amount: 500, isCredit: false },
     { name: '中信銀行', group: '銀行', amount: 15000, isCredit: false }
 ];
 
@@ -86,7 +85,7 @@ function renderAccountOverview() {
 
         // 建立帳戶卡片 HTML
         const accItem = document.createElement('div');
-        accItem.className = 'form-group'; // 延用你的樣式
+        accItem.className = 'form-group';
         accItem.style.marginBottom = '10px';
         accItem.innerHTML = `
             <div class="form-row">
@@ -129,7 +128,7 @@ function handleFabClick(element) {
 function saveAccount() {
     // 1. 抓取輸入欄位的值
     const name = document.getElementById('acc-name').value;
-    const amount = document.getElementById('acc-amount').value;
+    const amountInput = document.getElementById('acc-amount').value;
     const group = document.getElementById('selected-group-text').innerText;
     const isCredit = document.getElementById('in-is-credit').checked;
 
@@ -138,25 +137,67 @@ function saveAccount() {
         return;
     }
 
-    // 2. 建立新物件並推入陣列
-    const newAccount = {
-        name: name,
-        group: group.trim(),
-        amount: parseFloat(amount) || 0,
-        isCredit: isCredit
-    };
+    const amount = parseFloat(amountInput) || 0;
 
-    accounts.push(newAccount);
+    // 2. 找到總覽頁面的容器
+    const listContainer = document.getElementById('account-list');
+    
+    // 3. 建立新的帳戶 HTML 結構
+    const accountHTML = `
+        <div class="form-group" style="margin-bottom: 12px;">
+            <div class="form-row">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="background:#3d3d4d; padding:8px; border-radius:10px; display:flex;">
+                        <i data-lucide="${isCredit ? 'credit-card' : 'wallet'}" style="width:20px; height:20px;"></i>
+                    </div>
+                    <div style="display:flex; flex-direction:column;">
+                        <span style="font-size:15px; font-weight:500;">${name}</span>
+                        <span style="font-size:11px; color:#8a8a8e;">${group.trim()}</span>
+                    </div>
+                </div>
+                <span class="${amount >= 0 ? 'text-green' : 'text-red'}" style="font-weight:600;">
+                    ${amount.toLocaleString()}
+                </span>
+            </div>
+        </div>
+    `;
 
-    // 3. 清空輸入框內容以便下次使用
+    // 4. 直接插入到總覽列表
+    if (listContainer) {
+        listContainer.insertAdjacentHTML('beforeend', accountHTML);
+    }
+
+    // 5. 更新頂部總餘額數字 (簡單累加)
+    updateTotalStats(amount);
+
+    // 6. 重置表單並跳轉
     document.getElementById('acc-name').value = '';
     document.getElementById('acc-amount').value = '0';
-
-    // 4. 同步更新總覽畫面
-    renderAccountOverview();
-
-    // 5. 跳回總覽頁面
     showPage('page-overview');
+
+    // 7. 重新渲染新插入的 Lucide 圖示
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+/**
+ * 簡易更新頂部數字
+ */
+function updateTotalStats(newAmount) {
+    const totalEl = document.getElementById('total-balance');
+    const assetEl = document.getElementById('total-assets');
+    const debtEl = document.getElementById('total-debts');
+
+    let currentTotal = parseFloat(totalEl.innerText.replace(/,/g, '')) || 0;
+    let currentAsset = parseFloat(assetEl.innerText.replace(/,/g, '')) || 0;
+    let currentDebt = parseFloat(debtEl.innerText.replace(/,/g, '')) || 0;
+
+    totalEl.innerText = (currentTotal + newAmount).toLocaleString();
+    
+    if (newAmount >= 0) {
+        assetEl.innerText = (currentAsset + newAmount).toLocaleString();
+    } else {
+        debtEl.innerText = (currentDebt + Math.abs(newAmount)).toLocaleString();
+    }
 }
 
 // 2. 動態渲染總覽列表
