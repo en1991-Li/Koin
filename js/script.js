@@ -126,7 +126,6 @@ function handleFabClick(element) {
 }
 
 function saveAccount() {
-    // 1. 抓取輸入欄位的值
     const name = document.getElementById('acc-name').value;
     const amountInput = document.getElementById('acc-amount').value;
     const group = document.getElementById('selected-group-text').innerText;
@@ -139,43 +138,27 @@ function saveAccount() {
 
     const amount = parseFloat(amountInput) || 0;
 
-    // 2. 找到總覽頁面的容器
-    const listContainer = document.getElementById('account-list');
+    // --- 新增：localStorage 邏輯 ---
+    // 1. 先抓出舊的所有帳戶資料 (如果沒有就給空陣列)
+    const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
     
-    // 3. 建立新的帳戶 HTML 結構
-    const accountHTML = `
-        <div class="form-group" style="margin-bottom: 12px;">
-            <div class="form-row">
-                <div style="display:flex; align-items:center; gap:12px;">
-                    <div style="background:#3d3d4d; padding:8px; border-radius:10px; display:flex;">
-                        <i data-lucide="${isCredit ? 'credit-card' : 'wallet'}" style="width:20px; height:20px;"></i>
-                    </div>
-                    <div style="display:flex; flex-direction:column;">
-                        <span style="font-size:15px; font-weight:500;">${name}</span>
-                        <span style="font-size:11px; color:#8a8a8e;">${group.trim()}</span>
-                    </div>
-                </div>
-                <span class="${amount >= 0 ? 'text-green' : 'text-red'}" style="font-weight:600;">
-                    ${amount.toLocaleString()}
-                </span>
-            </div>
-        </div>
-    `;
+    // 2. 把這次新增的資料做成物件
+    const newAccount = { name, amount, group: group.trim(), isCredit };
+    
+    // 3. 塞進陣列並存回 localStorage
+    savedAccounts.push(newAccount);
+    localStorage.setItem('koin_accounts', JSON.stringify(savedAccounts));
+    // ----------------------------
 
-    // 4. 直接插入到總覽列表
-    if (listContainer) {
-        listContainer.insertAdjacentHTML('beforeend', accountHTML);
-    }
-
-    // 5. 更新頂部總餘額數字 (簡單累加)
-    updateTotalStats(amount);
-
-    // 6. 重置表單並跳轉
+    // 執行畫面渲染與跳轉
+    renderAccountOverview(); // 呼叫統一的渲染函式
+    
+    // 重置表單並跳回總覽
     document.getElementById('acc-name').value = '';
     document.getElementById('acc-amount').value = '0';
     showPage('page-overview');
-
-    // 7. 重新渲染新插入的 Lucide 圖示
+}
+    // 4. 重新渲染新插入的 Lucide 圖示
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
