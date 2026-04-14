@@ -431,13 +431,24 @@ body, html {
     cursor: pointer;
 }
 
-/* 點擊後的高亮藍色 */
-..tab-bar .tab-item.active {
+/* 強制讓選中的項目文字與圖示變藍色 */
+.tab-bar .tab-item.active,
+.tab-bar .tab-item.active i,
+.tab-bar .tab-item.active svg {
     color: #5d5dff !important;
+    stroke: #5d5dff !important; /* 針對 Lucide SVG 的線條顏色 */
 }
-.tab-bar .tab-item.active i {
-    color: #5d5dff !important;
-    stroke: #5d5dff !important; /* Lucide 使用 stroke 控制線條顏色 */
+
+/* 確保中間彩色按鈕在 active 時不會變藍色 (維持彩色) */
+.tab-bar .tab-fab.active .fab-inner {
+    background: linear-gradient(135deg, #A16CFD, #6E88F9, #45B6F5) !important;
+}
+
+/* 讓中間按鈕的圖示在任何時候都保持白色 */
+.tab-fab .fab-inner i,
+.tab-fab .fab-inner svg {
+    color: white !important;
+    stroke: white !important;
 }
 
 /* 2. 中間 FAB：初始彩色 */
