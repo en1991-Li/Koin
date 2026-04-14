@@ -20,36 +20,31 @@ document.addEventListener('DOMContentLoaded', () => {
  * @param {HTMLElement} element - 被點擊的 HTML 元素 (傳入 this)
  */
 function showPage(pageId, element) {
-    // 1. 切換頁面
+    // 1. 頁面切換邏輯
     const target = document.getElementById(pageId);
     if (!target) return;
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     target.classList.add('active');
 
-    // 2. 顏色重置：移除所有項目的 active
-    document.querySelectorAll('.tab-item').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    
-    // 3. 處理 FAB (中間彩色按鈕) 的放大狀態
+    // 2. 導覽列狀態重置
+    document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
+    // 移除中間按鈕的放大狀態
     const fabElement = document.getElementById('main-fab');
-    if (fabElement) {
-        fabElement.classList.remove('fab-active');
-    }
+    if (fabElement) fabElement.classList.remove('fab-active');
 
-    // 4. 關鍵：設定當前點擊的 element 為 active
+    // 3. 設定目前點擊項目的狀態
     if (element) {
         element.classList.add('active');
         if (element.classList.contains('tab-fab')) {
             element.classList.add('fab-active');
         }
     } else {
-        // 如果是程式跳轉（無 element），根據 pageId 自動找按鈕變色
+        // 如果是按鈕外的程式跳轉，自動幫對應按鈕加顏色
         const autoTab = document.querySelector(`.tab-bar [onclick*="${pageId}"]`);
         if (autoTab) autoTab.classList.add('active');
     }
 
-    // 5. 更新中間圖示 (+ 號或層次)
+    // 4. 圖示切換邏輯
     const fabIcon = document.getElementById('fab-icon');
     if (fabIcon) {
         if (pageId === 'page-calendar' || pageId === 'page-add-record') {
@@ -59,7 +54,7 @@ function showPage(pageId, element) {
         }
     }
 
-    // 6. 重新渲染 Lucide 圖示
+    // 5. 重新渲染圖示
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
