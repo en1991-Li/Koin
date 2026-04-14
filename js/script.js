@@ -126,37 +126,36 @@ function handleFabClick(element) {
     }
 }
 
-
-   // 1. 儲存帳戶並同步
 function saveAccount() {
+    // 1. 抓取輸入欄位的值
     const name = document.getElementById('acc-name').value;
-    const amount = parseFloat(document.getElementById('acc-amount').value) || 0;
+    const amount = document.getElementById('acc-amount').value;
+    const group = document.getElementById('selected-group-text').innerText;
     const isCredit = document.getElementById('in-is-credit').checked;
-    const group = document.getElementById('selected-group-text').innerText.trim();
 
-    if (!name) return alert("請輸入帳戶名稱");
+    if (!name) {
+        alert('請輸入帳戶名稱');
+        return;
+    }
 
+    // 2. 建立新物件並推入陣列
     const newAccount = {
-        id: Date.now(),
         name: name,
-        amount: amount,
-        isCredit: isCredit,
-        group: group
+        group: group.trim(),
+        amount: parseFloat(amount) || 0,
+        isCredit: isCredit
     };
 
-    // 取得舊資料並存入
-    const accounts = JSON.parse(localStorage.getItem('koin_accounts') || '[]');
     accounts.push(newAccount);
-    localStorage.setItem('koin_accounts', JSON.stringify(accounts));
 
-    alert("儲存成功！");
-    
-    // 重置表單
+    // 3. 清空輸入框內容以便下次使用
     document.getElementById('acc-name').value = '';
     document.getElementById('acc-amount').value = '0';
-    
-    // 更新首頁列表並跳轉
-    renderAccountList();
+
+    // 4. 同步更新總覽畫面
+    renderAccountOverview();
+
+    // 5. 跳回總覽頁面
     showPage('page-overview');
 }
 
