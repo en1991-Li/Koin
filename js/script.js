@@ -20,46 +20,47 @@ document.addEventListener('DOMContentLoaded', () => {
  * @param {HTMLElement} element - 被點擊的 HTML 元素 (傳入 this)
  */
 function showPage(pageId, element) {
-    // A. 顯示對應頁面
+    // 1. 切換頁面
     const target = document.getElementById(pageId);
-    if (!target) return; // 防錯：如果找不到頁面 ID 就不執行
-
+    if (!target) return;
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     target.classList.add('active');
 
-    // B. 清除導覽列所有高亮與放大狀態
-    document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
+    // 2. 顏色重置：移除所有項目的 active
+    document.querySelectorAll('.tab-item').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // 3. 處理 FAB (中間彩色按鈕) 的放大狀態
     const fabElement = document.getElementById('main-fab');
-    if (fabElement) fabElement.classList.remove('fab-active');
+    if (fabElement) {
+        fabElement.classList.remove('fab-active');
+    }
 
-    // C. 設定當前按鈕高亮
+    // 4. 關鍵：設定當前點擊的 element 為 active
     if (element) {
         element.classList.add('active');
         if (element.classList.contains('tab-fab')) {
             element.classList.add('fab-active');
         }
     } else {
-        // 程式內部跳轉時，自動尋找對應 onclick 的按鈕
+        // 如果是程式跳轉（無 element），根據 pageId 自動找按鈕變色
         const autoTab = document.querySelector(`.tab-bar [onclick*="${pageId}"]`);
         if (autoTab) autoTab.classList.add('active');
     }
 
-    // D. 中間圖示連動：判斷是否為「日曆」或「新增」頁面
+    // 5. 更新中間圖示 (+ 號或層次)
     const fabIcon = document.getElementById('fab-icon');
     if (fabIcon) {
-        const isPlusMode = (pageId === 'page-calendar' || pageId === 'page-add-record');
-        fabIcon.setAttribute('data-lucide', isPlusMode ? 'plus' : 'layers');
+        if (pageId === 'page-calendar' || pageId === 'page-add-record') {
+            fabIcon.setAttribute('data-lucide', 'plus');
+        } else {
+            fabIcon.setAttribute('data-lucide', 'layers');
+        }
     }
 
-    // E. 重新驅動 Lucide (非常重要！)
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
-    }
-
-    // F. 專案頁面渲染
-    if (pageId === 'page-projects' && typeof renderProjectsPage === 'function') {
-        renderProjectsPage();
-    }
+    // 6. 重新渲染 Lucide 圖示
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 /**
