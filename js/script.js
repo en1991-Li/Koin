@@ -58,6 +58,62 @@ function showPage(pageId, element) {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
+// 1. 模擬資料庫：儲存帳戶的陣列
+let accounts = [
+    { name: '錢包', group: '現金', amount: 500, isCredit: false },
+    { name: '中信銀行', group: '銀行', amount: 15000, isCredit: false }
+];
+
+// 2. 渲染總覽介面的函式
+function renderAccountOverview() {
+    const container = document.querySelector('#page-overview .content-scroll');
+    if (!container) return;
+
+    // 保留原本的 balance-hero，清除下方的舊列表
+    const hero = container.querySelector('.balance-hero');
+    container.innerHTML = '';
+    container.appendChild(hero);
+
+    let totalBalance = 0;
+    let totalAssets = 0;
+    let totalDebts = 0;
+
+    accounts.forEach(acc => {
+        const amount = parseFloat(acc.amount);
+        totalBalance += amount;
+        if (amount >= 0) totalAssets += amount;
+        else totalDebts += Math.abs(amount);
+
+        // 建立帳戶卡片 HTML
+        const accItem = document.createElement('div');
+        accItem.className = 'form-group'; // 延用你的樣式
+        accItem.style.marginBottom = '10px';
+        accItem.innerHTML = `
+            <div class="form-row">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="background:#3d3d4d; padding:8px; border-radius:10px;">
+                        <i data-lucide="${acc.isCredit ? 'credit-card' : 'wallet'}" style="width:18px; height:18px;"></i>
+                    </div>
+                    <span>${acc.name}</span>
+                </div>
+                <span class="${amount >= 0 ? 'text-green' : 'text-red'}">${amount.toLocaleString()}</span>
+            </div>
+        `;
+        container.appendChild(accItem);
+    });
+
+    // 更新頂部的總額數字
+    document.getElementById('total-balance').innerText = totalBalance.toLocaleString();
+    document.getElementById('total-assets').innerText = totalAssets.toLocaleString();
+    document.getElementById('total-debts').innerText = totalDebts.toLocaleString();
+
+    // 重新驅動圖示
+    lucide.createIcons();
+}
+
+// 初始化時執行一次
+document.addEventListener('DOMContentLoaded', renderAccountOverview);
+
 /**
  * 處理 FAB 點擊：切換日曆或新增記錄
  */
