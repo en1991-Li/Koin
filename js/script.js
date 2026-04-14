@@ -58,60 +58,62 @@ function showPage(pageId, element) {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// 1. 模擬資料庫：儲存帳戶的陣列
-let accounts = [
-    { name: '中信銀行', group: '銀行', amount: 15000, isCredit: false }
-];
 
-// 2. 渲染總覽介面的函式
+// 渲染總覽介面的函式
+// 網頁載入完成後，立刻畫出儲存過的帳戶
+document.addEventListener('DOMContentLoaded', () => {
+    renderAccountOverview();
+});
+
 function renderAccountOverview() {
-    const container = document.querySelector('#page-overview .content-scroll');
-    if (!container) return;
+    const listContainer = document.getElementById('account-list');
+    if (!listContainer) return;
 
-    // 保留原本的 balance-hero，清除下方的舊列表
-    const hero = container.querySelector('.balance-hero');
-    container.innerHTML = '';
-    container.appendChild(hero);
+    // 1. 從 localStorage 抓資料
+    const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
+    
+    // 2. 清空目前的列表 (避免重複顯示)
+    listContainer.innerHTML = '';
 
     let totalBalance = 0;
     let totalAssets = 0;
     let totalDebts = 0;
 
-    accounts.forEach(acc => {
-        const amount = parseFloat(acc.amount);
-        totalBalance += amount;
-        if (amount >= 0) totalAssets += amount;
-        else totalDebts += Math.abs(amount);
+    // 3. 跑迴圈把每一筆畫出來
+    savedAccounts.forEach(acc => {
+        totalBalance += acc.amount;
+        if (acc.amount >= 0) totalAssets += acc.amount;
+        else totalDebts += Math.abs(acc.amount);
 
-        // 建立帳戶卡片 HTML
-        const accItem = document.createElement('div');
-        accItem.className = 'form-group';
-        accItem.style.marginBottom = '10px';
-        accItem.innerHTML = `
-            <div class="form-row">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <div style="background:#3d3d4d; padding:8px; border-radius:10px;">
-                        <i data-lucide="${acc.isCredit ? 'credit-card' : 'wallet'}" style="width:18px; height:18px;"></i>
+        const accountHTML = `
+            <div class="form-group" style="margin-bottom: 12px;">
+                <div class="form-row">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div style="background:#3d3d4d; padding:8px; border-radius:10px; display:flex;">
+                            <i data-lucide="${acc.isCredit ? 'credit-card' : 'wallet'}" style="width:20px; height:20px;"></i>
+                        </div>
+                        <div style="display:flex; flex-direction:column;">
+                            <span style="font-size:15px; font-weight:500;">${acc.name}</span>
+                            <span style="font-size:11px; color:#8a8a8e;">${acc.group}</span>
+                        </div>
                     </div>
-                    <span>${acc.name}</span>
+                    <span class="${acc.amount >= 0 ? 'text-green' : 'text-red'}" style="font-weight:600;">
+                        ${acc.amount.toLocaleString()}
+                    </span>
                 </div>
-                <span class="${amount >= 0 ? 'text-green' : 'text-red'}">${amount.toLocaleString()}</span>
             </div>
         `;
-        container.appendChild(accItem);
+        listContainer.insertAdjacentHTML('beforeend', accountHTML);
     });
 
-    // 更新頂部的總額數字
+    // 4. 更新頂部數字卡片
     document.getElementById('total-balance').innerText = totalBalance.toLocaleString();
     document.getElementById('total-assets').innerText = totalAssets.toLocaleString();
     document.getElementById('total-debts').innerText = totalDebts.toLocaleString();
 
-    // 重新驅動圖示
-    lucide.createIcons();
+    // 5. 重新驅動圖示
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
-
-// 初始化時執行一次
-document.addEventListener('DOMContentLoaded', renderAccountOverview);
 
 /**
  * 處理 FAB 點擊：切換日曆或新增記錄
