@@ -435,9 +435,9 @@ body, html {
 .tab-item.active {
     color: #5d5dff !important;
 }
-.tab-item.active i {
+.tab-bar .tab-item.active i {
     color: #5d5dff !important;
-
+    stroke: #5d5dff !important; /* Lucide 使用 stroke 控制線條顏色 */
 }
 
 /* 2. 中間 FAB：初始彩色 */
