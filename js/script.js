@@ -297,7 +297,6 @@ function updateFabState(pageId) {
     const fabElement = document.getElementById('main-fab');
     if (!fabIcon || !fabElement) return;
 
-    // 無論在哪個頁面，我們都保持它有漸層色的 Class
     // 但根據頁面切換圖示
     if (pageId === 'page-calendar' || pageId === 'page-add-record') {
         fabIcon.setAttribute('data-lucide', 'plus');
