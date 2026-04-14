@@ -160,10 +160,6 @@ function saveAccount() {
     document.getElementById('acc-amount').value = '0';
     showPage('page-overview');
 }
-    // 4. 重新渲染新插入的 Lucide 圖示
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-}
-
 /**
  * 簡易更新頂部數字
  */
