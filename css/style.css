@@ -412,7 +412,7 @@ body, html {
     border-top: 1px solid var(--border);
     display: flex;
     justify-content: center;
-    gap: 15px;
+    gap: 20px;
     align-items: center;
     padding-bottom: 15px;
     z-index: 100;
@@ -420,8 +420,8 @@ body, html {
 
 /* 1. 一般按鈕：點擊變藍色 */
 .tab-item {
-    color: var(--text-muted); /* 預設灰色 */
-    width: 60px;
+    color: var(--text-muted);
+    width: 54px;
     height: 54px;
     display: flex;
     flex-direction: column;
@@ -431,7 +431,7 @@ body, html {
     cursor: pointer;
 }
 
-/* 點擊後的高亮藍色 (強制套用) */
+/* 點擊後的高亮藍色 */
 .tab-item.active {
     color: #5d5dff !important;
 }
@@ -443,29 +443,27 @@ body, html {
 /* 2. 中間 FAB：初始彩色 */
 .tab-fab {
     position: relative;
-    bottom: 20px;
+    bottom: 25px;
     z-index: 110;
     cursor: pointer;
 }
 
 .tab-fab .fab-inner {
-    width: 62px;
-    height: 62px;
+    width: 68px;
+    height: 68px;
     border-radius: 50%;
-    /* 初始彩色漸層 */
     background: linear-gradient(135deg, #A16CFD, #6E88F9, #45B6F5) !important;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 3px solid var(--bg);
     box-shadow: 0 4px 15px rgba(110, 136, 249, 0.4);
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .tab-fab .fab-inner i {
-    width: 30px;
-    height: 30px;
-    color: white !important; /* 彩色背景配白色圖示 */
+    width: 36px;
+    height: 36px;
+    color: white !important;
     stroke: white !important;
 }
 
