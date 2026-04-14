@@ -432,7 +432,7 @@ body, html {
 }
 
 /* 點擊後的高亮藍色 */
-.tab-item.active {
+..tab-bar .tab-item.active {
     color: #5d5dff !important;
 }
 .tab-bar .tab-item.active i {
