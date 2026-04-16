@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Koin記帳</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -14,8 +14,15 @@
             display: flex;
             align-items: center;
             gap: 5px;
+            transition: opacity 0.2s;
         }
+        .clickable-val:active { opacity: 0.6; }
         .text-blue { color: #5d5dff; }
+        .text-green { color: #4ade80; }
+        .text-red { color: #fb7185; }
+
+        /* 修正導覽列的安全區域 (iOS) */
+        .tab-bar { padding-bottom: env(safe-area-inset-bottom); }
     </style>
 </head>
 <body>
