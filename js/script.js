@@ -58,7 +58,6 @@ function showPage(pageId, element) {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-
 // 渲染總覽介面的函式
 // 網頁載入完成後，立刻畫出儲存過的帳戶
 document.addEventListener('DOMContentLoaded', () => {
@@ -69,24 +68,13 @@ function renderAccountOverview() {
     const listContainer = document.getElementById('account-list');
     if (!listContainer) return;
 
-    // 1. 從 localStorage 抓資料
     const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
-    
-    // 2. 清空目前的列表 (避免重複顯示)
     listContainer.innerHTML = '';
 
-    let totalBalance = 0;
-    let totalAssets = 0;
-    let totalDebts = 0;
-
-    // 3. 跑迴圈把每一筆畫出來
-    savedAccounts.forEach(acc => {
-        totalBalance += acc.amount;
-        if (acc.amount >= 0) totalAssets += acc.amount;
-        else totalDebts += Math.abs(acc.amount);
-
+    savedAccounts.forEach((acc, index) => {
         const accountHTML = `
-            <div class="form-group" style="margin-bottom: 12px;">
+            <div class="form-group" style="margin-bottom: 12px; cursor: pointer;" 
+                 onclick="openAccountDetail(${index})">
                 <div class="form-row">
                     <div style="display:flex; align-items:center; gap:12px;">
                         <div style="background:#3d3d4d; padding:8px; border-radius:10px; display:flex;">
@@ -113,6 +101,20 @@ function renderAccountOverview() {
 
     // 5. 重新驅動圖示
     if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function openAccountDetail(index) {
+    const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
+    const acc = savedAccounts[index];
+
+    if (!acc) return;
+
+    // 1. 填入資料到細節頁
+    document.getElementById('detail-acc-name').innerText = acc.name;
+    document.getElementById('detail-acc-amount').innerText = acc.amount.toLocaleString();
+
+    // 2. 切換頁面 (不傳入 element 參數，因為這不是從底部導覽列切換的)
+    showPage('page-account-detail');
 }
 
 /**
