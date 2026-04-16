@@ -103,6 +103,20 @@ function renderAccountOverview() {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
+// 處理帳戶細節頁的分頁切換
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('detail-tab')) {
+        // 1. 移除所有標籤的 active
+        document.querySelectorAll('.detail-tab').forEach(tab => tab.classList.remove('active'));
+        // 2. 幫點擊的標籤加上 active
+        e.target.classList.add('active');
+        
+        // 3. 這裡未來可以加入切換「內容區塊」的邏輯
+        const tabText = e.target.innerText;
+        console.log("切換至：", tabText);
+    }
+});
+
 function openAccountDetail(index) {
     const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
     const acc = savedAccounts[index];
