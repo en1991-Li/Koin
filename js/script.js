@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof lucide !== 'undefined') lucide.createIcons();
     
     // 2. 初始頁面渲染
-    renderAccountList();
+    renderAccountOverview(); // 統一使用這個
     if (typeof renderProjectsPage === 'function') renderProjectsPage();
     
     // 3. 預設首頁狀態
@@ -15,55 +15,43 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * 核心切換函式
- * @param {string} pageId - 目標頁面 ID
- * @param {HTMLElement} element - 被點擊的 HTML 元素 (傳入 this)
+ * 核心頁面切換
  */
 function showPage(pageId, element) {
-    // 1. 頁面切換邏輯
     const target = document.getElementById(pageId);
     if (!target) return;
+    
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     target.classList.add('active');
 
-    // 2. 導覽列狀態重置
+    // 處理導覽列 active 狀態
     document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
-    // 移除中間按鈕的放大狀態
+    
     const fabElement = document.getElementById('main-fab');
     if (fabElement) fabElement.classList.remove('fab-active');
 
-    // 3. 設定目前點擊項目的狀態
     if (element) {
         element.classList.add('active');
-        if (element.classList.contains('tab-fab')) {
-            element.classList.add('fab-active');
-        }
+        if (element.classList.contains('tab-fab')) element.classList.add('fab-active');
     } else {
-        // 如果是按鈕外的程式跳轉，自動幫對應按鈕加顏色
+        // 程式觸發跳轉時，自動點亮對應 Tab
         const autoTab = document.querySelector(`.tab-bar [onclick*="${pageId}"]`);
         if (autoTab) autoTab.classList.add('active');
     }
 
-    // 4. 圖示切換邏輯
+    // 更新 FAB 圖示
     const fabIcon = document.getElementById('fab-icon');
     if (fabIcon) {
-        if (pageId === 'page-calendar' || pageId === 'page-add-record') {
-            fabIcon.setAttribute('data-lucide', 'plus');
-        } else {
-            fabIcon.setAttribute('data-lucide', 'layers');
-        }
+        const iconName = (pageId === 'page-calendar' || pageId === 'page-add-record') ? 'plus' : 'layers';
+        fabIcon.setAttribute('data-lucide', iconName);
     }
 
-    // 5. 重新渲染圖示
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// 渲染總覽介面的函式
-// 網頁載入完成後，立刻畫出儲存過的帳戶
-document.addEventListener('DOMContentLoaded', () => {
-    renderAccountOverview();
-});
-
+/**
+ * 渲染帳戶總覽列表與總額計算
+ */
 function renderAccountOverview() {
     const listContainer = document.getElementById('account-list');
     if (!listContainer) return;
@@ -71,10 +59,24 @@ function renderAccountOverview() {
     const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
     listContainer.innerHTML = '';
 
+    let totalBalance = 0;
+    let totalAssets = 0;
+    let totalDebts = 0;
+
     savedAccounts.forEach((acc, index) => {
+        // 邏輯：信用帳戶算負債，一般帳戶算資產
+        const amount = parseFloat(acc.amount) || 0;
+        
+        if (acc.isCredit) {
+            totalDebts += Math.abs(amount);
+            totalBalance -= Math.abs(amount);
+        } else {
+            totalAssets += amount;
+            totalBalance += amount;
+        }
+
         const accountHTML = `
-            <div class="form-group" style="margin-bottom: 12px; cursor: pointer;" 
-                 onclick="openAccountDetail(${index})">
+            <div class="form-group" style="margin-bottom: 12px; cursor: pointer;" onclick="openAccountDetail(${index})">
                 <div class="form-row">
                     <div style="display:flex; align-items:center; gap:12px;">
                         <div style="background:#3d3d4d; padding:8px; border-radius:10px; display:flex;">
@@ -85,8 +87,8 @@ function renderAccountOverview() {
                             <span style="font-size:11px; color:#8a8a8e;">${acc.group}</span>
                         </div>
                     </div>
-                    <span class="${acc.amount >= 0 ? 'text-green' : 'text-red'}" style="font-weight:600;">
-                        ${acc.amount.toLocaleString()}
+                    <span class="${acc.isCredit ? 'text-red' : 'text-green'}" style="font-weight:600;">
+                        ${acc.isCredit ? '-' : ''}${amount.toLocaleString()}
                     </span>
                 </div>
             </div>
@@ -94,14 +96,63 @@ function renderAccountOverview() {
         listContainer.insertAdjacentHTML('beforeend', accountHTML);
     });
 
-    // 4. 更新頂部數字卡片
-    document.getElementById('total-balance').innerText = totalBalance.toLocaleString();
-    document.getElementById('total-assets').innerText = totalAssets.toLocaleString();
-    document.getElementById('total-debts').innerText = totalDebts.toLocaleString();
+    // 更新頂部卡片數字
+    const elTotal = document.getElementById('total-balance');
+    const elAssets = document.getElementById('total-assets');
+    const elDebts = document.getElementById('total-debts');
 
-    // 5. 重新驅動圖示
+    if (elTotal) elTotal.innerText = totalBalance.toLocaleString();
+    if (elAssets) elAssets.innerText = totalAssets.toLocaleString();
+    if (elDebts) elDebts.innerText = totalDebts.toLocaleString();
+
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
+
+/**
+ * 開啟帳戶明細
+ */
+function openAccountDetail(index) {
+    const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
+    const acc = savedAccounts[index];
+    if (!acc) return;
+
+    document.getElementById('detail-acc-name').innerText = acc.name;
+    const displayAmount = acc.isCredit ? `-${acc.amount.toLocaleString()}` : acc.amount.toLocaleString();
+    document.getElementById('detail-acc-amount').innerText = displayAmount;
+
+    showPage('page-account-detail');
+}
+
+/**
+ * 儲存新帳戶
+ */
+function saveAccount() {
+    const name = document.getElementById('acc-name').value;
+    const amountInput = document.getElementById('acc-amount').value;
+    const group = document.getElementById('selected-group-text').innerText;
+    const isCredit = document.getElementById('in-is-credit').checked;
+
+    if (!name) { alert('請輸入帳戶名稱'); return; }
+
+    const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
+    const newAccount = { 
+        name, 
+        amount: parseFloat(amountInput) || 0, 
+        group: group.trim(), 
+        isCredit,
+        id: Date.now() 
+    };
+
+    savedAccounts.push(newAccount);
+    localStorage.setItem('koin_accounts', JSON.stringify(savedAccounts));
+
+    renderAccountOverview();
+    
+    // 清空表單
+    document.getElementById('acc-name').value = '';
+    document.getElementById('acc-amount').value = '0';
+    showPage('page-overview');
+
 
 // 處理帳戶細節頁的分頁切換
 document.addEventListener('click', function(e) {
@@ -117,19 +168,6 @@ document.addEventListener('click', function(e) {
     }
 });
 
-function openAccountDetail(index) {
-    const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
-    const acc = savedAccounts[index];
-
-    if (!acc) return;
-
-    // 1. 填入資料到細節頁
-    document.getElementById('detail-acc-name').innerText = acc.name;
-    document.getElementById('detail-acc-amount').innerText = acc.amount.toLocaleString();
-
-    // 2. 切換頁面 (不傳入 element 參數，因為這不是從底部導覽列切換的)
-    showPage('page-account-detail');
-}
 
 /**
  * 處理 FAB 點擊：切換日曆或新增記錄
@@ -143,39 +181,6 @@ function handleFabClick(element) {
     }
 }
 
-function saveAccount() {
-    const name = document.getElementById('acc-name').value;
-    const amountInput = document.getElementById('acc-amount').value;
-    const group = document.getElementById('selected-group-text').innerText;
-    const isCredit = document.getElementById('in-is-credit').checked;
-
-    if (!name) {
-        alert('請輸入帳戶名稱');
-        return;
-    }
-
-    const amount = parseFloat(amountInput) || 0;
-
-    // --- 新增：localStorage 邏輯 ---
-    // 1. 先抓出舊的所有帳戶資料 (如果沒有就給空陣列)
-    const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
-    
-    // 2. 把這次新增的資料做成物件
-    const newAccount = { name, amount, group: group.trim(), isCredit };
-    
-    // 3. 塞進陣列並存回 localStorage
-    savedAccounts.push(newAccount);
-    localStorage.setItem('koin_accounts', JSON.stringify(savedAccounts));
-    // ----------------------------
-
-    // 執行畫面渲染與跳轉
-    renderAccountOverview(); // 呼叫統一的渲染函式
-    
-    // 重置表單並跳回總覽
-    document.getElementById('acc-name').value = '';
-    document.getElementById('acc-amount').value = '0';
-    showPage('page-overview');
-}
 /**
  * 簡易更新頂部數字
  */
