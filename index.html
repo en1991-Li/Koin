@@ -103,6 +103,30 @@
             </div>
         </section>
 
+        <section id="page-account-detail" class="page">
+    <header class="nav-header">
+        <i data-lucide="chevron-left" class="s-icon" onclick="showPage('page-overview')"></i>
+        <h1 class="page-title" id="detail-acc-name">帳戶名稱</h1>
+        <i data-lucide="more-horizontal" class="s-icon"></i>
+    </header>
+
+    <div class="detail-tabs">
+        <div class="detail-tab active">交易明細</div>
+        <div class="detail-tab">帳戶資訊</div>
+    </div>
+
+    <div class="content-scroll no-scrollbar">
+        <div class="detail-hero">
+            <div class="label">餘額 TWD</div>
+            <div class="amount" id="detail-acc-amount">0</div>
+        </div>
+        
+        <div id="transaction-list" style="padding: 15px;">
+            <p style="color: #8a8a8e; text-align: center; margin-top: 20px;">尚無交易明細</p>
+        </div>
+    </div>
+</section>
+
         <section id="page-projects" class="page">
     <header class="nav-header">
         <div style="width: 24px;"></div> 
