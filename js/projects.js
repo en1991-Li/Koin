@@ -4,14 +4,14 @@
 
 // 1. 預設數據：確保第一次開啟時有內容
 const defaultProjects = [
-    { name: "生活開銷", icon: "glass-water", date: "26/04/01 － 26/04/30", amount: 0, type: 'expense' },
+    { name: "生活開銷", icon: "beer", date: "26/04/01 － 26/04/30", amount: 0, type: 'expense' },
     { name: "投資理財", icon: "trending-up", date: "26/04/01 － 26/04/30", amount: 0, type: 'neutral' },
-    { name: "工作", icon: "briefcase", date: "26/04/01 － 26/04/30", amount: 0, type: 'neutral' },
-    { name: "玩樂", icon: "film", date: "26/04/01 － 26/04/30", amount: 0, type: 'income' },
-    { name: "旅遊", icon: "palmtree", date: "26/04/01 － 26/04/30", amount: 0, type: 'neutral' },
+    { name: "工作", icon: "briefcase-business", date: "26/04/01 － 26/04/30", amount: 0, type: 'neutral' },
+    { name: "玩樂", icon: "gamepad-2", date: "26/04/01 － 26/04/30", amount: 0, type: 'income' },
+    { name: "旅遊", icon: "plane", date: "26/04/01 － 26/04/30", amount: 0, type: 'neutral' },
     { name: "家用", icon: "users", date: "26/04/01 － 26/04/30", amount: 0, type: 'neutral' },
     { name: "每月統計", icon: "calendar-days", date: "26/04/01 － 26/04/30", amount: 0, type: 'expense', isStats: true },
-    { name: "學習", icon: "pen-tool", date: "26/04/01 － 26/04/30", amount: 0, type: 'neutral' }
+    { name: "學習", icon: "pencil-ruler", date: "26/04/01 － 26/04/30", amount: 0, type: 'neutral' }
 ];
 
 function renderProjectsPage() {
