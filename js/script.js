@@ -104,6 +104,21 @@ function renderAccountOverview() {
 }
 
 /**
+ * 開啟帳戶明細
+ */
+function openAccountDetail(index) {
+    const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
+    const acc = savedAccounts[index];
+    if (!acc) return;
+
+    document.getElementById('detail-acc-name').innerText = acc.name;
+    const displayAmount = acc.isCredit ? `-${Math.abs(acc.amount).toLocaleString()}` : acc.amount.toLocaleString();
+    document.getElementById('detail-acc-amount').innerText = displayAmount;
+
+    showPage('page-account-detail');
+}
+
+/**
  * 儲存新帳戶
  */
 function saveAccount() {
@@ -133,54 +148,6 @@ function saveAccount() {
     document.getElementById('acc-name').value = '';
     document.getElementById('acc-amount').value = '0';
     showPage('page-overview');
-}
-
-// 定義一個變數來儲存當前查看的帳戶索引
-let currentActiveAccountIndex = null;
-
-// 修改原本的開啟詳情函式
-function openAccountDetail(index) {
-    const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
-    const acc = savedAccounts[index];
-    if (!acc) return;
-
-    // 紀錄索引，之後刪除才知道刪哪一個
-    currentActiveAccountIndex = index;
-
-    document.getElementById('detail-acc-name').innerText = acc.name;
-    const displayAmount = acc.isCredit ? `-${Math.abs(acc.amount).toLocaleString()}` : acc.amount.toLocaleString();
-    document.getElementById('detail-acc-amount').innerText = displayAmount;
-
-    showPage('page-account-detail');
-}
-
-/**
- * 執行刪除動作
- */
-function deleteAccount() {
-    if (currentActiveAccountIndex === null) return;
-
-    const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
-    const targetName = savedAccounts[currentActiveAccountIndex].name;
-
-    // 關閉選單
-    closeModal('account-more-modal');
-
-    // 彈窗確認
-    if (confirm(`確定要刪除帳戶「${targetName}」嗎？\n刪除後無法恢復。`)) {
-        // 從陣列中移除
-        savedAccounts.splice(currentActiveAccountIndex, 1);
-        
-        // 更新資料庫
-        localStorage.setItem('koin_accounts', JSON.stringify(savedAccounts));
-        
-        // 重新渲染畫面並跳轉
-        renderAccountOverview();
-        showPage('page-overview');
-        
-        // 重置索引
-        currentActiveAccountIndex = null;
-    }
 }
 
 // 帳戶細節頁分頁切換監聽
@@ -311,4 +278,3 @@ function confirmDueDate() {
     document.getElementById('due-date-display').innerHTML = `${prefix}${selectedDueDay}日 <i data-lucide="chevron-right" class="s-icon"></i>`;
     lucide.createIcons();
     closeModal('due-date-modal');
-}
