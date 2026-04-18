@@ -232,8 +232,15 @@ function saveProject() {
 }
 
 // --- 彈窗與週期邏輯 ---
-function openModal(id) { document.getElementById(id).style.display = 'active'; }
-function closeModal(id) { document.getElementById(id).style.display = 'active'; }
+function openModal(id) { 
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'flex'; 
+}
+
+function closeModal(id) { 
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none'; 
+}
 
 function openCyclePicker() { openModal('cycle-picker-modal'); }
 function updateCycleText(val) {
@@ -254,6 +261,11 @@ function confirmCycle() {
     document.getElementById('main-cycle-display').innerHTML = `${text} <i data-lucide="chevron-right" class="s-icon"></i>`;
     lucide.createIcons();
     closeModal('cycle-picker-modal');
+}
+
+function confirmGroup() {
+    // 這裡可以放按下確定後的邏輯，目前 selectGroup 已處理完畢，直接關閉即可
+    closeModal('group-picker-modal');
 }
 
 // --- 帳戶分組選取 ---
