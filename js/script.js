@@ -278,3 +278,4 @@ function confirmDueDate() {
     document.getElementById('due-date-display').innerHTML = `${prefix}${selectedDueDay}日 <i data-lucide="chevron-right" class="s-icon"></i>`;
     lucide.createIcons();
     closeModal('due-date-modal');
+}
