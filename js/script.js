@@ -106,10 +106,16 @@ function renderAccountOverview() {
 /**
  * 開啟帳戶明細
  */
+// 最上方定義一個變數記錄目前選中的索引
+let currentAccountIndex = null;
+
 function openAccountDetail(index) {
     const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
     const acc = savedAccounts[index];
     if (!acc) return;
+
+    // 紀錄索引供刪除功能使用
+    currentAccountIndex = index;
 
     document.getElementById('detail-acc-name').innerText = acc.name;
     const displayAmount = acc.isCredit ? `-${Math.abs(acc.amount).toLocaleString()}` : acc.amount.toLocaleString();
@@ -148,6 +154,32 @@ function saveAccount() {
     document.getElementById('acc-name').value = '';
     document.getElementById('acc-amount').value = '0';
     showPage('page-overview');
+}
+
+/**
+ * 刪除目前選中的帳戶
+ */
+function deleteAccount() {
+    if (currentAccountIndex === null) return;
+
+    const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
+    const accName = savedAccounts[currentAccountIndex].name;
+
+    // 顯示確認視窗
+    if (confirm(`確定要刪除「${accName}」帳戶嗎？此動作無法復原。`)) {
+        // 1. 從陣列中移除
+        savedAccounts.splice(currentAccountIndex, 1);
+        
+        // 2. 存回 localStorage
+        localStorage.setItem('koin_accounts', JSON.stringify(savedAccounts));
+        
+        // 3. 重新渲染總覽列表
+        renderAccountOverview();
+        
+        // 4. 重置索引並跳回首頁
+        currentAccountIndex = null;
+        showPage('page-overview');
+    }
 }
 
 // 帳戶細節頁分頁切換監聽
