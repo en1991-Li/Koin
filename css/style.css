@@ -66,6 +66,7 @@ body, html {
 /* =========================================
    3. 導覽列與頁面切換
    ========================================= */
+/* 1. 導覽列標題置中修正 */
 .nav-header {
     display: flex;
     justify-content: space-between;
@@ -86,7 +87,7 @@ body, html {
     white-space: nowrap;
 }
 
-/* 帳戶總覽與金額區域置中 */
+/* 2. 帳戶總覽與金額區域置中 */
 .balance-hero {
     display: flex;
     flex-direction: column;
@@ -105,7 +106,7 @@ body, html {
     display: block;           /* 確保是區塊元素以利對齊 */
 }
 
-/* 新增帳戶頁面 (add-acc-hero) 同步置中 */
+/* 3. 新增帳戶頁面 (add-acc-hero) 同步置中 */
 .add-acc-hero {
     display: flex;
     flex-direction: column;
@@ -266,7 +267,7 @@ body, html {
     left: 0;
     width: 100%;
     height: 3px;
-    background: #39394d;
+    background: #5d5dff;
     border-radius: 10px 10px 0 0;
 }
 
@@ -274,7 +275,6 @@ body, html {
 #transaction-list {
     min-height: 200px;
 }
-
 
 /* =========================================
    5. 表單元件與自定義選擇器 (重要)
@@ -427,56 +427,35 @@ body, html {
 }
 
 /* 彈窗樣式 */
-
-.more-features-modal {
-    width: 80%;
-    background: #2c2c3e;
-    border-radius: 24px;
-    padding: 20px;
-    text-align: center;
+.modal-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200;
+    backdrop-filter: blur(4px);
 }
 
-.modal-options {
-    display: flex;
-    flex-direction: column;
-    margin: 15px 0;
+.modal-content {
+    background: var(--modal-bg); 
+    width: 85%; 
+    border-radius: 24px;
+    overflow: hidden; 
+    color: #FFFFFF;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.modal-header {
+    padding: 18px; text-align: center; font-weight: 700;
+    border-bottom: 1px solid var(--border);
 }
 
 .option-item {
-    padding: 15px;
-    font-size: 16px;
-    color: #ffffff;
-    border-bottom: 1px solid #3d3d4d;
-    cursor: pointer;
+    padding: 16px; text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
-.option-item:last-child {
-    border-bottom: none;
-}
-
-.option-item:active {
-    background: #3d3d4d;
-}
-
-.modal-overlay {
-    position: fixed; /* 確保它是相對於視窗而非容器 */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 999; /* 必須高於 .tab-bar (100) */
-    display: none; /* 預設隱藏 */
-    align-items: center;
-    justify-content: center;
-}
-
-/* 當 Modal 被開啟時，才恢復攔截點擊 */
-.modal-overlay.active {
-    display: flex;
-    pointer-events: auto;
-}
-
+.option-item:active { background: rgba(90, 200, 250, 0.2); }
 
 .modal-footer { display: flex; border-top: 1px solid var(--border); }
 .modal-footer button {
