@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 /**
  * 核心頁面切換
  */
+document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
 function showPage(pageId, element) {
     const target = document.getElementById(pageId);
     if (!target) return;
