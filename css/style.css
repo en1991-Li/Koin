@@ -276,27 +276,30 @@ body, html {
     min-height: 200px;
 }
 
+/* Action Sheet 底部選單樣式 */
 .action-sheet {
     position: absolute;
-    bottom: 20px;
-    left: 20px;
-    right: 20px;
+    bottom: 30px;
+    left: 15px;
+    right: 15px;
     background: #2c2c3e;
     border-radius: 20px;
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+    overflow: hidden;
+    animation: slideUp 0.3s ease-out;
 }
 
 .action-item {
-    padding: 16px;
+    padding: 18px;
     text-align: center;
     font-size: 17px;
-    font-weight: 500;
-    color: #fff;
-    cursor: pointer;
+    color: white;
+    background: #2c2c3e;
     border-bottom: 1px solid #3d3d4d;
+    cursor: pointer;
+}
+
+.action-item:active {
+    background: #3d3d4d;
 }
 
 .action-item:last-child {
@@ -304,7 +307,12 @@ body, html {
 }
 
 .text-red {
-    color: #ff453a !important;
+    color: #fb7185 !important;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
 }
 
 /* =========================================
