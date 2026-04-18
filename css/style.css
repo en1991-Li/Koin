@@ -276,45 +276,6 @@ body, html {
     min-height: 200px;
 }
 
-/* Action Sheet 底部選單樣式 */
-.action-sheet {
-    position: absolute;
-    bottom: 30px;
-    left: 15px;
-    right: 15px;
-    background: #2c2c3e;
-    border-radius: 20px;
-    overflow: hidden;
-    animation: slideUp 0.3s ease-out;
-}
-
-.action-item {
-    padding: 18px;
-    text-align: center;
-    font-size: 17px;
-    color: white;
-    background: #2c2c3e;
-    border-bottom: 1px solid #3d3d4d;
-    cursor: pointer;
-}
-
-.action-item:active {
-    background: #3d3d4d;
-}
-
-.action-item:last-child {
-    border-bottom: none;
-}
-
-.text-red {
-    color: #fb7185 !important;
-}
-
-@keyframes slideUp {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
-}
-
 /* =========================================
    5. 表單元件與自定義選擇器 (重要)
    ========================================= */
@@ -704,4 +665,3 @@ input:checked + .slider:before { transform: translateX(20px); }
 .text-red { color: var(--red) !important; }
 .text-muted { color: var(--text-muted) !important; }
 .text-right { text-align: right; }
-.s-icon { width: 18px; height: 18px; vertical-align: middle; color: inherit; }
