@@ -459,18 +459,16 @@ body, html {
 }
 
 .modal-overlay {
-    position: absolute;
+    position: fixed; /* 確保它是相對於視窗而非容器 */
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    style="display: none !important;"  /* 預設關閉 */
-    pointer-events: none; /* 預設不攔截點擊 */
-    z-index: 9999;
-    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 999; /* 必須高於 .tab-bar (100) */
+    display: none; /* 預設隱藏 */
     align-items: center;
-    backdrop-filter: blur(4px);
+    justify-content: center;
 }
 
 /* 當 Modal 被開啟時，才恢復攔截點擊 */
