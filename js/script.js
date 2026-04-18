@@ -104,17 +104,48 @@ function renderAccountOverview() {
 }
 
 /**
- * 開啟帳戶明細
+ * 切換詳情頁的分頁 (交易明細/帳戶資訊)
+ */
+function switchDetailTab(index) {
+    const tabs = document.querySelectorAll('.detail-tab');
+    const transContent = document.getElementById('tab-content-transactions');
+    const infoContent = document.getElementById('tab-content-info');
+
+    tabs.forEach((tab, i) => {
+        tab.classList.toggle('active', i === index);
+    });
+
+    if (index === 0) {
+        transContent.style.display = 'block';
+        infoContent.style.display = 'none';
+    } else {
+        transContent.style.display = 'none';
+        infoContent.style.display = 'block';
+    }
+}
+
+/**
+ * 更新 openAccountDetail 函式以同步資訊分頁
  */
 function openAccountDetail(index) {
     const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
     const acc = savedAccounts[index];
     if (!acc) return;
 
+    currentActiveAccountIndex = index;
+
+    // 更新 Header 與 交易明細頁面
     document.getElementById('detail-acc-name').innerText = acc.name;
     const displayAmount = acc.isCredit ? `-${Math.abs(acc.amount).toLocaleString()}` : acc.amount.toLocaleString();
     document.getElementById('detail-acc-amount').innerText = displayAmount;
 
+    // 更新資訊分頁的文字
+    if (document.getElementById('info-name')) {
+        document.getElementById('info-name').innerText = acc.name;
+    }
+
+    // 每次開啟都預設回第一頁 (交易明細)
+    switchDetailTab(0);
     showPage('page-account-detail');
 }
 
