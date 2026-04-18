@@ -103,11 +103,15 @@
             </div>
         </section>
 
-  <section id="page-account-detail" class="page">
+ <section id="page-account-detail" class="page">
     <header class="nav-header">
-        <i data-lucide="chevron-left" class="s-icon" onclick="showPage('page-overview')"></i>
-        <h1 class="page-title" id="detail-acc-name">帳戶名稱</h1>
-        <i data-lucide="more-horizontal" class="s-icon" onclick="openModal('account-more-modal')"></i>
+        <div class="header-left" onclick="showPage('page-overview')">
+            <i data-lucide="chevron-left" class="s-icon"></i>
+        </div>
+        <h1 class="page-title" id="detail-acc-name">帳戶資訊</h1>
+        <div class="header-right" onclick="openModal('account-more-modal')">
+            <i data-lucide="more-horizontal" class="s-icon"></i>
+        </div>
     </header>
 
     <div class="detail-tabs">
@@ -125,27 +129,24 @@
                 <p style="color: #8a8a8e; text-align: center; margin-top: 20px;">尚無交易明細</p>
             </div>
         </div>
-
-        <div id="tab-content-info" style="display: none; padding: 15px;">
-            <div class="form-group">
-                <div class="form-row"><label>名稱</label><span id="info-name">錢包</span></div>
-                <div class="form-row"><label>主幣種</label><span>TWD</span></div>
-            </div>
+        
+        <div id="tab-content-info" style="display: none; padding: 20px;">
+            <p style="color: #8a8a8e; text-align: center;">此處可顯示帳戶分組、週期等固定資訊</p>
         </div>
     </div>
 </section>
 
-<div id="account-more-modal" class="modal-overlay" onclick="closeModal('account-more-modal')">
-    <div class="modal-content more-features-modal" onclick="event.stopPropagation()">
-        <div class="modal-header">更多功能</div>
-        <div class="modal-options">
-            <div class="option-item">調整餘額</div>
-            <div class="option-item">對帳模式</div>
-            <div class="option-item">匯出 CSV</div>
-            <div class="option-item text-red" onclick="deleteAccount()">刪除帳戶</div>
+<div id="account-more-modal" class="modal-overlay" onclick="closeModal('account-more-modal')" style="display: none;">
+    <div class="modal-content more-options-box" onclick="event.stopPropagation()">
+        <div class="modal-header" style="border:none; padding-bottom: 10px;">更多功能</div>
+        <div class="options-list">
+            <div class="option-row">調整餘額</div>
+            <div class="option-row">對帳模式</div>
+            <div class="option-row">匯出 CSV</div>
+            <div class="option-row text-red" onclick="deleteAccount()">刪除帳戶</div>
         </div>
-        <div class="modal-footer">
-            <button onclick="closeModal('account-more-modal')">取消</button>
+        <div class="modal-footer" style="border:none; padding-top: 10px;">
+            <button onclick="closeModal('account-more-modal')" style="width:100%; background:#3d3d4d; border-radius:12px;">取消</button>
         </div>
     </div>
 </div>
