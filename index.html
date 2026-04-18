@@ -103,29 +103,52 @@
             </div>
         </section>
 
-        <section id="page-account-detail" class="page">
+  <section id="page-account-detail" class="page">
     <header class="nav-header">
         <i data-lucide="chevron-left" class="s-icon" onclick="showPage('page-overview')"></i>
         <h1 class="page-title" id="detail-acc-name">帳戶名稱</h1>
-        <i data-lucide="more-horizontal" class="s-icon"></i>
+        <i data-lucide="more-horizontal" class="s-icon" onclick="openModal('account-more-modal')"></i>
     </header>
 
     <div class="detail-tabs">
-        <div class="detail-tab active">交易明細</div>
-        <div class="detail-tab">帳戶資訊</div>
+        <div class="detail-tab active" onclick="switchDetailTab(0)">交易明細</div>
+        <div class="detail-tab" onclick="switchDetailTab(1)">帳戶資訊</div>
     </div>
 
     <div class="content-scroll no-scrollbar">
-        <div class="detail-hero">
-            <div class="label">餘額 TWD</div>
-            <div class="amount" id="detail-acc-amount">0</div>
+        <div id="tab-content-transactions">
+            <div class="detail-hero">
+                <div class="label">餘額 TWD</div>
+                <div class="amount" id="detail-acc-amount">0</div>
+            </div>
+            <div id="transaction-list" style="padding: 15px;">
+                <p style="color: #8a8a8e; text-align: center; margin-top: 20px;">尚無交易明細</p>
+            </div>
         </div>
-        
-        <div id="transaction-list" style="padding: 15px;">
-            <p style="color: #8a8a8e; text-align: center; margin-top: 20px;">尚無交易明細</p>
+
+        <div id="tab-content-info" style="display: none; padding: 15px;">
+            <div class="form-group">
+                <div class="form-row"><label>名稱</label><span id="info-name">錢包</span></div>
+                <div class="form-row"><label>主幣種</label><span>TWD</span></div>
+            </div>
         </div>
     </div>
 </section>
+
+<div id="account-more-modal" class="modal-overlay" onclick="closeModal('account-more-modal')">
+    <div class="modal-content more-features-modal" onclick="event.stopPropagation()">
+        <div class="modal-header">更多功能</div>
+        <div class="modal-options">
+            <div class="option-item">調整餘額</div>
+            <div class="option-item">對帳模式</div>
+            <div class="option-item">匯出 CSV</div>
+            <div class="option-item text-red" onclick="deleteAccount()">刪除帳戶</div>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeModal('account-more-modal')">取消</button>
+        </div>
+    </div>
+</div>
 
         <section id="page-projects" class="page">
     <header class="nav-header">
@@ -266,6 +289,7 @@
                     <div class="option-item" onclick="selectGroup('信用卡')">信用卡</div>
                 </div>
                 <div class="modal-footer"><button onclick="closeModal('group-picker-modal')">取消</button></div>
+             <button class="btn-confirm" style="background: #39394d;" onclick="confirmCycle()">確定</button>
             </div>
         </div>
 
@@ -281,7 +305,7 @@
         </div>
         <div class="modal-footer" style="margin-top: 25px; border: none; gap: 10px;">
             <button style="background: #39394d; border-radius: 12px;" onclick="closeModal('cycle-picker-modal')">取消</button>
-            <button class="btn-confirm" style="background: #5d5dff; border-radius: 12px;" onclick="confirmCycle()">確定</button>
+            <button class="btn-confirm" style="background: #39394d; border-radius: 12px;" onclick="confirmCycle()">確定</button>
         </div>
     </div>
 </div>
@@ -296,10 +320,10 @@
         <div id="due-detail-picker" style="display: none;">
             <div class="picker-container no-scrollbar" id="picker-scroll-list"></div>
             <div class="modal-footer" style="border:none;">
-                <button onclick="backToDueMode()">返回</button>
-                <button class="btn-confirm" style="background: #5d5dff;" onclick="confirmDueDate()">確定</button>
-            </div>
+                <button style="background: #39394d;" onclick="closeModal('due-date-modal')">取消</button>
+                <button class="btn-confirm" style="background: #39394d;" onclick="confirmDueDate()">確定</button>
         </div>
+    </div>
         <div class="modal-footer" id="due-mode-footer" style="border:none;">
             <button onclick="closeModal('due-date-modal')">取消</button>
         </div>
