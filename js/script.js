@@ -231,8 +231,8 @@ function saveProject() {
 }
 
 // --- 彈窗與週期邏輯 ---
-function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+function openModal(id) { document.getElementById(id).style.display = 'active'; }
+function closeModal(id) { document.getElementById(id).style.display = 'active'; }
 
 function openCyclePicker() { openModal('cycle-picker-modal'); }
 function updateCycleText(val) {
