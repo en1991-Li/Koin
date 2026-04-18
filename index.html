@@ -108,13 +108,7 @@
         <i data-lucide="chevron-left" class="s-icon" onclick="showPage('page-overview')"></i>
         <h1 class="page-title" id="detail-acc-name">帳戶名稱</h1>
         <i data-lucide="more-horizontal" class="s-icon"></i>
-        <header class="page-header">
-    <button onclick="showPage('page-overview')">
-        <i data-lucide="chevron-left"></i>
-    </button>
-    <h2>帳戶詳情</h2>
-    <button onclick="deleteAccount()" style="color: #ff453a;">
-        <i data-lucide="trash-2"></i> </button>
+     
 </header>
     </header>
 
@@ -122,6 +116,28 @@
         <div class="detail-tab active">交易明細</div>
         <div class="detail-tab">帳戶資訊</div>
     </div>
+            <div id="page-account-detail" class="page">
+    <header class="page-header">
+        <div class="header-left" onclick="showPage('page-overview')">
+            <i data-lucide="chevron-left"></i>
+        </div>
+        <h2>帳戶資訊</h2>
+        <div class="header-right" onclick="openModal('account-more-modal')">
+            <i data-lucide="more-horizontal"></i>
+        </div>
+    </header>
+    </div>
+
+<div id="account-more-modal" class="modal-overlay" onclick="closeModal('account-more-modal')">
+    <div class="action-sheet" onclick="event.stopPropagation()">
+        <div class="action-item text-red" onclick="deleteAccount()">
+            <i data-lucide="trash-2"></i> 刪除帳戶
+        </div>
+        <div class="action-item" onclick="closeModal('account-more-modal')">
+            取消
+        </div>
+    </div>
+</div>
 
     <div class="content-scroll no-scrollbar">
         <div class="detail-hero">
