@@ -459,22 +459,24 @@ body, html {
 }
 
 .modal-overlay {
-    position: absolute; /* 確保在 .phone-container 內 */
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.7);
-    
-    /* 核心修正：預設必須是 display: none */
-    display: none; 
-    
-    /* 確保彈窗在最上層，但不要擋住還沒觸發的點擊 */
-    z-index: 9999; 
-    
+    display: none; /* 預設關閉 */
+    pointer-events: none; /* 預設不攔截點擊 */
+    z-index: 9999;
     justify-content: center;
     align-items: center;
     backdrop-filter: blur(4px);
+}
+
+/* 當 Modal 被開啟時，才恢復攔截點擊 */
+.modal-overlay.active {
+    display: flex;
+    pointer-events: auto;
 }
 
 
