@@ -102,31 +102,64 @@
                 </div>
             </div>
         </section>
-
-        <section id="page-account-detail" class="page">
-    <header class="nav-header">
-        <i data-lucide="chevron-left" class="s-icon" onclick="showPage('page-overview')"></i>
-        <h1 class="page-title" id="detail-acc-name">帳戶名稱</h1>
+        
+          <section id="page-account-detail" class="page">
+          <header class="nav-header">
+          <i data-lucide="chevron-left" class="s-icon" onclick="showPage('page-overview')"></i>
+          <h1 class="page-title" id="detail-acc-name">帳戶名稱</h1>
         <i data-lucide="more-horizontal" class="s-icon"></i>
     </header>
 
     <div class="detail-tabs">
-        <div class="detail-tab active">交易明細</div>
-        <div class="detail-tab">帳戶資訊</div>
+        <div class="detail-tab active" onclick="switchDetailTab(0)">交易明細</div>
+        <div class="detail-tab" onclick="switchDetailTab(1)">帳戶資訊</div>
     </div>
 
     <div class="content-scroll no-scrollbar">
         <div class="detail-hero">
             <div class="label">餘額 TWD</div>
             <div class="amount" id="detail-acc-amount">0</div>
+            <p style="color: #8a8a8e; font-size: 12px; margin-top: 8px;">請在這裡填寫備註事項</p>
         </div>
         
-        <div id="transaction-list" style="padding: 15px;">
+        <div id="tab-content-transactions" style="padding: 15px;">
             <p style="color: #8a8a8e; text-align: center; margin-top: 20px;">尚無交易明細</p>
+        </div>
+
+        <div id="tab-content-info" style="padding: 0 15px; display: none;">
+            <div class="form-group" style="background: transparent;">
+                <div class="form-row">
+                    <label>名稱</label>
+                    <span id="info-name" class="text-muted">錢包</span>
+                </div>
+                <div class="form-row">
+                    <label>主幣種</label>
+                    <span class="text-muted">TWD</span>
+                </div>
+                <div class="form-row">
+                    <label>帳戶分組</label>
+                    <span id="info-group" class="text-muted">現金</span>
+                </div>
+                <div class="form-row">
+                    <label>初始金額</label>
+                    <span id="info-initial" class="text-muted">0</span>
+                </div>
+                <div class="form-row">
+                    <label>帳單週期</label>
+                    <span id="info-cycle" class="text-muted">2026/04/01 – 2026/04/30</span>
+                </div>
+                <div class="form-row">
+                    <label>信用帳戶</label>
+                    <label class="switch">
+                        <input type="checkbox" id="info-is-credit" disabled>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                </div>
         </div>
     </div>
 </section>
-
+ 
         <section id="page-projects" class="page">
     <header class="nav-header">
         <div style="width: 24px;"></div> 
