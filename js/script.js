@@ -251,6 +251,12 @@ function closeModal(id) {
     }
 }
 
+function handleMenuAction(action) {
+    console.log("執行：" + action);
+    // 在此加入各項功能邏輯
+    closeModal('more-options-modal');
+}
+
 // 刪除帳戶範例功能
 function deleteAccountAction() {
     if (confirm("確定要刪除此帳戶嗎？所有交易紀錄將被移除。")) {
