@@ -235,8 +235,30 @@ function saveProject() {
 }
 
 // --- 彈窗與週期邏輯 ---
-function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+function openModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.style.display = 'flex';
+        // 重新渲染 Lucide 圖示以確保選單內的圖示出現
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+}
+
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// 刪除帳戶範例功能
+function deleteAccountAction() {
+    if (confirm("確定要刪除此帳戶嗎？所有交易紀錄將被移除。")) {
+        // 執行刪除邏輯...
+        closeModal('more-options-modal');
+        showPage('page-overview');
+    }
+}
 
 function openCyclePicker() { openModal('cycle-picker-modal'); }
 function updateCycleText(val) {
