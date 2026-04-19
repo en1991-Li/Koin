@@ -359,4 +359,21 @@
    
 </script>
 
+   <div id="more-options-modal" class="modal-overlay" onclick="closeModal('more-options-modal')">
+    <div class="more-menu-content" onclick="event.stopPropagation()">
+        <div class="menu-header-icon">
+            <i data-lucide="menu"></i>
+        </div>
+        
+        <h3 class="menu-title">更多功能</h3>
+        
+        <div class="menu-list">
+            <button class="menu-btn" onclick="adjustBalance()">調整餘額</button>
+            <button class="menu-btn" onclick="reconcileMode()">對帳模式</button>
+            <button class="menu-btn" onclick="exportCSV()">匯出 CSV</button>
+            <button class="menu-btn" onclick="recalculate()">重新計算餘額</button>
+            <button class="menu-btn text-red" onclick="deleteAccountAction()">刪除帳戶</button>
+        </div>
+    </div>
+</div> 
 </body>
