@@ -463,6 +463,71 @@ body, html {
 }
 .btn-confirm { color: var(--blue) !important; font-weight: 700; border-left: 1px solid var(--border) !important; }
 
+/* 彈窗內容容器 */
+.more-menu-content {
+    background: #2c2c3e; /* 深色背景 */
+    width: 280px;
+    border-radius: 24px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    animation: zoomIn 0.2s ease-out; /* 彈出動畫 */
+}
+
+/* 頂部白色圓形圖示 */
+.menu-header-icon {
+    width: 50px;
+    height: 50px;
+    background: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: -45px auto 15px; /* 向上偏移 */
+    color: #1c1c2e;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.menu-title {
+    color: #ffffff;
+    font-size: 18px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* 按鈕清單樣式 */
+.menu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.menu-btn {
+    background: #3d3d4d;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    color: #ffffff;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.menu-btn:active {
+    background: #4d4d5d;
+}
+
+.menu-btn.text-red {
+    color: #fb7185;
+}
+
+/* 彈出動畫 */
+@keyframes zoomIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
 /* =========================================
    7. 底部導覽列與開關
    ========================================= */
