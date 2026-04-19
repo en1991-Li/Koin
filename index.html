@@ -103,17 +103,38 @@
             </div>
         </section>
         
-          <section id="page-account-detail" class="page">
-          <header class="nav-header">
-          <i data-lucide="chevron-left" class="s-icon" onclick="showPage('page-overview')"></i>
-          <h1 class="page-title" id="detail-acc-name">帳戶名稱</h1>
-        <i data-lucide="more-horizontal" class="s-icon"></i>
+       <section id="page-account-detail" class="page">
+    <header class="nav-header">
+        <i data-lucide="chevron-left" class="s-icon" onclick="showPage('page-overview')"></i>
+        <h1 class="page-title" id="detail-acc-name">錢包</h1>
+        <div style="display: flex; gap: 15px;">
+            <i data-lucide="list-checks" class="s-icon"></i>
+            <i data-lucide="more-horizontal" class="s-icon" onclick="openModal('more-options-modal')"></i>
+        </div>
     </header>
 
     <div class="detail-tabs">
         <div class="detail-tab active" onclick="switchDetailTab(0)">交易明細</div>
         <div class="detail-tab" onclick="switchDetailTab(1)">帳戶資訊</div>
     </div>
+    
+    </section>
+
+<div id="more-options-modal" class="modal-overlay" onclick="closeModal('more-options-modal')">
+    <div class="more-menu-content" onclick="event.stopPropagation()">
+        <div class="menu-header-icon">
+            <i data-lucide="menu"></i>
+        </div>
+        <h3 class="menu-title">更多功能</h3>
+        <div class="menu-list">
+            <button class="menu-btn" onclick="handleMenuAction('調整餘額')">調整餘額</button>
+            <button class="menu-btn" onclick="handleMenuAction('對帳模式')">對帳模式</button>
+            <button class="menu-btn" onclick="handleMenuAction('匯出 CSV')">匯出 CSV</button>
+            <button class="menu-btn" onclick="handleMenuAction('重新計算餘額')">重新計算餘額</button>
+            <button class="menu-btn text-red" onclick="deleteAccountAction()">刪除帳戶</button>
+        </div>
+    </div>
+</div>
 
     <div class="content-scroll no-scrollbar">
         <div class="detail-hero">
@@ -359,21 +380,4 @@
    
 </script>
 
-   <div id="more-options-modal" class="modal-overlay" onclick="closeModal('more-options-modal')">
-    <div class="more-menu-content" onclick="event.stopPropagation()">
-        <div class="menu-header-icon">
-            <i data-lucide="menu"></i>
-        </div>
-        
-        <h3 class="menu-title">更多功能</h3>
-        
-        <div class="menu-list">
-            <button class="menu-btn" onclick="adjustBalance()">調整餘額</button>
-            <button class="menu-btn" onclick="reconcileMode()">對帳模式</button>
-            <button class="menu-btn" onclick="exportCSV()">匯出 CSV</button>
-            <button class="menu-btn" onclick="recalculate()">重新計算餘額</button>
-            <button class="menu-btn text-red" onclick="deleteAccountAction()">刪除帳戶</button>
-        </div>
-    </div>
-</div> 
 </body>
