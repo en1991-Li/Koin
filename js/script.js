@@ -111,11 +111,46 @@ function openAccountDetail(index) {
     const acc = savedAccounts[index];
     if (!acc) return;
 
+    currentActiveAccountIndex = index;
+
+    // 1. 更新頂部 Header 與 餘額
     document.getElementById('detail-acc-name').innerText = acc.name;
     const displayAmount = acc.isCredit ? `-${Math.abs(acc.amount).toLocaleString()}` : acc.amount.toLocaleString();
-    document.getElementById('detail-acc-amount').innerText = displayAmount;
+    const amountEl = document.getElementById('detail-acc-amount');
+    amountEl.innerText = displayAmount;
+    amountEl.className = acc.isCredit ? 'amount text-red' : 'amount text-green';
 
+    // 2. 更新「帳戶資訊」分頁的內容
+    if (document.getElementById('info-name')) document.getElementById('info-name').innerText = acc.name;
+    if (document.getElementById('info-group')) document.getElementById('info-group').innerText = acc.group;
+    if (document.getElementById('info-initial')) document.getElementById('info-initial').innerText = (acc.initialAmount || 0).toLocaleString();
+    if (document.getElementById('info-is-credit')) document.getElementById('info-is-credit').checked = acc.isCredit;
+    
+    // 3. 預設顯示第一個分頁 (交易明細)
+    switchDetailTab(0);
+    
+    // 4. 切換頁面
     showPage('page-account-detail');
+}
+
+// 切換分頁內容的函式
+function switchDetailTab(tabIndex) {
+    const tabs = document.querySelectorAll('.detail-tab');
+    const transContent = document.getElementById('tab-content-transactions');
+    const infoContent = document.getElementById('tab-content-info');
+
+    tabs.forEach((tab, i) => {
+        tab.classList.toggle('active', i === tabIndex);
+    });
+
+    if (tabIndex === 0) {
+        transContent.style.display = 'block';
+        infoContent.style.display = 'none';
+    } else {
+        transContent.style.display = 'block'; // 或者是 block 以符合 Flex 佈局
+        transContent.style.display = 'none';
+        infoContent.style.display = 'block';
+    }
 }
 
 /**
