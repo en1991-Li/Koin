@@ -120,22 +120,6 @@
     
     </section>
 
-<div id="more-options-modal" class="modal-overlay" onclick="closeModal('more-options-modal')">
-    <div class="more-menu-content" onclick="event.stopPropagation()">
-        <div class="menu-header-icon">
-            <i data-lucide="menu"></i>
-        </div>
-        <h3 class="menu-title">更多功能</h3>
-        <div class="menu-list">
-            <button class="menu-btn" onclick="handleMenuAction('調整餘額')">調整餘額</button>
-            <button class="menu-btn" onclick="handleMenuAction('對帳模式')">對帳模式</button>
-            <button class="menu-btn" onclick="handleMenuAction('匯出 CSV')">匯出 CSV</button>
-            <button class="menu-btn" onclick="handleMenuAction('重新計算餘額')">重新計算餘額</button>
-            <button class="menu-btn text-red" onclick="deleteAccountAction()">刪除帳戶</button>
-        </div>
-    </div>
-</div>
-
     <div class="content-scroll no-scrollbar">
         <div class="detail-hero">
             <div class="label">餘額 TWD</div>
@@ -371,6 +355,22 @@
     <div class="tab-item" onclick="showPage('page-settings', this)"><i data-lucide="sliders-horizontal"></i></div>
  </nav>
 
+<div id="more-options-modal" class="modal-overlay" onclick="closeModal('more-options-modal')">
+    <div class="more-menu-content" onclick="event.stopPropagation()">
+        <div class="menu-header-icon">
+            <i data-lucide="menu"></i>
+        </div>
+        <h3 class="menu-title">更多功能</h3>
+        <div class="menu-list">
+            <button class="menu-btn" onclick="handleMenuAction('調整餘額')">調整餘額</button>
+            <button class="menu-btn" onclick="handleMenuAction('對帳模式')">對帳模式</button>
+            <button class="menu-btn" onclick="handleMenuAction('匯出 CSV')">匯出 CSV</button>
+            <button class="menu-btn" onclick="handleMenuAction('重新計算餘額')">重新計算餘額</button>
+            <button class="menu-btn text-red" onclick="deleteAccountAction()">刪除帳戶</button>
+        </div>
+    </div>
+</div>
+        
     </div>
    <script src="js/projects.js"></script>    
    <script src="js/calendar.js"></script>
