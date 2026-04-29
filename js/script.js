@@ -211,14 +211,18 @@ function handleFabClick(element) {
     if (currentPage !== 'page-calendar') {
         showPage('page-calendar', element);
         
-        // 強制更新日期並滾動
-        selectedDate = new Date(); 
-        if (typeof focusOnCurrentMonth === 'function') {
-            focusOnCurrentMonth(); // 讓日曆橫向滾動到 4 月的位置
+        if (typeof selectedDate !== 'undefined') {
+            selectedDate = new Date(); 
         }
-        
-        // 更新標題為 2026/04
-        updateCalendarHeaderToToday(); 
+
+        // 強制執行滾動與標題更新
+        if (typeof focusOnCurrentMonth === 'function') {
+            // 使用 setTimeout 確保 showPage 的 CSS 過渡完成後再滾動，增加成功率
+            setTimeout(() => {
+                focusOnCurrentMonth();
+                updateCalendarHeaderToToday();
+            }, 50); 
+        }
     } else {
         showPage('page-add-record', element);
     }
