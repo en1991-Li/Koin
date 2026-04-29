@@ -207,13 +207,10 @@ function handleFabClick(element) {
     if (!activePage) return;
     
     const currentPage = activePage.id;
-    
-    // 如果不在日曆頁，就跳轉到日曆頁並更新當前日期
     if (currentPage !== 'page-calendar') {
         showPage('page-calendar', element);
-        updateCalendarHeaderToToday(); // 呼叫更新標題的函式
+        updateCalendarHeaderToToday(); // 確保跳轉時更新日期
     } else {
-        // 如果已經在日曆頁，則進入新增紀錄頁
         showPage('page-add-record', element);
     }
 }
