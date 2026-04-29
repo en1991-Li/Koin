@@ -205,12 +205,40 @@ function handleFabClick(element) {
     if (!activePage) return;
     
     const currentPage = activePage.id;
+    
+    // 如果不在日曆頁，就跳轉到日曆頁
     if (currentPage !== 'page-calendar') {
         showPage('page-calendar', element);
+        // 觸發顯示當天日期的邏輯
+        highlightToday(); 
     } else {
+        // 如果已經在日曆頁，點擊則進入新增紀錄頁
         showPage('page-add-record', element);
     }
 }
+
+/**
+ * 自動定位並高亮當天日期
+ */
+function highlightToday() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1; // 月份從 0 開始
+    const date = now.getDate();
+
+    // 1. 更新日曆標題
+    const titleEl = document.querySelector('.calendar-header h2') || document.getElementById('calendar-title');
+    if (titleEl) {
+        titleEl.innerText = `${year}/${month.toString().padStart(2, '0')}`;
+    }
+
+    // 2. 如果你有動態生成日曆格子的話，可以在這裡加入選取當天格子的邏輯
+    console.log(`今天日期是：${year}/${month}/${date}`);
+    
+    // 這裡可以呼叫你原本渲染日曆的函式，例如：
+    // renderCalendar(year, month); 
+}
+
 
 // --- 專案儲存邏輯 ---
 function saveProject() {
