@@ -207,9 +207,18 @@ function handleFabClick(element) {
     if (!activePage) return;
     
     const currentPage = activePage.id;
+    
     if (currentPage !== 'page-calendar') {
         showPage('page-calendar', element);
-        updateCalendarHeaderToToday(); // 確保跳轉時更新日期
+        
+        // 強制更新日期並滾動
+        selectedDate = new Date(); 
+        if (typeof focusOnCurrentMonth === 'function') {
+            focusOnCurrentMonth(); // 讓日曆橫向滾動到 4 月的位置
+        }
+        
+        // 更新標題為 2026/04
+        updateCalendarHeaderToToday(); 
     } else {
         showPage('page-add-record', element);
     }
@@ -243,10 +252,8 @@ function highlightToday() {
 function updateCalendarHeaderToToday() {
     const now = new Date();
     const year = now.getFullYear();
-    // getMonth() 回傳 0-11，所以要 +1
     const month = String(now.getMonth() + 1).padStart(2, '0'); 
     
-    // 根據你的 HTML ID: full-calendar-month
     const headerTitle = document.getElementById('full-calendar-month');
     if (headerTitle) {
         headerTitle.innerText = `${year}/${month}`;
