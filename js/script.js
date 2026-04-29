@@ -239,6 +239,20 @@ function highlightToday() {
     // renderCalendar(year, month); 
 }
 
+/**
+ * 將日曆標題更新為系統當前年月
+ */
+function updateCalendarHeaderToToday() {
+    const now = new Date();
+    const year = now.getFullYear();
+    // 月份需 +1 且補 0
+    const month = String(now.getMonth() + 1).padStart(2, '0'); 
+    
+    const headerTitle = document.getElementById('full-calendar-month');
+    if (headerTitle) {
+        headerTitle.innerText = `${year}/${month}`;
+    }
+}
 
 // --- 專案儲存邏輯 ---
 function saveProject() {
