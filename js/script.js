@@ -1,16 +1,18 @@
 /**
  * Koin 核心邏輯整合 - script.js
  */
-
 document.addEventListener('DOMContentLoaded', () => {
     // 1. 初始化圖示
     if (typeof lucide !== 'undefined') lucide.createIcons();
     
-    // 2. 初始頁面渲染
+    // 2. 更新日曆標題至當前月份 (新增這行)
+    updateCalendarHeaderToToday(); 
+    
+    // 3. 初始頁面渲染
     renderAccountOverview(); 
     if (typeof renderProjectsPage === 'function') renderProjectsPage();
     
-    // 3. 預設首頁狀態
+    // 4. 預設首頁狀態
     showPage('page-overview');
 });
 
@@ -244,9 +246,10 @@ function highlightToday() {
 function updateCalendarHeaderToToday() {
     const now = new Date();
     const year = now.getFullYear();
-    // 月份需 +1 且補 0
+    // getMonth() 回傳 0-11，所以要 +1
     const month = String(now.getMonth() + 1).padStart(2, '0'); 
     
+    // 根據你的 HTML ID: full-calendar-month
     const headerTitle = document.getElementById('full-calendar-month');
     if (headerTitle) {
         headerTitle.innerText = `${year}/${month}`;
