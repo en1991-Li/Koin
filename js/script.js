@@ -103,6 +103,23 @@ function renderAccountOverview() {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
+function renderAccountList() {
+    const listContainer = document.getElementById('account-list');
+    if (!listContainer) return;
+
+    // 關鍵：先清空畫面，再重新畫出新的帳戶列表
+    listContainer.innerHTML = ''; 
+
+    const accounts = JSON.parse(localStorage.getItem('koin_accounts') || '[]');
+    
+    accounts.forEach((acc, index) => {
+        const item = document.createElement('div');
+        item.className = 'account-item';
+        // ... 設定內容 ...
+        listContainer.appendChild(item);
+    });
+}
+
 /**
  * 開啟帳戶明細
  */
