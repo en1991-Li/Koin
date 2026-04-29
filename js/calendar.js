@@ -3,7 +3,7 @@
  */
 
 // 1. 設定初始狀態
-let selectedDate = new Date(2026, 4, 10); // 預設為今天 2026/04/10
+let selectedDate = new Date();
 const calendarData = {
     startYear: 2025,
     endYear: 2027
