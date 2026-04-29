@@ -206,13 +206,12 @@ function handleFabClick(element) {
     
     const currentPage = activePage.id;
     
-    // 如果不在日曆頁，就跳轉到日曆頁
+    // 如果不在日曆頁，就跳轉到日曆頁並更新當前日期
     if (currentPage !== 'page-calendar') {
         showPage('page-calendar', element);
-        // 觸發顯示當天日期的邏輯
-        highlightToday(); 
+        updateCalendarHeaderToToday(); // 呼叫更新標題的函式
     } else {
-        // 如果已經在日曆頁，點擊則進入新增紀錄頁
+        // 如果已經在日曆頁，則進入新增紀錄頁
         showPage('page-add-record', element);
     }
 }
