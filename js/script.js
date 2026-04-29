@@ -257,12 +257,28 @@ function handleMenuAction(action) {
     closeModal('more-options-modal');
 }
 
-// 刪除帳戶範例功能
 function deleteAccountAction() {
+    // 假設你用 currentAccountIndex 記錄目前正在看的帳戶
     if (confirm("確定要刪除此帳戶嗎？所有交易紀錄將被移除。")) {
-        // 執行刪除邏輯...
-        closeModal('more-options-modal');
-        showPage('page-overview');
+        let accounts = JSON.parse(localStorage.getItem('koin_accounts') || '[]');
+        
+        // 1. 從陣列中移除該帳戶 (假設你有全域變數記錄當前索引)
+        if (typeof currentAccountIndex !== 'undefined') {
+            accounts.splice(currentAccountIndex, 1);
+            
+            // 2. 存回 localStorage
+            localStorage.setItem('koin_accounts', JSON.stringify(accounts));
+            
+            // 3. 關閉彈窗
+            closeModal('more-options-modal');
+            
+            // 4. 重整總覽畫面
+            renderAccountList(); 
+            updateTotalBalance();
+            
+            // 5. 回到總覽頁
+            showPage('page-overview');
+        }
     }
 }
 
