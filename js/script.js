@@ -52,12 +52,15 @@ function showPage(pageId, element) {
 /**
  * 渲染帳戶總覽列表與總額計算
  */
+// 1. 確保全域變數存在
+let currentActiveAccountIndex = null;
+
 function renderAccountOverview() {
     const listContainer = document.getElementById('account-list');
     if (!listContainer) return;
 
     const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
-    listContainer.innerHTML = '';
+    listContainer.innerHTML = ''; // 確實清空舊資料
 
     let totalBalance = 0;
     let totalAssets = 0;
@@ -95,7 +98,7 @@ function renderAccountOverview() {
         listContainer.insertAdjacentHTML('beforeend', accountHTML);
     });
 
-    // 更新頂部數字
+    // 更新介面數字
     if (document.getElementById('total-balance')) document.getElementById('total-balance').innerText = totalBalance.toLocaleString();
     if (document.getElementById('total-assets')) document.getElementById('total-assets').innerText = totalAssets.toLocaleString();
     if (document.getElementById('total-debts')) document.getElementById('total-debts').innerText = totalDebts.toLocaleString();
