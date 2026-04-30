@@ -235,6 +235,15 @@ function saveAccount() {
     showPage('page-overview');
 }
 
+function selectGroup(name) {
+    const display = document.getElementById('selected-group-text');
+    if (display) {
+        display.innerHTML = `${name} <i data-lucide="chevron-right" class="s-icon"></i>`;
+        // 同步更新隱藏欄位或狀態，確保 saveAccount 時能抓到正確的 group 名稱
+    }
+    closeModal('group-picker-modal');
+}
+
 // 帳戶細節頁分頁切換監聽
 document.addEventListener('click', function(e) {
     if (e.target.classList.contains('detail-tab')) {
