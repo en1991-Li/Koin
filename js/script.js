@@ -51,26 +51,37 @@ function showPage(pageId, element) {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-/**
- * 渲染帳戶總覽列表與總額計算
- */
-// 1. 確保全域變數存在
+
+// 確保全域變數存在
 let currentActiveAccountIndex = null;
 
+/**
+ * 渲染帳戶總覽列表 (依分類排序)
+ */
 function renderAccountOverview() {
     const listContainer = document.getElementById('account-list');
     if (!listContainer) return;
 
     const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
-    listContainer.innerHTML = ''; // 確實清空舊資料
+    listContainer.innerHTML = ''; 
 
     let totalBalance = 0;
     let totalAssets = 0;
     let totalDebts = 0;
 
+    // 1. 初始化分組容器
+    const groups = {
+        '現金': { accounts: [], subtotal: 0 },
+        '銀行': { accounts: [], subtotal: 0 },
+        '信用卡': { accounts: [], subtotal: 0 },
+        '其他': { accounts: [], subtotal: 0 }
+    };
+
+    // 2. 將帳戶分配到對應組別並計算總額
     savedAccounts.forEach((acc, index) => {
         const amount = parseFloat(acc.amount) || 0;
         
+        // 總額計算
         if (acc.isCredit) {
             totalDebts += Math.abs(amount);
             totalBalance -= Math.abs(amount);
@@ -79,28 +90,62 @@ function renderAccountOverview() {
             totalBalance += amount;
         }
 
-        const accountHTML = `
-            <div class="form-group" style="margin-bottom: 12px; cursor: pointer;" onclick="openAccountDetail(${index})">
-                <div class="form-row">
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <div style="background:#3d3d4d; padding:8px; border-radius:10px; display:flex;">
-                            <i data-lucide="${acc.isCredit ? 'credit-card' : 'wallet'}" style="width:20px; height:20px;"></i>
-                        </div>
-                        <div style="display:flex; flex-direction:column;">
-                            <span style="font-size:15px; font-weight:500;">${acc.name}</span>
-                            <span style="font-size:11px; color:#8a8a8e;">${acc.group}</span>
-                        </div>
-                    </div>
-                    <span class="${acc.isCredit ? 'text-red' : 'text-green'}" style="font-weight:600;">
-                        ${acc.isCredit ? '-' : ''}${Math.abs(amount).toLocaleString()}
-                    </span>
-                </div>
-            </div>
-        `;
-        listContainer.insertAdjacentHTML('beforeend', accountHTML);
+        // 分類歸納 (若 group 不在預設標籤內，歸類到「其他」)
+        let category = '其他';
+        if (acc.group.includes('現金')) category = '現金';
+        else if (acc.group.includes('銀行')) category = '銀行';
+        else if (acc.group.includes('信用卡')) category = '信用卡';
+        else category = acc.group; // 或是直接使用 acc.group 作為動態分類
+
+        if (!groups[category]) {
+            groups[category] = { accounts: [], subtotal: 0 };
+        }
+
+        groups[category].accounts.push({ ...acc, originalIndex: index });
+        // 小計累加 (資產加、負債減)
+        groups[category].subtotal += acc.isCredit ? -Math.abs(amount) : amount;
     });
 
-    // 更新介面數字
+    // 3. 遍歷分組並渲染 HTML
+    for (const [groupName, data] of Object.entries(groups)) {
+        if (data.accounts.length === 0) continue; // 沒帳戶就不顯示該分類
+
+        // 渲染分類標題列
+        const groupHeaderHTML = `
+            <div class="account-group-header" style="display:flex; justify-content:space-between; padding:10px 4px; color:#8a8a8e; font-size:13px; font-weight:500;">
+                <span>－ ${groupName} (${data.accounts.length})</span>
+                <span class="${data.subtotal < 0 ? 'text-red' : ''}">
+                    ${data.subtotal < 0 ? '-' : '+'}${Math.abs(data.subtotal).toLocaleString()}
+                </span>
+            </div>
+        `;
+        listContainer.insertAdjacentHTML('beforeend', groupHeaderHTML);
+
+        // 渲染該組內的帳戶
+        data.accounts.forEach(acc => {
+            const amount = parseFloat(acc.amount) || 0;
+            const accountHTML = `
+                <div class="form-group" style="margin-bottom: 8px; cursor: pointer;" onclick="openAccountDetail(${acc.originalIndex})">
+                    <div class="form-row">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <div style="background:#3d3d4d; padding:8px; border-radius:10px; display:flex;">
+                                <i data-lucide="${acc.isCredit ? 'credit-card' : 'wallet'}" style="width:20px; height:20px;"></i>
+                            </div>
+                            <div style="display:flex; flex-direction:column;">
+                                <span style="font-size:15px; font-weight:500;">${acc.name}</span>
+                            </div>
+                        </div>
+                        <span class="${acc.isCredit ? 'text-red' : 'text-green'}" style="font-weight:600;">
+                            ${acc.isCredit ? '-' : ''}${Math.abs(amount).toLocaleString()}
+                        </span>
+                    </div>
+                </div>
+            `;
+            listContainer.insertAdjacentHTML('beforeend', accountHTML);
+        });
+    }
+
+    // 4. 更新介面頂部總額
     if (document.getElementById('total-balance')) document.getElementById('total-balance').innerText = totalBalance.toLocaleString();
     if (document.getElementById('total-assets')) document.getElementById('total-assets').innerText = totalAssets.toLocaleString();
     if (document.getElementById('total-debts')) document.getElementById('total-debts').innerText = totalDebts.toLocaleString();
