@@ -55,8 +55,11 @@ function showPage(pageId, element) {
 // 確保全域變數存在
 let currentActiveAccountIndex = null;
 
+// 在檔案最上方宣告隱藏狀態變數
+let isAmountHidden = false; 
+
 /**
- * 渲染帳戶總覽列表 (依分類排序)
+ * 渲染帳戶總覽列表與總額計算 (升級優化版)
  */
 function renderAccountOverview() {
     const listContainer = document.getElementById('account-list');
@@ -69,19 +72,11 @@ function renderAccountOverview() {
     let totalAssets = 0;
     let totalDebts = 0;
 
-    // 1. 初始化分組容器
-    const groups = {
-        '現金': { accounts: [], subtotal: 0 },
-        '銀行': { accounts: [], subtotal: 0 },
-        '信用卡': { accounts: [], subtotal: 0 },
-        '其他': { accounts: [], subtotal: 0 }
-    };
+    // 分組容器邏輯 (保持你之前的分類)
+    const groups = { '現金': { accounts: [], subtotal: 0 }, '銀行': { accounts: [], subtotal: 0 }, '信用卡': { accounts: [], subtotal: 0 }, '其他': { accounts: [], subtotal: 0 } };
 
-    // 2. 將帳戶分配到對應組別並計算總額
     savedAccounts.forEach((acc, index) => {
         const amount = parseFloat(acc.amount) || 0;
-        
-        // 總額計算
         if (acc.isCredit) {
             totalDebts += Math.abs(amount);
             totalBalance -= Math.abs(amount);
@@ -90,40 +85,34 @@ function renderAccountOverview() {
             totalBalance += amount;
         }
 
-        // 分類歸納 (若 group 不在預設標籤內，歸類到「其他」)
         let category = '其他';
         if (acc.group.includes('現金')) category = '現金';
         else if (acc.group.includes('銀行')) category = '銀行';
         else if (acc.group.includes('信用卡')) category = '信用卡';
-        else category = acc.group; // 或是直接使用 acc.group 作為動態分類
 
-        if (!groups[category]) {
-            groups[category] = { accounts: [], subtotal: 0 };
-        }
-
+        if (!groups[category]) groups[category] = { accounts: [], subtotal: 0 };
         groups[category].accounts.push({ ...acc, originalIndex: index });
-        // 小計累加 (資產加、負債減)
         groups[category].subtotal += acc.isCredit ? -Math.abs(amount) : amount;
     });
 
-    // 3. 遍歷分組並渲染 HTML
+    // 遍歷並渲染 HTML
     for (const [groupName, data] of Object.entries(groups)) {
-        if (data.accounts.length === 0) continue; // 沒帳戶就不顯示該分類
+        if (data.accounts.length === 0) continue;
 
-        // 渲染分類標題列
+        // 分類小計金額也加上 data-value 與 amount-val
         const groupHeaderHTML = `
             <div class="account-group-header" style="display:flex; justify-content:space-between; padding:10px 4px; color:#8a8a8e; font-size:13px; font-weight:500;">
                 <span>－ ${groupName} (${data.accounts.length})</span>
-                <span class="${data.subtotal < 0 ? 'text-red' : ''}">
+                <span class="amount-val ${data.subtotal < 0 ? 'text-red' : ''}" data-value="${data.subtotal}">
                     ${data.subtotal < 0 ? '-' : '+'}${Math.abs(data.subtotal).toLocaleString()}
                 </span>
             </div>
         `;
         listContainer.insertAdjacentHTML('beforeend', groupHeaderHTML);
 
-        // 渲染該組內的帳戶
         data.accounts.forEach(acc => {
             const amount = parseFloat(acc.amount) || 0;
+            // 列表內帳戶金額也加上 data-value 與 amount-val
             const accountHTML = `
                 <div class="form-group" style="margin-bottom: 8px; cursor: pointer;" onclick="openAccountDetail(${acc.originalIndex})">
                     <div class="form-row">
@@ -135,7 +124,7 @@ function renderAccountOverview() {
                                 <span style="font-size:15px; font-weight:500;">${acc.name}</span>
                             </div>
                         </div>
-                        <span class="${acc.isCredit ? 'text-red' : 'text-green'}" style="font-weight:600;">
+                        <span class="amount-val ${acc.isCredit ? 'text-red' : 'text-green'}" style="font-weight:600;" data-value="${acc.isCredit ? -Math.abs(amount) : amount}">
                             ${acc.isCredit ? '-' : ''}${Math.abs(amount).toLocaleString()}
                         </span>
                     </div>
@@ -145,12 +134,57 @@ function renderAccountOverview() {
         });
     }
 
-    // 4. 更新介面頂部總額
-    if (document.getElementById('total-balance')) document.getElementById('total-balance').innerText = totalBalance.toLocaleString();
-    if (document.getElementById('total-assets')) document.getElementById('total-assets').innerText = totalAssets.toLocaleString();
-    if (document.getElementById('total-debts')) document.getElementById('total-debts').innerText = totalDebts.toLocaleString();
+    // 將真實金額寫入 Hero 區塊的 data-value
+    if (document.getElementById('total-balance')) document.getElementById('total-balance').setAttribute('data-value', totalBalance);
+    if (document.getElementById('total-assets')) document.getElementById('total-assets').setAttribute('data-value', totalAssets);
+    if (document.getElementById('total-debts')) document.getElementById('total-debts').setAttribute('data-value', totalDebts);
+
+    // 關鍵：渲染完資料後，根據當前的隱藏狀態刷新一次金額顯示
+    updateAmountDisplay();
 
     if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+/**
+ * 切換眼睛隱藏狀態
+ */
+function toggleAmountVisibility() {
+    isAmountHidden = !isAmountHidden;
+    
+    // 更新眼睛圖示
+    const eyeIcon = document.getElementById('eye-toggle');
+    if (eyeIcon) {
+        eyeIcon.setAttribute('data-lucide', isAmountHidden ? 'eye-off' : 'eye');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+    
+    // 執行切換顯示
+    updateAmountDisplay();
+}
+
+/**
+ * 統一更新畫面上所有帶有 amount-val 類別的金額顯示
+ */
+function updateAmountDisplay() {
+    const amountElements = document.querySelectorAll('.amount-val');
+    
+    amountElements.forEach(el => {
+        const rawValue = parseFloat(el.getAttribute('data-value')) || 0;
+        
+        if (isAmountHidden) {
+            // 如果是隱藏狀態，全部變成點點
+            el.innerText = '••••••';
+        } else {
+            // 如果是顯示狀態，還原為格式化後的數字
+            if (el.id === 'total-balance' || el.id === 'total-assets' || el.id === 'total-debts') {
+                el.innerText = Math.abs(rawValue).toLocaleString();
+            } else {
+                // 列表小計與帳戶金額保留正負號與顏色
+                const prefix = rawValue < 0 ? '-' : (el.parentNode.classList.contains('account-group-header') ? '+' : '');
+                el.innerText = `${prefix}${Math.abs(rawValue).toLocaleString()}`;
+            }
+        }
+    });
 }
 
 /**
