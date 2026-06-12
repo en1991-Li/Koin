@@ -28,30 +28,28 @@
 <body>
     <div class="phone-container">
         <section id="page-overview" class="page active">
-            <header class="nav-header">
-                <i data-lucide="eye" class="s-icon"></i>
-                <h1 class="page-title">帳戶總覽</h1>
-                <div style="display: flex; gap: 15px;">
-                    <i data-lucide="maximize" class="s-icon"></i>
-                    <i data-lucide="plus" class="s-icon" onclick="showPage('page-add-account')"></i>
-                </div>
-            </header>
+    <header class="nav-header">
+        <i data-lucide="eye" class="s-icon" id="eye-toggle" onclick="toggleAmountVisibility()" style="cursor: pointer;"></i>
+        <h1 class="page-title">帳戶總覽</h1>
+        <div style="display: flex; gap: 15px;">
+            <i data-lucide="maximize" class="s-icon"></i>
+            <i data-lucide="plus" class="s-icon" onclick="showPage('page-add-account')"></i>
+        </div>
+    </header>
 
             <div class="content-scroll no-scrollbar">
-               <div class="balance-hero">
-                <div class="label">總額 TWD</div>
-                <div class="amount" id="total-balance">0</div>
-                <div class="sub-stats">
-                <span>總資產 <span class="text-green" id="total-assets">0</span></span>
-                <span>總負債 <span class="text-red" id="total-debts">0</span></span>
+        <div class="balance-hero">
+            <div class="label">總額 TWD</div>
+            <div class="amount amount-val" id="total-balance" data-value="0">0</div>
+            <div class="sub-stats">
+                <span>總資產 <span class="text-green amount-val" id="total-assets" data-value="0">0</span></span>
+                <span>總負債 <span class="text-red amount-val" id="total-debts" data-value="0">0</span></span>
             </div>
         </div>
 
-             <div id="account-list" style="padding: 0 15px;">
-                </div> 
-          </div>
-
-        </section>
+        <div id="account-list" style="padding: 0 15px;"></div> 
+    </div>
+</section>
 
         <section id="page-add-account" class="page">
             <header class="nav-header">
