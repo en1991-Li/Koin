@@ -184,42 +184,42 @@
                 <i data-lucide="piggy-bank" style="width: 40px; height: 40px; color: #fff;"></i>
             </div>
         </div>
-
-        <div class="form-group">
-            <div class="form-row">
-                <label>名稱</label>
-                <input type="text" id="proj-name" placeholder="尚未設定" class="text-right">
-            </div>
-            <div class="form-row">
-                <label>主幣種</label>
-                <span class="clickable-val">TWD</span>
-            </div>
-            <div class="form-row">
-                <label>週期類型</label>
-                <span class="clickable-val">重複循環</span>
-            </div>
-            <div class="form-row">
-                <label>結算週期</label>
-                <span class="clickable-val">每月</span>
-            </div>
-            <div class="form-row">
-                <label>起始日期</label>
-                <span class="clickable-val">第 1 天</span>
-            </div>
-            <div class="form-row">
-                <label>自動沿用上期預算</label>
-                <label class="switch">
-                    <input type="checkbox" checked>
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <div class="form-row">
-                <label>顯示統計在首頁</label>
-                <label class="switch">
-                    <input type="checkbox" checked>
-                    <span class="slider"></span>
-                </label>
-            </div>
+<div class="form-group">
+    <div class="form-row">
+        <label>名稱</label>
+        <input type="text" id="proj-name" placeholder="尚未設定" class="text-right">
+    </div>
+    <div class="form-row" onclick="openModal('proj-currency-modal')">
+        <label>主幣種</label>
+        <span id="selected-proj-currency" class="clickable-val">TWD <i data-lucide="chevron-right" class="s-icon"></i></span>
+    </div>
+    <div class="form-row" onclick="openModal('proj-type-modal')">
+        <label>週期類型</label>
+        <span id="selected-proj-type" class="clickable-val">重複循環 <i data-lucide="chevron-right" class="s-icon"></i></span>
+    </div>
+    <div class="form-row" onclick="openModal('proj-period-modal')">
+        <label>結算週期</label>
+        <span id="selected-proj-period" class="clickable-val">每月 <i data-lucide="chevron-right" class="s-icon"></i></span>
+    </div>
+    <div class="form-row" onclick="openProjDatePicker()">
+        <label>起始日期</label>
+        <span id="selected-proj-date" class="clickable-val">第 1 天 <i data-lucide="chevron-right" class="s-icon"></i></span>
+    </div>
+    <div class="form-row">
+        <label>自動沿用上期預算</label>
+        <label class="switch">
+            <input type="checkbox" id="proj-auto-budget" checked>
+            <span class="slider"></span>
+        </label>
+    </div>
+    <div class="form-row">
+        <label>顯示統計在首頁</label>
+        <label class="switch">
+            <input type="checkbox" id="proj-show-home" checked>
+            <span class="slider"></span>
+        </label>
+    </div>
+</div>
             <div class="form-row">
                 <label>統計專案</label>
                 <label class="switch">
@@ -236,6 +236,51 @@
         </div>
     </div>
 </section>
+
+    <div id="proj-currency-modal" class="modal-overlay" style="display: none;" onclick="closeModal('proj-currency-modal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">選擇幣種</div>
+        <div class="modal-options">
+            <div class="option-item" onclick="selectProjCurrency('TWD')">TWD 新台幣</div>
+            <div class="option-item" onclick="selectProjCurrency('USD')">USD 美元</div>
+            <div class="option-item" onclick="selectProjCurrency('JPY')">JPY 日圓</div>
+        </div>
+        <div class="modal-footer"><button onclick="closeModal('proj-currency-modal')">取消</button></div>
+    </div>
+</div>
+
+<div id="proj-type-modal" class="modal-overlay" style="display: none;" onclick="closeModal('proj-type-modal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">週期類型</div>
+        <div class="modal-options">
+            <div class="option-item" onclick="selectProjType('單一區間')">單一區間</div>
+            <div class="option-item" onclick="selectProjType('重複循環')">重複循環</div>
+        </div>
+        <div class="modal-footer"><button onclick="closeModal('proj-type-modal')">取消</button></div>
+    </div>
+</div>
+
+<div id="proj-period-modal" class="modal-overlay" style="display: none;" onclick="closeModal('proj-period-modal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">結算週期</div>
+        <div class="modal-options">
+            <div class="option-item" onclick="selectProjPeriod('每 1 日')">每 1 日</div>
+            <div class="option-item" onclick="selectProjPeriod('每 1 週')">每 1 週</div>
+            <div class="option-item" onclick="selectProjPeriod('每月')">每月</div>
+            <div class="option-item" onclick="selectProjPeriod('每年')">每年</div>
+        </div>
+        <div class="modal-footer"><button onclick="closeModal('proj-period-modal')">取消</button></div>
+    </div>
+</div>
+
+<div id="proj-date-modal" class="modal-overlay" style="display: none;" onclick="closeModal('proj-date-modal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">起始日期</div>
+        <div class="modal-options" style="max-height: 200px; overflow-y: auto;" id="proj-date-options">
+            </div>
+        <div class="modal-footer"><button onclick="closeModal('proj-date-modal')">取消</button></div>
+    </div>
+</div>
 
         <section id="page-calendar" class="page">
             <header class="nav-header">
