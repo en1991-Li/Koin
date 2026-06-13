@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. 初始化圖示
     if (typeof lucide !== 'undefined') lucide.createIcons();
     
-    // 2. 更新日曆標題至當前月份 (新增這行)
+    // 2. 更新日曆標題至當前月份
     updateCalendarHeaderToToday(); 
     
     // 3. 初始頁面渲染
@@ -59,7 +59,7 @@ let currentActiveAccountIndex = null;
 let isAmountHidden = false; 
 
 /**
- * 渲染帳戶總覽列表與總額計算 (升級優化版)
+ * 渲染帳戶總覽列表與總額計算
  */
 function renderAccountOverview() {
     const listContainer = document.getElementById('account-list');
@@ -72,7 +72,7 @@ function renderAccountOverview() {
     let totalAssets = 0;
     let totalDebts = 0;
 
-    // 分組容器邏輯 (保持你之前的分類)
+    // 分組容器邏輯
     const groups = { '現金': { accounts: [], subtotal: 0 }, '銀行': { accounts: [], subtotal: 0 }, '信用卡': { accounts: [], subtotal: 0 }, '其他': { accounts: [], subtotal: 0 } };
 
     savedAccounts.forEach((acc, index) => {
@@ -139,7 +139,7 @@ function renderAccountOverview() {
     if (document.getElementById('total-assets')) document.getElementById('total-assets').setAttribute('data-value', totalAssets);
     if (document.getElementById('total-debts')) document.getElementById('total-debts').setAttribute('data-value', totalDebts);
 
-    // 關鍵：渲染完資料後，根據當前的隱藏狀態刷新一次金額顯示
+    //渲染完資料後，根據當前的隱藏狀態刷新一次金額顯示
     updateAmountDisplay();
 
     if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -331,10 +331,10 @@ function highlightToday() {
         titleEl.innerText = `${year}/${month.toString().padStart(2, '0')}`;
     }
 
-    // 2. 如果你有動態生成日曆格子的話，可以在這裡加入選取當天格子的邏輯
+    // 2. 如果有動態生成日曆格子的話，可以在這裡加入選取當天格子的邏輯
     console.log(`今天日期是：${year}/${month}/${date}`);
     
-    // 這裡可以呼叫你原本渲染日曆的函式，例如：
+    // 這裡可以呼叫原本渲染日曆的函式，例如：
     // renderCalendar(year, month); 
 }
 
@@ -352,28 +352,101 @@ function updateCalendarHeaderToToday() {
     }
 }
 
-// --- 專案儲存邏輯 ---
+// === 專案欄位動態選擇器功能 ===
+
+function selectProjCurrency(currency) {
+    const el = document.getElementById('selected-proj-currency');
+    if (el) el.innerHTML = `${currency} <i data-lucide="chevron-right" class="s-icon"></i>`;
+    closeModal('proj-currency-modal');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function selectProjType(type) {
+    const el = document.getElementById('selected-proj-type');
+    if (el) el.innerHTML = `${type} <i data-lucide="chevron-right" class="s-icon"></i>`;
+    closeModal('proj-type-modal');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function selectProjPeriod(period) {
+    const el = document.getElementById('selected-proj-period');
+    if (el) el.innerHTML = `${period} <i data-lucide="chevron-right" class="s-icon"></i>`;
+    closeModal('proj-period-modal');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+// 動態開啟並生成 1~31 日的起始日期選擇器
+function openProjDatePicker() {
+    const container = document.getElementById('proj-date-options');
+    if (container) {
+        container.innerHTML = '';
+        // 生成第 1 天到第 30 天，以及月底
+        for (let i = 1; i <= 30; i++) {
+            container.insertAdjacentHTML('beforeend', `
+                <div class="option-item" onclick="selectProjDate('第 ${i} 天')">第 ${i} 天</div>
+            `);
+        }
+        container.insertAdjacentHTML('beforeend', `<div class="option-item" onclick="selectProjDate('月底')">月底</div>`);
+    }
+    openModal('proj-date-modal');
+}
+
+function selectProjDate(dateText) {
+    const el = document.getElementById('selected-proj-date');
+    if (el) el.innerHTML = `${dateText} <i data-lucide="chevron-right" class="s-icon"></i>`;
+    closeModal('proj-date-modal');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+// === 升級版：完整專案資料儲存結構 ===
 function saveProject() {
-    const name = document.getElementById('proj-name').value;
-    const note = document.getElementById('proj-note').value;
+    const name = document.getElementById('proj-name').value.trim();
+    const note = document.getElementById('proj-note').value.trim();
+    
     if (!name) return alert("請輸入專案名稱");
 
+    // 擷取動態選擇器的純文字
+    const currency = document.getElementById('selected-proj-currency').textContent.trim();
+    const type = document.getElementById('selected-proj-type').textContent.trim();
+    const period = document.getElementById('selected-proj-period').textContent.trim();
+    const startDate = document.getElementById('selected-proj-date').textContent.trim();
+    
+    // 擷取開關狀態
+    const autoBudget = document.getElementById('proj-auto-budget').checked;
+    const showHome = document.getElementById('proj-show-home').checked;
+
     const newProject = {
+        id: Date.now(),
         name: name,
-        icon: "piggy-bank",
-        date: "2026/04/01 － 2026/04/30",
-        amount: 0,
-        note: note
+        currency: currency,
+        type: type,
+        period: period,
+        startDate: startDate,
+        autoBudget: autoBudget,
+        showHome: showHome,
+        note: note,
+        icon: "piggy-bank", // 預設專案圖示
+        amount: 0           // 初始預算或累計金額
     };
 
     const projects = JSON.parse(localStorage.getItem('koin_projects') || '[]');
     projects.push(newProject);
     localStorage.setItem('koin_projects', JSON.stringify(projects));
 
+    // 如果你有渲染專案總覽的函式，在此觸發重繪
     if (typeof renderProjectsPage === 'function') renderProjectsPage();
     
+    // 清空表單欄位與重設預設值
     document.getElementById('proj-name').value = '';
     document.getElementById('proj-note').value = '';
+    document.getElementById('selected-proj-currency').innerHTML = `TWD <i data-lucide="chevron-right" class="s-icon"></i>`;
+    document.getElementById('selected-proj-type').innerHTML = `重複循環 <i data-lucide="chevron-right" class="s-icon"></i>`;
+    document.getElementById('selected-proj-period').innerHTML = `每月 <i data-lucide="chevron-right" class="s-icon"></i>`;
+    document.getElementById('selected-proj-date').innerHTML = `第 1 天 <i data-lucide="chevron-right" class="s-icon"></i>`;
+    
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    
+    // 返回專案總覽頁
     showPage('page-projects');
 }
 
