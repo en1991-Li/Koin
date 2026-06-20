@@ -287,6 +287,158 @@ document.addEventListener('click', function(e) {
     }
 });
 
+// === 新增記錄全域暫存狀態 ===
+let currentRecord = {
+    type: '支出',
+    amount: 0,
+    name: '',
+    accountIndex: 0,
+    projectId: null,
+    date: new Date(),
+    note: ''
+};
+
+/**
+ * 1. 設定交易類別 (支出/收入/轉帳)
+ */
+function setRecordType(type, element) {
+    currentRecord.type = type;
+    document.querySelectorAll('#record-type-tabs span').forEach(span => span.classList.remove('active', 'text-blue'));
+    element.classList.add('active', 'text-blue');
+}
+
+/**
+ * 2. 常用商家快速代入
+ */
+function quickSelectBrand(brandName, defaultProject) {
+    document.getElementById('record-name').value = brandName;
+    const projBtn = document.getElementById('btn-select-project');
+    if (projBtn) projBtn.innerText = defaultProject;
+    // 這裡可以直接加上預設金額邏輯，如：if(brandName==='7-11') ...
+}
+
+/**
+ * 3. 動態撈取 localStorage 帳戶供紀錄選取
+ */
+function openRecordAccountPicker() {
+    const container = document.getElementById('record-account-options');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const accounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
+    if (accounts.length === 0) {
+        container.innerHTML = '<div class="option-item">請先建立帳戶</div>';
+    }
+
+    accounts.forEach((acc, idx) => {
+        container.insertAdjacentHTML('beforeend', `
+            <div class="option-item" onclick="selectRecordAccount(${idx}, '${acc.name}')">${acc.name} (${acc.group})</div>
+        `);
+    });
+    openModal('record-account-modal');
+}
+
+function selectRecordAccount(index, name) {
+    currentRecord.accountIndex = index;
+    document.getElementById('btn-select-account').innerText = name;
+    closeModal('record-account-modal');
+}
+
+/**
+ * 4. 動態撈取專案供紀錄選取
+ */
+function openRecordProjectPicker() {
+    const container = document.getElementById('record-project-options');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const projects = JSON.parse(localStorage.getItem('koin_projects')) || [];
+    container.insertAdjacentHTML('beforeend', `<div class="option-item" onclick="selectRecordProject(null, '無專案')">無專案</div>`);
+    
+    projects.forEach(proj => {
+        container.insertAdjacentHTML('beforeend', `
+            <div class="option-item" onclick="selectRecordProject('${proj.id}', '${proj.name}')">${proj.name}</div>
+        `);
+    });
+    openModal('record-project-modal');
+}
+
+function selectRecordProject(id, name) {
+    currentRecord.projectId = id;
+    document.getElementById('btn-select-project').innerText = name;
+    closeModal('record-project-modal');
+}
+
+/**
+ * 5. 日期與時間原生元件觸發 (或聯動已做的 Picker)
+ */
+function openRecordDatePicker() {
+    // 這裡可以直接套用你先前做好的原生或自訂日期 Modal
+    // 暫時以更新文字示意
+    const todayStr = new Date().toLocaleDateString();
+    document.getElementById('btn-select-date').innerText = todayStr;
+}
+
+function openRecordTimePicker() {
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    document.getElementById('btn-select-time').innerText = timeStr;
+}
+
+/**
+ * 6. 核心儲存邏輯與帳戶金額扣減扣帳演算法 (CRUD)
+ */
+function saveRecord() {
+    const amountDisplay = document.getElementById('record-amount-display').innerText;
+    const amount = parseFloat(amountDisplay) || 0;
+    const name = document.getElementById('record-name').value.trim();
+    const note = document.getElementById('record-note').value.trim();
+    const accountName = document.getElementById('btn-select-account').innerText;
+
+    if (amount <= 0) return alert('請輸入大於 0 的金額');
+    if (!name) return alert('請輸入項目名稱');
+
+    const accounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
+    // 尋找對應要扣款或入帳的帳戶
+    const account = accounts.find(acc => acc.name === accountName);
+    
+    if (account) {
+        // 依照交易類別，動態影響計算底層帳戶餘額
+        if (currentRecord.type === '支出') {
+            account.amount = parseFloat(account.amount) - amount;
+        } else if (currentRecord.type === '收入') {
+            account.amount = parseFloat(account.amount) + amount;
+        }
+        // 將更新後的餘額寫回帳戶
+        localStorage.setItem('koin_accounts', JSON.stringify(accounts));
+    }
+
+    // 儲存明細記錄
+    const newRecord = {
+        id: Date.now(),
+        type: currentRecord.type,
+        name: name,
+        amount: amount,
+        accountName: accountName,
+        projectName: document.getElementById('btn-select-project').innerText,
+        note: note,
+        date: document.getElementById('btn-select-date').innerText
+    };
+
+    const records = JSON.parse(localStorage.getItem('koin_records') || '[]');
+    records.push(newRecord);
+    localStorage.setItem('koin_records', JSON.stringify(records));
+
+    // 重新渲染帳戶總覽面板數字與列表
+    if (typeof renderAccountOverview === 'function') renderAccountOverview();
+
+    // 回歸初始化並跳轉日曆
+    document.getElementById('record-name').value = '';
+    document.getElementById('record-note').value = '';
+    document.getElementById('record-amount-display').innerText = '0';
+    showPage('page-calendar');
+}
+
 /**
  * 處理 FAB 點擊
  */
