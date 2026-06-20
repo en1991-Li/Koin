@@ -66,7 +66,6 @@ body, html {
 /* =========================================
    3. 導覽列與頁面切換
    ========================================= */
-/* 1. 導覽列標題置中修正 */
 .nav-header {
     display: flex;
     justify-content: space-between;
@@ -74,9 +73,9 @@ body, html {
     padding: 10px 20px;
     height: 60px;
     background: var(--bg);
+    position: relative; /* 確保 absolute 子元素定位精確 */
 }
 
-/* 確保標題在 header 中間，不受兩側圖示長度影響 */
 .nav-header .page-title {
     position: absolute;
     left: 50%;
@@ -87,39 +86,11 @@ body, html {
     white-space: nowrap;
 }
 
-/* 2. 帳戶總覽與金額區域置中 */
-.balance-hero {
-    display: flex;
-    flex-direction: column;
-    align-items: center;      /* 水平置中 */
-    justify-content: center;   /* 垂直置中 */
-    text-align: center;
-    padding: 30px 20px;       /* 增加一點間距感 */
-    width: 100%;
-}
-
-.balance-hero .amount {
-    font-size: 56px;
-    font-weight: 900;
-    letter-spacing: -2px;
-    margin: 5px 0;
-    display: block;           /* 確保是區塊元素以利對齊 */
-}
-
-/* 3. 新增帳戶頁面 (add-acc-hero) 同步置中 */
-.add-acc-hero {
-    display: flex;
-    flex-direction: column;
-    align-items: center;      /* 置中圖示與文字 */
-    text-align: center;
-    padding: 40px 20px;
-}
-
-
 .page {
     display: none;
     flex-direction: column;
     height: 100%;
+    width: 100%;
 }
 
 .page.active {
@@ -133,11 +104,16 @@ body, html {
 }
 
 /* =========================================
-   4. 帳戶總覽樣式
+   4. 帳戶總覽與明細頁面樣式
    ========================================= */
 .balance-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;      
+    justify-content: center;   
     text-align: center;
-    padding: 15px 0;
+    padding: 30px 20px;       
+    width: 100%;
 }
 
 .balance-hero .label {
@@ -151,6 +127,7 @@ body, html {
     font-weight: 900;
     letter-spacing: -2px;
     margin: 5px 0;
+    display: block;           
 }
 
 .sub-stats {
@@ -161,61 +138,16 @@ body, html {
     font-weight: 600;
 }
 
-.link-group {
-    margin-top: 15px;
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    font-size: 13px;
+.account-group-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    margin-top: 10px;
+    margin-bottom: 5px;
 }
 
-.link-group span {
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.chart-section {
-    width: 100%;
-    height: 160px;
-    padding: 0 20px;
-}
-
-.list-divider {
-    background: rgba(255,255,255,0.05);
-    padding: 12px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.date-text {
-    font-size: 14px;
-    color: var(--blue);
-    font-weight: 600;
-}
-
-.filter-btn {
-    font-size: 13px;
-    background: #2a2a3c;
-    padding: 4px 12px;
-    border-radius: 8px;
-}
-
-.group-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 18px 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-
-/* 帳戶細節頁 - 頂部餘額區塊 */
 .detail-hero {
     padding: 30px 20px;
     text-align: center;
-    background: #1c1c2e; /* 稍深的背景色區分層次 */
+    background: #1c1c2e; 
     border-bottom: 1px solid #2c2c3e;
 }
 
@@ -233,16 +165,12 @@ body, html {
     letter-spacing: -0.5px;
 }
 
-/* 分頁切換標籤 (交易明細 / 帳戶資訊) */
-.text-muted {
-    color: #8a8a8e;
-    font-size: 15px;
-}
-
+/* 核心頁籤組 (共用型元件) */
 .detail-tabs {
     display: flex;
     border-bottom: 1px solid #2c2c3e;
     margin-bottom: 10px;
+    width: 100%;
 }
 
 .detail-tab {
@@ -253,6 +181,7 @@ body, html {
     font-size: 15px;
     cursor: pointer;
     position: relative;
+    user-select: none;
 }
 
 .detail-tab.active {
@@ -267,22 +196,11 @@ body, html {
     left: 20%;
     right: 20%;
     height: 2px;
-    background: #5d5dff; /* 截圖中的藍色底線 */
-}
-
-/* 交易列表的微調 */
-#transaction-list {
-    min-height: 200px;
-}
-
-.account-group-header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    margin-top: 10px;
-    margin-bottom: 5px;
+    background: #5d5dff; 
 }
 
 /* =========================================
-   5. 表單元件與自定義選擇器 (重要)
+   5. 表單元件與自定義選擇器
    ========================================= */
 .form-group { padding: 0 20px; }
 
@@ -314,128 +232,51 @@ body, html {
     gap: 5px;
 }
 
-/* 自定義滑桿樣式 */
-#cycle-slider {
-    -webkit-appearance: none;
-    height: 6px;
-    background: #39394d;
-    border-radius: 5px;
-    outline: none;
+.amount-input-box {
+    transition: background 0.2s;
+}
+.amount-input-box:active {
+    background: #34344a !important; /* 點擊金額區塊的回饋色 */
 }
 
-#cycle-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 24px;
-    height: 24px;
-    background: #ffffff;
-    border-radius: 50%;
-    cursor: pointer;
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
-}
-
-/* 類型選擇按鈕 (繳款期限專用) */
-.option-btn {
-    width: 100%;
-    padding: 14px;
-    margin-bottom: 12px;
-    border-radius: 14px;
-    background: #39394d;
-    border: none;
-    color: #fff;
-    font-weight: 600;
-    font-size: 15px;
-    transition: background 0.2s, transform 0.1s;
-}
-
-.option-btn:active {
-    background: #4a4a63;
-    transform: scale(0.98);
-}
-
-.due-date-picker .option-item {
+.form-btn {
     background: #2c2c3e;
-    padding: 18px;
-    margin: 12px 0;
-    border-radius: 15px;
+    padding: 15px;
+    border-radius: 12px;
     text-align: center;
     font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+}
+.form-btn:active {
+    background: #3d3d54;
 }
 
-.picker-container {
-    max-height: 250px;
-    overflow-y: auto;
-    padding: 20px 0;
+/* iOS Switch 開關 */
+.switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute; cursor: pointer; inset: 0;
+    background-color: #39394d; transition: .3s; border-radius: 34px;
 }
-
-.picker-item {
-    padding: 15px;
-    text-align: center;
-    color: #888;
-    font-size: 16px;
+.slider:before {
+    position: absolute; content: ""; height: 22px; width: 22px;
+    left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%;
 }
-
-.picker-item.selected {
-    color: #5d5dff;
-    font-weight: 800;
-    font-size: 20px;
-}
-
-
-
-/* 讓 Modal 看起來更像選單 */
-.due-date-picker {
-    width: 85%;
-    max-width: 320px;
-}
-
-
-/* 驚嘆號圖示框 */
-.icon-circle {
-    width: 50px;
-    height: 50px;
-    background: #39394d;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 15px;
-    font-size: 24px;
-    font-weight: bold;
-}
+input:checked + .slider { background-color: #5d5dff; }
+input:checked + .slider:before { transform: translateX(20px); }
 
 /* =========================================
-   6. 帳戶與彈窗樣式
+   6. 彈窗與選擇面板樣式 (Modals)
    ========================================= */
-.add-acc-hero {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-}
-
-.icon-box {
-    width: 65px; height: 65px;
-    background: linear-gradient(135deg, #3a3a55, #252538);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    border: 1px solid var(--border);
-    margin-bottom: 15px;
-}
-
-.hero-balance { text-align: center; }
-.hero-balance .val { font-size: 52px; font-weight: 900; }
-
-.memo-field {
-    background: transparent; border: none; color: #FFFFFF;
-    font-size: 14px; text-align: center; width: 100%;
-    margin-top: 10px; outline: none;
-}
-
-/* 彈窗樣式 */
 .modal-overlay {
-    position: absolute; inset: 0;
+    position: absolute; 
+    inset: 0;
     background: rgba(0,0,0,0.7);
-    display: flex; align-items: center; justify-content: center;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
     z-index: 200;
     backdrop-filter: blur(4px);
 }
@@ -443,45 +284,57 @@ body, html {
 .modal-content {
     background: var(--modal-bg); 
     width: 85%; 
+    max-width: 330px;
     border-radius: 24px;
     overflow: hidden; 
     color: #FFFFFF;
     box-shadow: 0 10px 40px rgba(0,0,0,0.6);
     border: 1px solid rgba(255,255,255,0.1);
+    animation: zoomIn 0.2s ease-out;
 }
 
 .modal-header {
-    padding: 18px; text-align: center; font-weight: 700;
+    padding: 18px; 
+    text-align: center; 
+    font-weight: 700;
     border-bottom: 1px solid var(--border);
 }
 
-.option-item {
-    padding: 16px; text-align: center;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+.modal-options {
+    max-height: 260px;
+    overflow-y: auto;
 }
 
-.option-item:active { background: rgba(90, 200, 250, 0.2); }
+.option-item {
+    padding: 16px; 
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.option-item:active { background: rgba(93, 93, 255, 0.2); }
 
 .modal-footer { display: flex; border-top: 1px solid var(--border); }
 .modal-footer button {
     flex: 1; padding: 15px; background: transparent; border: none;
     color: #FFFFFF; font-size: 15px; cursor: pointer;
+    outline: none;
 }
+.modal-footer button:active { background: rgba(255,255,255,0.05); }
 .btn-confirm { color: var(--blue) !important; font-weight: 700; border-left: 1px solid var(--border) !important; }
 
-/* 彈窗內容容器 */
+/* 更多功能專用選單圓盤 */
 .more-menu-content {
-    background: #2c2c3e; /* 深色背景 */
+    background: #2c2c3e; 
     width: 280px;
     border-radius: 24px;
     padding: 20px;
     text-align: center;
     position: relative;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    animation: zoomIn 0.2s ease-out; /* 彈出動畫 */
+    animation: zoomIn 0.2s ease-out; 
 }
 
-/* 頂部白色圓形圖示 */
 .menu-header-icon {
     width: 50px;
     height: 50px;
@@ -490,7 +343,7 @@ body, html {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: -45px auto 15px; /* 向上偏移 */
+    margin: -45px auto 15px; 
     color: #1c1c2e;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
@@ -502,40 +355,21 @@ body, html {
     font-weight: 600;
 }
 
-/* 按鈕清單樣式 */
-.menu-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
+.menu-list { display: flex; flex-direction: column; gap: 10px; }
 .menu-btn {
-    background: #3d3d4d;
-    border: none;
-    border-radius: 12px;
-    padding: 14px;
-    color: #ffffff;
-    font-size: 15px;
-    cursor: pointer;
-    transition: background 0.2s;
+    background: #3d3d4d; border: none; border-radius: 12px;
+    padding: 14px; color: #ffffff; font-size: 15px; cursor: pointer;
 }
+.menu-btn:active { background: #4d4d5d; }
+.menu-btn.text-red { color: #fb7185; }
 
-.menu-btn:active {
-    background: #4d4d5d;
-}
-
-.menu-btn.text-red {
-    color: #fb7185;
-}
-
-/* 彈出動畫 */
 @keyframes zoomIn {
-    from { transform: scale(0.9); opacity: 0; }
+    from { transform: scale(0.92); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
 }
 
 /* =========================================
-   7. 底部導覽列與開關
+   7. 底部導覽列 (Tab Bar)
    ========================================= */
 .tab-bar {
     position: absolute;
@@ -553,7 +387,6 @@ body, html {
     z-index: 100;
 }
 
-/* 1. 一般按鈕：點擊變藍色 */
 .tab-item {
     color: var(--text-muted);
     width: 60px;
@@ -566,27 +399,13 @@ body, html {
     cursor: pointer;
 }
 
-/* 強制讓選中的項目文字與圖示變藍色 */
 .tab-bar .tab-item.active,
 .tab-bar .tab-item.active i,
 .tab-bar .tab-item.active svg {
     color: #5d5dff !important;
-    stroke: #5d5dff !important; /* 針對 Lucide SVG 的線條顏色 */
+    stroke: #5d5dff !important; 
 }
 
-/* 確保中間彩色按鈕在 active 時不會變藍色 (維持彩色) */
-.tab-bar .tab-fab.active .fab-inner {
-    background: linear-gradient(135deg, #A16CFD, #6E88F9, #45B6F5) !important;
-}
-
-/* 讓中間按鈕的圖示在任何時候都保持白色 */
-.tab-fab .fab-inner i,
-.tab-fab .fab-inner svg {
-    color: white !important;
-    stroke: white !important;
-}
-
-/* 2. 中間 FAB：初始彩色 */
 .tab-fab {
     position: relative;
     bottom: 25px;
@@ -606,93 +425,90 @@ body, html {
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.tab-fab .fab-inner i {
-    width: 36px;
-    height: 36px;
+.tab-fab .fab-inner i,
+.tab-fab .fab-inner svg {
     color: white !important;
     stroke: white !important;
 }
 
 /* =========================================
-   8. 日曆分頁樣式優化
+   8. 日曆組件樣式
    ========================================= */
-
-/* 1. 水平容器：移除可能影響間距的預設內距 */
 .calendar-horizontal-container {
     display: flex;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
-    background: var(--bg); /* 保持背景色一致 */
+    background: var(--bg); 
     width: 100%;
     padding: 0;
 }
 
-/* 2. 月份區塊：調整左右 Padding 讓寬度更集中 */
 .month-section {
     min-width: 100%;
     scroll-snap-align: start;
     flex-shrink: 0;
-    padding: 0 25px; /* 保持與標頭一致的對齊線 */
+    padding: 0 25px; 
     box-sizing: border-box;
 }
 
-/* 3. 日期網格：*/
 .calendar-grid-body {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    /* 這裡從 15px 縮小到 5px，會讓日期上下看起來更靠近，更像影片中的樣式 */
     row-gap: 5px; 
     column-gap: 0;
     position: relative;
     z-index: 1;
 }
 
-/* 確保不顯示月份浮水印 */
-.month-label {
-    display: none !important;
-}
+.month-label { display: none !important; }
 
-/* 4. 日期數字容器：微調大小確保圓圈比例精確 */
+.calendar-grid-day { text-align: center; padding: 5px 0; }
 .calendar-grid-day .date-val {
     width: 36px;
     height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px; /* 稍微縮小字體，視覺感更精緻 */
+    font-size: 16px; 
     border-radius: 50%;
-    margin: 0 auto; /* 確保在 Grid 單元格中置中 */
+    margin: 0 auto; 
 }
 
-/* 5. 選中圓圈：確保與截圖一致的白色邊框 */
 .calendar-grid-day.active .date-val {
-    border: 1.5px solid #ffffff; /* 稍微減細線條，更符合現代 UI */
+    border: 1.5px solid #ffffff; 
     background: transparent;
     font-weight: 700;
 }
 
-/* 6. 星期標頭：同步對齊月份區塊的內距 */
 .calendar-grid-header {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     text-align: center;
-    padding: 15px 30px 10px 30px; /* 增加左右到 30px */
+    padding: 15px 30px 10px 30px; 
     font-size: 11px;
     font-weight: 600;
     color: var(--text-muted);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* 週末與非本月顏色微調 */
 .calendar-grid-day.sunday .date-val { color: #f16565; }
 .calendar-grid-day.saturday .date-val { color: #a3e635; }
 .calendar-grid-day.not-current .date-val { color: #3a3a4c; }
 
+/* =========================================
+   9. 快捷商家群組與內嵌計算機鍵盤
+   ========================================= */
+.brand-grid {
+    margin-bottom: 10px;
+}
 .brand-item {
     text-align: center;
     font-size: 11px;
     color: #8a8a8e;
+    cursor: pointer;
 }
+.brand-item:active { opacity: 0.6; }
+
 .brand-icon {
     width: 50px;
     height: 50px;
@@ -704,88 +520,85 @@ body, html {
     justify-content: center;
     font-size: 24px;
 }
-.form-btn {
-    background: #2c2c3e;
-    padding: 15px;
-    border-radius: 12px;
-    text-align: center;
-    font-weight: 500;
-}
-.text-blue { color: #5d5dff; }
 
-
-
-/* iOS Switch 開關 */
-.switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
-.switch input { opacity: 0; width: 0; height: 0; }
-.slider {
-    position: absolute; cursor: pointer; inset: 0;
-    background-color: #39394d; transition: .3s; border-radius: 34px;
-}
-.slider:before {
-    position: absolute; content: ""; height: 22px; width: 22px;
-    left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%;
-}
-input:checked + .slider { background-color: var(--blue); }
-input:checked + .slider:before { transform: translateX(20px); }
-
-/* 工具類 */
-.sub-row { padding-left: 25px !important; background: rgba(255,255,255,0.02); }
-.text-green { color: var(--green) !important; }
-.text-red { color: var(--red) !important; }
-.text-muted { color: var(--text-muted) !important; }
-.text-right { text-align: right; }
-
-/* 計算機內嵌容器樣式 */
+/* 計算機專屬內嵌安全底盤 */
+.inline-calculator-container,
 .inline-calc-container {
-    position: fixed;
+    position: absolute; /* 修改為 absolute 鎖定在模擬手機框容器的底部 */
     bottom: 0;
     left: 0;
     width: 100%;
     background: #1c1c27;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    z-index: 999;
+    z-index: 150; /* 低於底部 Tab-bar 但高於內容滾動層 */
     padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: 0 -8px 25px rgba(0,0,0,0.4);
+    animation: slideUp 0.2s cubic-bezier(0.1, 0.8, 0.25, 1);
 }
+
 .calc-quick-bar {
     display: flex;
     overflow-x: auto;
-    padding: 8px 12px;
+    padding: 10px 14px;
     gap: 12px;
     background: #232332;
 }
+.calc-quick-bar::-webkit-scrollbar { display: none; }
 .calc-quick-bar span {
     background: #2c2c3e;
     color: white;
-    padding: 4px 14px;
+    padding: 6px 16px;
     border-radius: 20px;
     font-size: 13px;
+    font-weight: 600;
     cursor: pointer;
+    flex-shrink: 0;
 }
+.calc-quick-bar span:active { background: #34344a; }
+
 .calc-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 1px;
-    background: rgba(255,255,255,0.05);
+    background: rgba(255,255,255,0.04);
 }
+
 .calc-btn {
     background: #1c1c27;
     color: white;
     font-size: 22px;
     font-weight: 500;
     text-align: center;
-    padding: 16px 0;
+    padding: 18px 0;
     cursor: pointer;
     user-select: none;
-}
-.calc-btn:active { background: #2c2c3e; }
-.calc-btn.op { background: #232332; color: #5d5dff; }
-.calc-btn.op:active { background: #2c2c3e; }
-.calc-btn.confirm-btn {
-    background: #5d5dff;
-    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
 }
+.calc-btn:active { background: #262636; }
+.calc-btn.op { background: #232332; color: #5d5dff; font-weight: 700; }
+.calc-btn.op:active { background: #2c2c3e; }
+.calc-btn.confirm-btn {
+    background: #5d5dff;
+    color: white;
+}
 .calc-btn.confirm-btn:active { background: #4a4aff; }
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+/* =========================================
+   10. 通用工具樣式
+   ========================================= */
+.sub-row { padding-left: 25px !important; background: rgba(255,255,255,0.02); }
+.text-blue { color: #5d5dff !important; }
+.text-green { color: var(--green) !important; }
+.text-red { color: var(--red) !important; }
+.text-muted { color: var(--text-muted) !important; }
+.text-right { text-align: right; }
+#selected-proj-date, #selected-proj-period, #selected-proj-type, #selected-proj-currency {
+    color: #ffffff;
+}
