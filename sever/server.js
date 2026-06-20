@@ -48,7 +48,7 @@ app.post('/api/records', async (req, res) => {
     // 這些變數對應前端準備發送過來的 JSON 資料
     const { type, name, amount, accountName, projectName, date, time, note } = req.body;
 
-    // 基本防呆檢查：名稱與金額為必填
+    // 基本防呆檢查
     if (!name || amount === undefined) {
         return res.status(400).json({ success: false, message: '缺少必填欄位 (name, amount)' });
     }
