@@ -16,7 +16,9 @@
 - **專案統計**：針對特定生活開銷、投資理財、旅遊等專案進行獨立預算與支出統計。
   
 ## 🛠 **技術棧**
-- **前端技術**：HTML, CSS(包含深色模式優化)
+- **前端技術（Frontend）**：HTML, CSS(包含深色模式優化)
+- **後端技術 (Backend) **：使用 Node.js (Express) 建構 RESTful API。
+- **資料庫** (Database)：MySQL。
 - **交互邏輯**：JavaScript / ES6+
 - **圖示庫**：Lucide Icons
 - **版面佈局**：響應式設計 (Mobile-First)
