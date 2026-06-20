@@ -287,158 +287,208 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// === 新增記錄全域暫存狀態 ===
-let currentRecord = {
+// 全域狀態暫存
+let recordState = {
     type: '支出',
-    amount: 0,
-    name: '',
-    accountIndex: 0,
-    projectId: null,
-    date: new Date(),
-    note: ''
+    currentInput: '0',    // 計算機當前輸入緩衝
+    prevInput: '0',       // 運算暫存值
+    operator: null,       // 當前運算子 (+,-,*,/)
+    isCalculated: false,  // 是否剛執行完等號
+    account: '錢包',
+    project: '生活開銷',
+    date: '2026/06/20',
+    time: '13:57',
+    advType: 'single'     // single, cycle, install
 };
 
 /**
- * 1. 設定交易類別 (支出/收入/轉帳)
+ * 1. 計算機引擎 (Calculator Engine)
  */
-function setRecordType(type, element) {
-    currentRecord.type = type;
-    document.querySelectorAll('#record-type-tabs span').forEach(span => span.classList.remove('active', 'text-blue'));
-    element.classList.add('active', 'text-blue');
+function toggleCalculator(show) {
+    const calc = document.getElementById('inline-calculator');
+    if (calc) calc.style.display = show ? 'block' : 'none';
+}
+
+function pressCalc(val) {
+    const display = document.getElementById('record-amount-display');
+    const indicator = document.getElementById('calc-operator-indicator');
+    if (!display) return;
+
+    if (val === 'C') {
+        recordState.currentInput = '0';
+        recordState.prevInput = '0';
+        recordState.operator = null;
+        if (indicator) indicator.innerText = '';
+    } else if (val === 'backspace') {
+        if (recordState.currentInput.length > 1) {
+            recordState.currentInput = recordState.currentInput.slice(0, -1);
+        } else {
+            recordState.currentInput = '0';
+        }
+    } else if (['+', '-', '×', '÷'].includes(val)) {
+        recordState.prevInput = recordState.currentInput;
+        recordState.operator = val;
+        if (indicator) indicator.innerText = val;
+        recordState.currentInput = '0';
+    } else if (val === 'done') {
+        if (recordState.operator && recordState.prevInput !== '0') {
+            let num1 = parseFloat(recordState.prevInput);
+            let num2 = parseFloat(recordState.currentInput);
+            let res = 0;
+            if (recordState.operator === '+') res = num1 + num2;
+            if (recordState.operator === '-') res = num1 - num2;
+            if (recordState.operator === '×') res = num1 * num2;
+            if (recordState.operator === '÷') res = num2 !== 0 ? num1 / num2 : 0;
+            
+            recordState.currentInput = String(Math.max(0, Math.round(res)));
+            recordState.operator = null;
+            if (indicator) indicator.innerText = '';
+        }
+        toggleCalculator(false); // 關閉鍵盤
+    } else {
+        // 輸入數字與熱門數字快捷鍵
+        if (recordState.currentInput === '0' || recordState.isCalculated) {
+            recordState.currentInput = val;
+            recordState.isCalculated = false;
+        } else {
+            recordState.currentInput += val;
+        }
+    }
+    display.innerText = parseFloat(recordState.currentInput).toLocaleString();
 }
 
 /**
- * 2. 常用商家快速代入
- */
-function quickSelectBrand(brandName, defaultProject) {
-    document.getElementById('record-name').value = brandName;
-    const projBtn = document.getElementById('btn-select-project');
-    if (projBtn) projBtn.innerText = defaultProject;
-    // 這裡可以直接加上預設金額邏輯，如：if(brandName==='7-11') ...
-}
-
-/**
- * 3. 動態撈取 localStorage 帳戶供紀錄選取
+ * 2. 動態搜尋過濾帳戶 (Dynamic Search Filters)
  */
 function openRecordAccountPicker() {
+    filterRecordAccounts('');
+    openModal('record-account-modal');
+}
+
+function filterRecordAccounts(keyword) {
     const container = document.getElementById('record-account-options');
     if (!container) return;
     container.innerHTML = '';
 
     const accounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
-    if (accounts.length === 0) {
-        container.innerHTML = '<div class="option-item">請先建立帳戶</div>';
+    const filtered = accounts.filter(acc => acc.name.toLowerCase().includes(keyword.toLowerCase()));
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<div class="option-item" style="color:#8a8a8e; text-align:center;">找不到相符帳戶</div>';
+        return;
     }
 
-    accounts.forEach((acc, idx) => {
+    filtered.forEach(acc => {
         container.insertAdjacentHTML('beforeend', `
-            <div class="option-item" onclick="selectRecordAccount(${idx}, '${acc.name}')">${acc.name} (${acc.group})</div>
+            <div class="option-item" onclick="selectRecordAccount('${acc.name}')">
+                <span>${acc.name} <small style="color:#8a8a8e; margin-left:5px;">(${acc.group})</small></span>
+            </div>
         `);
     });
-    openModal('record-account-modal');
 }
 
-function selectRecordAccount(index, name) {
-    currentRecord.accountIndex = index;
+function selectRecordAccount(name) {
+    recordState.account = name;
     document.getElementById('btn-select-account').innerText = name;
     closeModal('record-account-modal');
 }
 
 /**
- * 4. 動態撈取專案供紀錄選取
+ * 3. 動態搜尋過濾專案
  */
 function openRecordProjectPicker() {
+    filterRecordProjects('');
+    openModal('record-project-modal');
+}
+
+function filterRecordProjects(keyword) {
     const container = document.getElementById('record-project-options');
     if (!container) return;
     container.innerHTML = '';
 
     const projects = JSON.parse(localStorage.getItem('koin_projects')) || [];
-    container.insertAdjacentHTML('beforeend', `<div class="option-item" onclick="selectRecordProject(null, '無專案')">無專案</div>`);
     
-    projects.forEach(proj => {
+    // 永遠保留「無專案」選項
+    if ('無專案'.includes(keyword)) {
+        container.insertAdjacentHTML('beforeend', `<div class="option-item" onclick="selectRecordProject('無專案')">無專案</div>`);
+    }
+
+    const filtered = projects.filter(proj => proj.name.toLowerCase().includes(keyword.toLowerCase()));
+    filtered.forEach(proj => {
         container.insertAdjacentHTML('beforeend', `
-            <div class="option-item" onclick="selectRecordProject('${proj.id}', '${proj.name}')">${proj.name}</div>
+            <div class="option-item" onclick="selectRecordProject('${proj.name}')">${proj.name}</div>
         `);
     });
-    openModal('record-project-modal');
 }
 
-function selectRecordProject(id, name) {
-    currentRecord.projectId = id;
+function selectRecordProject(name) {
+    recordState.project = name;
     document.getElementById('btn-select-project').innerText = name;
     closeModal('record-project-modal');
 }
 
 /**
- * 5. 日期與時間原生元件觸發 (或聯動已做的 Picker)
+ * 4. 進階多頁籤切換狀態機 (Advanced Options Tabs)
+ */
+function switchAdvancedTab(tabType) {
+    recordState.advType = tabType;
+    document.querySelectorAll('#record-advanced-modal .detail-tab').forEach(t => t.classList.remove('active'));
+    
+    document.getElementById(`adv-pane-single`).style.display = 'none';
+    document.getElementById(`adv-pane-cycle`).style.display = 'none';
+    document.getElementById(`adv-pane-install`).style.display = 'none';
+
+    if (tabType === 'single') {
+        document.getElementById('adv-tab-single').classList.add('active');
+        document.getElementById('adv-pane-single').style.style.display = 'block';
+    } else if (tabType === 'cycle') {
+        document.getElementById('adv-tab-cycle').classList.add('active');
+        document.getElementById('adv-pane-cycle').style.display = 'block';
+    } else if (tabType === 'install') {
+        document.getElementById('adv-tab-install').classList.add('active');
+        document.getElementById('adv-pane-install').style.display = 'block';
+    }
+}
+
+/**
+ * 5. 自訂日期與時間選取器 (Custom Date & Time Pickers)
  */
 function openRecordDatePicker() {
-    // 這裡可以直接套用你先前做好的原生或自訂日期 Modal
-    // 暫時以更新文字示意
-    const todayStr = new Date().toLocaleDateString();
-    document.getElementById('btn-select-date').innerText = todayStr;
+    // 這裡直接連動你之前實作完工的動態週期選取器
+    openModal('cycle-picker-modal'); 
 }
 
 function openRecordTimePicker() {
     const now = new Date();
-    const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-    document.getElementById('btn-select-time').innerText = timeStr;
+    document.getElementById('input-record-hour').value = now.getHours();
+    document.getElementById('input-record-minute').value = now.getMinutes();
+    openModal('record-time-modal');
 }
 
-/**
- * 6. 核心儲存邏輯與帳戶金額扣減扣帳演算法 (CRUD)
- */
-function saveRecord() {
-    const amountDisplay = document.getElementById('record-amount-display').innerText;
-    const amount = parseFloat(amountDisplay) || 0;
-    const name = document.getElementById('record-name').value.trim();
-    const note = document.getElementById('record-note').value.trim();
-    const accountName = document.getElementById('btn-select-account').innerText;
-
-    if (amount <= 0) return alert('請輸入大於 0 的金額');
-    if (!name) return alert('請輸入項目名稱');
-
-    const accounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
-    // 尋找對應要扣款或入帳的帳戶
-    const account = accounts.find(acc => acc.name === accountName);
+function confirmRecordTime() {
+    const hr = document.getElementById('input-record-hour').value;
+    const min = document.getElementById('input-record-minute').value;
+    const formattedTime = `${String(hr).padStart(2,'0')}:${String(min).padStart(2,'0')}`;
     
-    if (account) {
-        // 依照交易類別，動態影響計算底層帳戶餘額
-        if (currentRecord.type === '支出') {
-            account.amount = parseFloat(account.amount) - amount;
-        } else if (currentRecord.type === '收入') {
-            account.amount = parseFloat(account.amount) + amount;
-        }
-        // 將更新後的餘額寫回帳戶
-        localStorage.setItem('koin_accounts', JSON.stringify(accounts));
-    }
-
-    // 儲存明細記錄
-    const newRecord = {
-        id: Date.now(),
-        type: currentRecord.type,
-        name: name,
-        amount: amount,
-        accountName: accountName,
-        projectName: document.getElementById('btn-select-project').innerText,
-        note: note,
-        date: document.getElementById('btn-select-date').innerText
-    };
-
-    const records = JSON.parse(localStorage.getItem('koin_records') || '[]');
-    records.push(newRecord);
-    localStorage.setItem('koin_records', JSON.stringify(records));
-
-    // 重新渲染帳戶總覽面板數字與列表
-    if (typeof renderAccountOverview === 'function') renderAccountOverview();
-
-    // 回歸初始化並跳轉日曆
-    document.getElementById('record-name').value = '';
-    document.getElementById('record-note').value = '';
-    document.getElementById('record-amount-display').innerText = '0';
-    showPage('page-calendar');
+    recordState.time = formattedTime;
+    document.getElementById('btn-select-time').innerText = formattedTime;
+    closeModal('record-time-modal');
 }
 
+// 快速商家選取
+function quickSelectBrand(name, defaultProj) {
+    document.getElementById('record-name').value = name;
+    selectRecordProject(defaultProj);
+}
+
+// 分類頂部 Tab 切換
+function setRecordType(type, el) {
+    recordState.type = type;
+    document.querySelectorAll('#record-type-tabs span').forEach(s => s.classList.remove('active', 'text-blue'));
+    el.classList.add('active', 'text-blue');
+}
+
+  
 /**
  * 處理 FAB 點擊
  */
