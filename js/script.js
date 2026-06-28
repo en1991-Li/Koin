@@ -777,13 +777,13 @@ function confirmDueDate() {
 
 /**
  * 處理設定清單的點擊動作
- * @param {string} action 功能名稱
  */
 function handleSettingsAction(action) {
     console.log(`[系統] 觸發設定功能: ${action}`);
     
-    if (action === '對帳模式') {
-        alert('已開啟對帳輔助模式！');
+    if (action === 'Google 登入') {
+        // 提示：未來實作雲端同步時，這裡可以串接 Google Identity Services 或 Firebase Auth
+        alert('正在啟動 Google OAuth 安全登入驗證...');
     } else if (action === '匯出 CSV') {
         alert('歷史帳目資料已成功匯出至下載資料夾！');
     } else if (action === '重新計算餘額') {
@@ -799,6 +799,7 @@ function handleSettingsAction(action) {
         }
     }
 }
+
 
 /**
  * 偏好設定：連動控制全局金額隱私開關
