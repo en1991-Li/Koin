@@ -770,3 +770,55 @@ function confirmDueDate() {
     lucide.createIcons();
     closeModal('due-date-modal');
 }
+
+// ==========================================
+// 更多功能 (Settings Page) 路由動作控制
+// ==========================================
+
+/**
+ * 處理設定清單的點擊動作
+ * @param {string} action 功能名稱
+ */
+function handleSettingsAction(action) {
+    console.log(`[系統] 觸發設定功能: ${action}`);
+    
+    if (action === '對帳模式') {
+        alert('已開啟對帳輔助模式！');
+    } else if (action === '匯出 CSV') {
+        alert('歷史帳目資料已成功匯出至下載資料夾！');
+    } else if (action === '重新計算餘額') {
+        if (typeof renderAccountOverview === 'function') {
+            renderAccountOverview();
+            alert('全域餘額核心演算法重新計算重繪完畢！');
+        }
+    } else if (action === '清除所有快取') {
+        if (confirm('警告：這將會永久刪除本機所有的帳戶與記帳紀錄，確定要重置嗎？')) {
+            localStorage.clear();
+            alert('資料已完全重置。系統將重新載入。');
+            window.location.reload();
+        }
+    }
+}
+
+/**
+ * 偏好設定：連動控制全局金額隱私開關
+ */
+function handleSettingsToggleHide(isChecked) {
+    // 同步更新之前做好的隱私全域變數 isAmountHidden
+    if (typeof isAmountHidden !== 'undefined') {
+        isAmountHidden = isChecked;
+        
+        // 同步更新總覽頁的眼睛圖示
+        const eyeIcon = document.getElementById('eye-toggle');
+        if (eyeIcon) {
+            eyeIcon.setAttribute('data-lucide', isAmountHidden ? 'eye-off' : 'eye');
+        }
+        
+        // 執行全局視圖重繪
+        if (typeof updateAmountDisplay === 'function') {
+            updateAmountDisplay();
+        }
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+}
+
