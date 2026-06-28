@@ -782,7 +782,7 @@ function handleSettingsAction(action) {
     console.log(`[系統] 觸發設定功能: ${action}`);
     
     if (action === 'Google 登入') {
-        // 提示：未來實作雲端同步時，這裡可以串接 Google Identity Services 或 Firebase Auth
+        //未來實作雲端同步，可以串接 Google Identity Services 或 Firebase Auth
         alert('正在啟動 Google OAuth 安全登入驗證...');
     } else if (action === '匯出 CSV') {
         alert('歷史帳目資料已成功匯出至下載資料夾！');
