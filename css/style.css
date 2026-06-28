@@ -618,6 +618,31 @@ input:checked + .slider:before { transform: translateX(20px); }
     to { transform: translateY(0); }
 }
 
+/* 更多功能頁面選單美化 */
+.settings-profile {
+    background: var(--card);
+    margin: 15px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+#page-settings .form-group {
+    background: var(--card);
+    border-radius: 20px;
+    margin: 0 15px 20px 15px;
+    padding: 0 15px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+#page-settings .form-row:last-child {
+    border-bottom: none; /* 移除卡片最後一行的底線 */
+}
+
+#page-settings .form-row label {
+    font-weight: 500;
+    font-size: 14px;
+}
+
 /* =========================================
    10. 通用工具樣式
    ========================================= */
