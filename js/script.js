@@ -802,7 +802,7 @@ function handleSettingsAction(action) {
 
 
 /**
- * 偏好設定：連動控制全局金額隱私開關
+ * 連動控制全局金額隱私開關
  */
 function handleSettingsToggleHide(isChecked) {
     // 同步更新之前做好的隱私全域變數 isAmountHidden
