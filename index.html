@@ -252,6 +252,62 @@
             <div class="daily-details-section" id="daily-details-list"></div>
         </section>
 
+        <section id="page-settings" class="page">
+    <header class="nav-header">
+        <div style="width: 24px;"></div> <h1 class="page-title">更多功能</h1>
+        <div style="width: 24px;"></div>
+    </header>
+
+    <div class="content-scroll no-scrollbar">
+        <div class="settings-profile" style="display: flex; align-items: center; gap: 15px; padding: 20px;">
+            <div class="icon-box" style="margin-bottom: 0; background: linear-gradient(135deg, #a78bfa, #6e88f9);">
+                <i data-lucide="user" style="width: 28px; height: 32px;"></i>
+            </div>
+            <div>
+                <h3 style="margin: 0; font-size: 18px; font-weight: 700;">Koin 使用者</h3>
+                <p style="margin: 4px 0 0 0; font-size: 12px; color: var(--text-muted);">專業版會員</p>
+            </div>
+        </div>
+
+        <div class="list-divider"><span class="date-text" style="color: var(--purple); font-size: 12px;">資料與工具</span></div>
+        <div class="form-group">
+    <div class="form-row" onclick="handleSettingsAction('Google 登入')">
+        <label>🌐 Google 帳號登入</label>
+        <i data-lucide="log-in" class="s-icon" style="color: var(--text-muted);"></i>
+            <div class="form-row" onclick="handleSettingsAction('匯出 CSV')">
+                <label>📊 匯出資料為 CSV</label>
+                <i data-lucide="chevron-right" class="s-icon" style="color: var(--text-muted);"></i>
+            </div>
+            <div class="form-row" onclick="handleSettingsAction('重新計算餘額')">
+                <label>🔄 重新整理與計算餘額</label>
+                <i data-lucide="chevron-right" class="s-icon" style="color: var(--text-muted);"></i>
+            </div>
+        </div>
+
+        <div class="list-divider"><span class="date-text" style="color: var(--blue); font-size: 12px;">偏好設定</span></div>
+        <div class="form-group">
+            <div class="form-row">
+                <label>🔔 每日記帳提醒通知</label>
+                <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="form-row">
+                <label>👁️ 預設隱藏首頁金額</label>
+                <label class="switch">
+                    <input type="checkbox" id="settings-default-hide" onchange="handleSettingsToggleHide(this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="form-row" onclick="handleSettingsAction('清除所有快取')">
+                <label class="switch-label" style="color: var(--red);">⚠️ 清除所有本地資料</label>
+                <i data-lucide="trash-2" class="s-icon" style="color: var(--red);"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
        <section id="page-add-record" class="page">
     <header class="nav-header">
         <i data-lucide="x" class="s-icon" onclick="showPage('page-calendar')"></i>
