@@ -655,3 +655,69 @@ input:checked + .slider:before { transform: translateX(20px); }
 #selected-proj-date, #selected-proj-period, #selected-proj-type, #selected-proj-currency {
     color: #ffffff;
 }
+
+/* =========================================
+   11. 新增記錄 - 分類網格樣式 (對齊 image.png)
+   ========================================= */
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 完美的 5 等分網格 */
+    gap: 16px 10px;
+    padding: 10px 15px 20px 15px;
+}
+
+.category-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.1s ease;
+}
+
+.category-item:active {
+    transform: scale(0.92); /* 點擊時內縮回饋 */
+}
+
+/* 分類圓圈本體 */
+.cate-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 6px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.cate-icon-wrapper i,
+.cate-icon-wrapper svg {
+    width: 22px;
+    height: 22px;
+    color: #ffffff; /* 圖標線條一律維持純白 */
+    stroke: #ffffff;
+}
+
+.category-item p {
+    margin: 0;
+    font-size: 12px;
+    color: #8e8e93;
+    font-weight: 500;
+}
+
+/* =========================================
+   各分類 iOS 個性化配色 (對齊設計稿)
+   ========================================= */
+.i-eat           { background: linear-gradient(135deg, #fcd34d, #f59e0b); } /* 飲食：暖黃 */
+.i-transport     { background: linear-gradient(135deg, #60a5fa, #3b82f6); } /* 交通：寶藍 */
+.i-entertainment { background: linear-gradient(135deg, #c084fc, #8b5cf6); } /* 娛樂：粉紫 */
+.i-shopping      { background: linear-gradient(135deg, #f87171, #ef4444); } /* 購物：磚紅 */
+.i-personal      { background: linear-gradient(135deg, #9ca3af, #6b7280); } /* 個人：煙灰 */
+
+.i-medical       { background: linear-gradient(135deg, #f43f5e, #e11d48); } /* 醫療：亮紅 */
+.i-home          { background: linear-gradient(135deg, #4b5563, #374151); } /* 家居：深灰藍 */
+.i-family        { background: linear-gradient(135deg, #f472b6, #ec4899); } /* 家庭：芭比粉 */
+.i-life          { background: linear-gradient(135deg, #84cc16, #65a30d); } /* 生活：軍綠 */
+.i-learn         { background: linear-gradient(135deg, #fb923c, #f97316); } /* 學習：澄橘 */
