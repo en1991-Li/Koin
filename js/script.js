@@ -1,5 +1,5 @@
 /**
- * Koin script.js
+ * Koin - script.js
  */
 
 // =========================================
@@ -109,7 +109,7 @@ function renderAccountOverview() {
         groups[category].subtotal += acc.isCredit ? -Math.abs(amount) : amount;
     });
 
-    // 遍歷並渲染 HTML
+
     for (const [groupName, data] of Object.entries(groups)) {
         if (data.accounts.length === 0) continue;
 
@@ -183,7 +183,7 @@ function updateAmountDisplay() {
 }
 
 // =========================================
-// 4. 新增記錄面板控制
+// 4. 新增記錄面板控制中心
 // =========================================
 function toggleCalculator(show) {
     const calc = document.getElementById('inline-calculator');
@@ -348,7 +348,7 @@ function setRecordType(type, el) {
 }
 
 /**
- * 儲存記錄核心模組與多帳戶扣帳同步演算
+ * 儲存記錄模組與多帳戶扣帳同步
  */
 function saveRecord() {
     const nameStr = document.getElementById('record-name').value.trim();
@@ -479,7 +479,7 @@ function deleteAccountAction() {
 }
 
 // =========================================
-// 6. 專案管理核心模組
+// 6. 專案管理模組
 // =========================================
 function selectProjCurrency(currency) {
     const el = document.getElementById('selected-proj-currency');
@@ -592,7 +592,7 @@ function highlightToday() {
 }
 
 // =========================================
-// 8. 系統設定選單與彈窗公用控制組
+// 8. 系統設定選單與彈窗控制
 // =========================================
 function openModal(id) {
     const modal = document.getElementById(id);
