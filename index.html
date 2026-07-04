@@ -323,12 +323,50 @@
             <span onclick="setRecordType('應收款項', this)">應收款項</span>
         </div>
 
-        <div class="brand-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; padding: 10px 20px;">
-            <div class="brand-item" onclick="quickSelectBrand('7-11', '生活開銷')"><div class="brand-icon">🏪</div><p>7-11</p></div>
-            <div class="brand-item" onclick="quickSelectBrand('麥當勞', '生活開銷')"><div class="brand-icon">🍔</div><p>麥當勞</p></div>
-            <div class="brand-item" onclick="quickSelectBrand('全家', '生活開銷')"><div class="brand-icon">🏪</div><p>全家</p></div>
-            <div class="brand-item" onclick="quickSelectBrand('可不可', '生活開銷')"><div class="brand-icon">🥤</div><p>可不可</p></div>
-        </div>
+
+<div class="category-grid">
+    <div class="category-item" onclick="selectCategory('飲食', 'utensils')">
+        <div class="cate-icon-wrapper i-eat"><i data-lucide="utensils"></i></div>
+        <p>飲食</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('交通', 'car')">
+        <div class="cate-icon-wrapper i-transport"><i data-lucide="car"></i></div>
+        <p>交通</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('娛樂', 'party-popper')">
+        <div class="cate-icon-wrapper i-entertainment"><i data-lucide="party-popper"></i></div>
+        <p>娛樂</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('購物', 'shopping-bag')">
+        <div class="cate-icon-wrapper i-shopping"><i data-lucide="shopping-bag"></i></div>
+        <p>購物</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('個人', 'user')">
+        <div class="cate-icon-wrapper i-personal"><i data-lucide="user"></i></div>
+        <p>個人</p>
+    </div>
+
+    <div class="category-item" onclick="selectCategory('醫療', 'stethoscopes')">
+        <div class="cate-icon-wrapper i-medical"><i data-lucide="stethoscope"></i></div>
+        <p>醫療</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('家居', 'home')">
+        <div class="cate-icon-wrapper i-home"><i data-lucide="home"></i></div>
+        <p>家居</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('家庭', 'users')">
+        <div class="cate-icon-wrapper i-family"><i data-lucide="users"></i></div>
+        <p>家庭</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('生活', 'coffee')">
+        <div class="cate-icon-wrapper i-life"><i data-lucide="coffee"></i></div>
+        <p>生活</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('學習', 'graduation-cap')">
+        <div class="cate-icon-wrapper i-learn"><i data-lucide="graduation-cap"></i></div>
+        <p>學習</p>
+    </div>
+</div>
 
         <div class="record-form" style="padding: 0 20px;">
             <div class="amount-input-box" onclick="toggleCalculator(true)" style="background: #2c2c3e; border-radius: 15px; padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
