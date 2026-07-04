@@ -34,35 +34,48 @@ document.addEventListener('DOMContentLoaded', () => {
 // 2. 核心導覽與頁面控制
 // ==========================================
 function showPage(pageId, element) {
-    // 強制關閉所有可能開啟的彈窗遮罩
+    // 1. 安全關閉所有可能開啟的彈窗遮罩與計算機，防止隱形 DOM 阻擋點擊事件
     document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+    toggleCalculator(false); // 強制關閉計算機
 
+    // 2. 取得目標頁面
     const target = document.getElementById(pageId);
-    if (!target) return;
+    if (!target) {
+        console.error(`[錯誤] 找不到頁面 ID: ${pageId}`);
+        return;
+    }
     
+    // 3. 切換頁面 Active 狀態
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     target.classList.add('active');
 
-    document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
+    // 4. 清除所有導覽列按鈕的 Active 狀態
+    document.querySelectorAll('.tab-bar .tab-item').forEach(tab => tab.classList.remove('active'));
     
     const fabElement = document.getElementById('main-fab');
     if (fabElement) fabElement.classList.remove('fab-active');
 
+    // 5. 點亮當前選取的 Tab
     if (element) {
         element.classList.add('active');
         if (element.classList.contains('tab-fab')) element.classList.add('fab-active');
     } else {
-        const autoTab = document.querySelector(`.tab-bar [onclick*="${pageId}"]`);
+        // 程式觸發跳轉時，動態精準匹配 onclick 裡面帶有該 pageId 的項目
+        const autoTab = document.querySelector(`.tab-bar .tab-item[onclick*="${pageId}"]`);
         if (autoTab) autoTab.classList.add('active');
     }
 
+    // 6. 動態變更中間彩色 FAB 的圖示
     const fabIcon = document.getElementById('fab-icon');
     if (fabIcon) {
         const iconName = (pageId === 'page-calendar' || pageId === 'page-add-record') ? 'plus' : 'layers';
         fabIcon.setAttribute('data-lucide', iconName);
     }
 
-    if (typeof lucide !== 'undefined') lucide.createIcons();
+    // 7.確保最後一頁的 sliders-horizontal 圖示與頁面內的新圖示能被渲染出來
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
 }
 
 function handleFabClick(element) {
