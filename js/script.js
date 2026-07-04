@@ -474,60 +474,7 @@ function switchAdvancedTab(tabType) {
  * 5. 自訂日期選取器 (動態彈出日曆清單)
  */
 function openRecordDatePicker() {
-    const container = document.getElementById('record-date-scroll-list');
-    if (!container) return;
-    container.innerHTML = '';
-
-    const now = new Date();
-    
-    // 動態生成過去 7 天到未來 3 天的日期選項供使用者快速點選
-    for (let i = -7; i <= 3; i++) {
-        const d = new Date();
-        d.setDate(now.getDate() + i);
-        
-        const year = d.getFullYear();
-        const month = d.getMonth() + 1;
-        const date = d.getDate();
-        const dayOfWeek = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'][d.getDay()];
-        
-        // 格式化字串
-        const dateValue = `${year}/${String(month).padStart(2, '0')}/${String(date).padStart(2, '0')}`;
-        let displayLabel = `${month}/${date} (${dayOfWeek})`;
-        
-        // 特殊特殊標籤優化
-        if (i === 0) displayLabel = `今天 (${dayOfWeek})`;
-        if (i === -1) displayLabel = `昨天 (${dayOfWeek})`;
-
-        // 判斷是否為當前暫存選中的日期
-        const isSelected = (recordState.date === dateValue) ? 'selected' : '';
-
-        container.insertAdjacentHTML('beforeend', `
-            <div class="picker-item ${isSelected}" onclick="selectRecordDate('${dateValue}', '${displayLabel}')">
-                ${displayLabel}
-            </div>
-        `);
-    }
-
-    openModal('record-date-picker-modal');
-}
-
-/**
- * 確認選取記帳日期
- * @param {string} dateValue 實際儲存的日期字串 (YYYY/MM/DD)
- * @param {string} displayLabel 顯示在按鈕上的精簡文字
- */
-function selectRecordDate(dateValue, displayLabel) {
-    // 1. 更新全域暫存狀態
-    recordState.date = dateValue;
-    
-    // 2. 反填更新前端按鈕文字
-    const dateBtn = document.getElementById('btn-select-date');
-    if (dateBtn) {
-        dateBtn.innerText = displayLabel.split(' ')[0]; // 只截取 "今天"、"昨天" 保持簡潔
-    }
-    
-    // 3. 關閉彈窗
-    closeModal('record-date-picker-modal');
+    openModal('cycle-picker-modal'); 
 }
 
 function openRecordTimePicker() {
