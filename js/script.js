@@ -517,6 +517,46 @@ function confirmRecordSliderDate() {
     closeModal('record-slider-date-modal');
 }
 
+// ==========================================
+// 記錄頁：自訂時間選取彈窗
+// ==========================================
+
+// 1. 打開時間選擇器，並自動帶入當前時間
+function openRecordTimePicker() {
+    const now = new Date();
+    const hrInput = document.getElementById('input-record-hour');
+    const minInput = document.getElementById('input-record-minute');
+    
+    if (hrInput && minInput) {
+        hrInput.value = now.getHours();
+        minInput.value = now.getMinutes();
+    }
+    
+    openModal('record-time-modal');
+}
+
+// 2. 按下確定，將時間反填回「現在」按鈕上
+function confirmRecordTime() {
+    const hr = document.getElementById('input-record-hour').value;
+    const min = document.getElementById('input-record-minute').value;
+    
+    // 格式化為 HH:MM (例如 09:05)
+    const formattedTime = `${String(hr).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+    
+    // 存入全域變數
+    if (typeof recordState !== 'undefined') {
+        recordState.time = formattedTime;
+    }
+    
+    // 更新按鈕文字
+    const timeBtn = document.getElementById('btn-select-time');
+    if (timeBtn) {
+        timeBtn.innerText = formattedTime;
+    }
+    
+    closeModal('record-time-modal');
+}
+
 // 快速商家選取
 function quickSelectBrand(name, defaultProj) {
     document.getElementById('record-name').value = name;
