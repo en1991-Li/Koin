@@ -473,25 +473,48 @@ function switchAdvancedTab(tabType) {
 /**
  * 5. 自訂日期選取器 (動態彈出日曆清單)
  */
+
+// 打開滑桿並初始化為今天日期
 function openRecordDatePicker() {
-    openModal('cycle-picker-modal'); 
+    const now = new Date();
+    const slider = document.getElementById('record-date-slider');
+    
+    if (slider) {
+        slider.value = now.getDate(); // 滑桿預設拉到今天
+        updateRecordSliderText(now.getDate());
+    }
+    
+    openModal('record-slider-date-modal'); 
 }
 
-function openRecordTimePicker() {
-    const now = new Date();
-    document.getElementById('input-record-hour').value = now.getHours();
-    document.getElementById('input-record-minute').value = now.getMinutes();
-    openModal('record-time-modal');
+// 拖動滑桿時即時更新上方日期文字
+function updateRecordSliderText(val) {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(val).padStart(2, '0');
+    
+    const display = document.getElementById('record-modal-date-display');
+    if (display) {
+        display.innerText = `${year}/${month}/${day}`;
+    }
 }
 
-function confirmRecordTime() {
-    const hr = document.getElementById('input-record-hour').value;
-    const min = document.getElementById('input-record-minute').value;
-    const formattedTime = `${String(hr).padStart(2,'0')}:${String(min).padStart(2,'0')}`;
-    
-    recordState.time = formattedTime;
-    document.getElementById('btn-select-time').innerText = formattedTime;
-    closeModal('record-time-modal');
+// 按下確定，將日期反填回畫面的按鈕上
+function confirmRecordSliderDate() {
+    const display = document.getElementById('record-modal-date-display');
+    if (display) {
+        const dateStr = display.innerText;
+        recordState.date = dateStr; // 存入全域變數
+        
+        // 更新前端按鈕文字 (只顯示 月/日)
+        const btn = document.getElementById('btn-select-date');
+        if (btn) {
+            const parts = dateStr.split('/');
+            btn.innerText = `${parts[1]}/${parts[2]}`; 
+        }
+    }
+    closeModal('record-slider-date-modal');
 }
 
 // 快速商家選取
