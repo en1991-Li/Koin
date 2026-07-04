@@ -163,6 +163,26 @@ function toggleAmountVisibility() {
 }
 
 /**
+ * 分類大圓圈點擊選取事件
+ * @param {string} name 分類中文名稱
+ * @param {string} iconName 備用的圖標名稱
+ */
+function selectCategory(name, iconName) {
+    console.log(`[記帳] 已選取分類: ${name}`);
+    
+    // 自動將名稱填入項目輸入框（如：飲食、交通）
+    const nameInput = document.getElementById('record-name');
+    if (nameInput) {
+        nameInput.value = name;
+    }
+    
+    // 可以自動連動 recordState 變數，方便未來寫入後端 API
+    if (typeof recordState !== 'undefined') {
+        recordState.categorySelected = name;
+    }
+}
+
+/**
  * 統一更新畫面上所有帶有 amount-val 類別的金額顯示
  */
 function updateAmountDisplay() {
