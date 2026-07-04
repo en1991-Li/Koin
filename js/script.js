@@ -2,11 +2,13 @@
  * Koin 核心邏輯整合 - script.js
  */
 
-// === 全域狀態管理 (Global State) ===
+// ==========================================
+// 1. 全域狀態管理 (Global State)
+// ==========================================
 let currentActiveAccountIndex = null;
 let isAmountHidden = false; 
 
-// 新增記錄全域狀態
+// 新增記錄全域狀態暫存
 let recordState = {
     type: '支出',
     currentInput: '0',    // 計算機當前輸入緩衝
@@ -20,32 +22,27 @@ let recordState = {
     advType: 'single'     // single, cycle, install
 };
 
-// === 1. 頁面初始化監聽 ===
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof lucide !== 'undefined') lucide.createIcons();
-    
-    // 更新日曆標題至當前月份
     updateCalendarHeaderToToday(); 
-    
-    // 初始頁面渲染
     renderAccountOverview(); 
     if (typeof renderProjectsPage === 'function') renderProjectsPage();
-    
-    // 預設首頁狀態
     showPage('page-overview');
 });
 
-/**
- * 2. 核心頁面切換機制
- */
+// ==========================================
+// 2. 核心導覽與頁面控制
+// ==========================================
 function showPage(pageId, element) {
+    // 強制關閉所有可能開啟的彈窗遮罩
+    document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+
     const target = document.getElementById(pageId);
     if (!target) return;
     
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     target.classList.add('active');
 
-    // 處理導覽列 active 狀態
     document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
     
     const fabElement = document.getElementById('main-fab');
@@ -55,12 +52,10 @@ function showPage(pageId, element) {
         element.classList.add('active');
         if (element.classList.contains('tab-fab')) element.classList.add('fab-active');
     } else {
-        // 程式觸發跳轉時，自動點亮對應 Tab
         const autoTab = document.querySelector(`.tab-bar [onclick*="${pageId}"]`);
         if (autoTab) autoTab.classList.add('active');
     }
 
-    // 更新 FAB 圖示
     const fabIcon = document.getElementById('fab-icon');
     if (fabIcon) {
         const iconName = (pageId === 'page-calendar' || pageId === 'page-add-record') ? 'plus' : 'layers';
@@ -70,9 +65,28 @@ function showPage(pageId, element) {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-/**
- * 3. 渲染帳戶總覽列表與分類小計演算法
- */
+function handleFabClick(element) {
+    const activePage = document.querySelector('.page.active');
+    if (!activePage) return;
+    
+    if (activePage.id !== 'page-calendar') {
+        showPage('page-calendar', element);
+        if (typeof selectedDate !== 'undefined') selectedDate = new Date(); 
+
+        if (typeof focusOnCurrentMonth === 'function') {
+            setTimeout(() => {
+                focusOnCurrentMonth();
+                updateCalendarHeaderToToday();
+            }, 50); 
+        }
+    } else {
+        showPage('page-add-record', element);
+    }
+}
+
+// ==========================================
+// 3. 帳戶總覽與明細邏輯
+// ==========================================
 function renderAccountOverview() {
     const listContainer = document.getElementById('account-list');
     if (!listContainer) return;
@@ -84,13 +98,7 @@ function renderAccountOverview() {
     let totalAssets = 0;
     let totalDebts = 0;
 
-    // 分組容器邏輯
-    const groups = { 
-        '現金': { accounts: [], subtotal: 0 }, 
-        '銀行': { accounts: [], subtotal: 0 }, 
-        '信用卡': { accounts: [], subtotal: 0 }, 
-        '其他': { accounts: [], subtotal: 0 } 
-    };
+    const groups = { '現金': { accounts: [], subtotal: 0 }, '銀行': { accounts: [], subtotal: 0 }, '信用卡': { accounts: [], subtotal: 0 }, '其他': { accounts: [], subtotal: 0 } };
 
     savedAccounts.forEach((acc, index) => {
         const amount = parseFloat(acc.amount) || 0;
@@ -107,11 +115,11 @@ function renderAccountOverview() {
         else if (acc.group.includes('銀行')) category = '銀行';
         else if (acc.group.includes('信用卡')) category = '信用卡';
 
+        if (!groups[category]) groups[category] = { accounts: [], subtotal: 0 };
         groups[category].accounts.push({ ...acc, originalIndex: index });
         groups[category].subtotal += acc.isCredit ? -Math.abs(amount) : amount;
     });
 
-    // 遍歷並渲染 HTML
     for (const [groupName, data] of Object.entries(groups)) {
         if (data.accounts.length === 0) continue;
 
@@ -148,23 +156,16 @@ function renderAccountOverview() {
         });
     }
 
-    // 將真實金額寫入 Hero 區塊的 data-value
     if (document.getElementById('total-balance')) document.getElementById('total-balance').setAttribute('data-value', totalBalance);
     if (document.getElementById('total-assets')) document.getElementById('total-assets').setAttribute('data-value', totalAssets);
     if (document.getElementById('total-debts')) document.getElementById('total-debts').setAttribute('data-value', totalDebts);
 
-    // 根據當前的隱藏狀態更新金額顯示
     updateAmountDisplay();
-
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-/**
- * 4. 隱私防護核心控制 (Privacy Shield Toggle)
- */
 function toggleAmountVisibility() {
     isAmountHidden = !isAmountHidden;
-    
     const eyeIcon = document.getElementById('eye-toggle');
     if (eyeIcon) {
         eyeIcon.setAttribute('data-lucide', isAmountHidden ? 'eye-off' : 'eye');
@@ -174,11 +175,8 @@ function toggleAmountVisibility() {
 }
 
 function updateAmountDisplay() {
-    const amountElements = document.querySelectorAll('.amount-val');
-    
-    amountElements.forEach(el => {
+    document.querySelectorAll('.amount-val').forEach(el => {
         const rawValue = parseFloat(el.getAttribute('data-value')) || 0;
-        
         if (isAmountHidden) {
             el.innerText = '••••••';
         } else {
@@ -192,9 +190,6 @@ function updateAmountDisplay() {
     });
 }
 
-/**
- * 5. 詳情面板與分頁切換
- */
 function openAccountDetail(index) {
     const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
     const acc = savedAccounts[index];
@@ -202,17 +197,14 @@ function openAccountDetail(index) {
 
     currentActiveAccountIndex = index;
 
-    // 更新頂部 Header 與 餘額
     document.getElementById('detail-acc-name').innerText = acc.name;
-    const displayAmount = acc.isCredit ? `-${Math.abs(acc.amount).toLocaleString()}` : acc.amount.toLocaleString();
     const amountEl = document.getElementById('detail-acc-amount');
-    amountEl.innerText = displayAmount;
+    amountEl.innerText = acc.isCredit ? `-${Math.abs(acc.amount).toLocaleString()}` : acc.amount.toLocaleString();
     amountEl.className = acc.isCredit ? 'amount text-red' : 'amount text-green';
 
-    // 更新「帳戶資訊」分頁內容
     if (document.getElementById('info-name')) document.getElementById('info-name').innerText = acc.name;
     if (document.getElementById('info-group')) document.getElementById('info-group').innerText = acc.group;
-    if (document.getElementById('info-initial')) document.getElementById('info-initial').innerText = (acc.initialAmount || 0).toLocaleString();
+    if (document.getElementById('info-initial')) document.getElementById('info-initial').innerText = (acc.amount || 0).toLocaleString();
     if (document.getElementById('info-is-credit')) document.getElementById('info-is-credit').checked = acc.isCredit;
     
     switchDetailTab(0);
@@ -224,9 +216,7 @@ function switchDetailTab(tabIndex) {
     const transContent = document.getElementById('tab-content-transactions');
     const infoContent = document.getElementById('tab-content-info');
 
-    tabs.forEach((tab, i) => {
-        tab.classList.toggle('active', i === tabIndex);
-    });
+    tabs.forEach((tab, i) => tab.classList.toggle('active', i === tabIndex));
 
     if (tabIndex === 0) {
         if (transContent) transContent.style.display = 'block';
@@ -237,42 +227,21 @@ function switchDetailTab(tabIndex) {
     }
 }
 
-// 帳戶細節頁分頁切換點擊監聽
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('detail-tab')) {
-        document.querySelectorAll('.detail-tab').forEach(tab => tab.classList.remove('active'));
-        e.target.classList.add('active');
-        console.log("切換至：", e.target.innerText);
-    }
-});
-
-/**
- * 6. CRUD: 新增與刪除帳戶
- */
 function saveAccount() {
     const name = document.getElementById('acc-name').value;
     const amountInput = document.getElementById('acc-amount').value;
     const groupElement = document.getElementById('selected-group-text');
-    const group = groupElement ? groupElement.innerText.replace('chevron-right', '').trim() : '未分組';
+    const group = groupElement ? groupElement.textContent.trim() : '未分組';
     const isCredit = document.getElementById('in-is-credit').checked;
 
     if (!name) { alert('請輸入帳戶名稱'); return; }
 
     const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
-    const newAccount = { 
-        name, 
-        amount: parseFloat(amountInput) || 0, 
-        group: group, 
-        isCredit,
-        id: Date.now() 
-    };
-
-    savedAccounts.push(newAccount);
+    savedAccounts.push({ name, amount: parseFloat(amountInput) || 0, group, isCredit, id: Date.now() });
     localStorage.setItem('koin_accounts', JSON.stringify(savedAccounts));
 
     renderAccountOverview();
     
-    // 清空表單
     document.getElementById('acc-name').value = '';
     document.getElementById('acc-amount').value = '0';
     showPage('page-overview');
@@ -281,8 +250,7 @@ function saveAccount() {
 function deleteAccountAction() {
     if (confirm("確定要刪除此帳戶嗎？所有交易紀錄將被移除。")) {
         let accounts = JSON.parse(localStorage.getItem('koin_accounts') || '[]');
-        
-        if (currentActiveAccountIndex !== 'undefined' && currentActiveAccountIndex !== null) {
+        if (currentActiveAccountIndex !== null && typeof currentActiveAccountIndex !== 'undefined') {
             accounts.splice(currentActiveAccountIndex, 1);
             localStorage.setItem('koin_accounts', JSON.stringify(accounts));
             closeModal('more-options-modal');
@@ -292,9 +260,58 @@ function deleteAccountAction() {
     }
 }
 
-/**
- * 7. 計算機引擎 (Calculator Engine)
- */
+// ==========================================
+// 4. 專案系統邏輯
+// ==========================================
+function saveProject() {
+    const name = document.getElementById('proj-name').value.trim();
+    if (!name) return alert("請輸入專案名稱");
+
+    const newProject = {
+        id: Date.now(),
+        name: name,
+        currency: document.getElementById('selected-proj-currency').textContent.trim(),
+        type: document.getElementById('selected-proj-type').textContent.trim(),
+        period: document.getElementById('selected-proj-period').textContent.trim(),
+        startDate: document.getElementById('selected-proj-date').textContent.trim(),
+        autoBudget: document.getElementById('proj-auto-budget').checked,
+        showHome: document.getElementById('proj-show-home').checked,
+        note: document.getElementById('proj-note').value.trim(),
+        icon: "piggy-bank", 
+        amount: 0 
+    };
+
+    const projects = JSON.parse(localStorage.getItem('koin_projects') || '[]');
+    projects.push(newProject);
+    localStorage.setItem('koin_projects', JSON.stringify(projects));
+
+    if (typeof renderProjectsPage === 'function') renderProjectsPage();
+    document.getElementById('proj-name').value = '';
+    showPage('page-projects');
+}
+
+// 專案彈窗選擇器輔助
+function selectProjCurrency(val) { updateSpan('selected-proj-currency', val); closeModal('proj-currency-modal'); }
+function selectProjType(val) { updateSpan('selected-proj-type', val); closeModal('proj-type-modal'); }
+function selectProjPeriod(val) { updateSpan('selected-proj-period', val); closeModal('proj-period-modal'); }
+function selectProjDate(val) { updateSpan('selected-proj-date', val); closeModal('proj-date-modal'); }
+function updateSpan(id, val) {
+    const el = document.getElementById(id);
+    if (el) { el.innerHTML = `${val} <i data-lucide="chevron-right" class="s-icon"></i>`; lucide.createIcons(); }
+}
+function openProjDatePicker() {
+    const container = document.getElementById('proj-date-options');
+    if (container) {
+        container.innerHTML = '';
+        for (let i = 1; i <= 30; i++) container.insertAdjacentHTML('beforeend', `<div class="option-item" onclick="selectProjDate('第 ${i} 天')">第 ${i} 天</div>`);
+        container.insertAdjacentHTML('beforeend', `<div class="option-item" onclick="selectProjDate('月底')">月底</div>`);
+    }
+    openModal('proj-date-modal');
+}
+
+// ==========================================
+// 5. 計算機與新增記錄核心 (The Complete Record Engine)
+// ==========================================
 function toggleCalculator(show) {
     const calc = document.getElementById('inline-calculator');
     if (calc) calc.style.display = show ? 'block' : 'none';
@@ -335,7 +352,7 @@ function pressCalc(val) {
             recordState.operator = null;
             if (indicator) indicator.innerText = '';
         }
-        toggleCalculator(false);
+        toggleCalculator(false); 
     } else {
         if (recordState.currentInput === '0' || recordState.isCalculated) {
             recordState.currentInput = val;
@@ -347,27 +364,31 @@ function pressCalc(val) {
     display.innerText = parseFloat(recordState.currentInput).toLocaleString();
 }
 
-/**
- * 8. 動態搜尋過濾帳戶與專案 (Filters)
- */
+function setRecordType(type, el) {
+    recordState.type = type;
+    document.querySelectorAll('#record-type-tabs span').forEach(s => s.classList.remove('active', 'text-blue'));
+    el.classList.add('active', 'text-blue');
+}
+
+function quickSelectBrand(name, defaultProj) {
+    document.getElementById('record-name').value = name;
+    selectRecordProject(defaultProj);
+}
+
+// 記錄頁：動態搜尋過濾帳戶
 function openRecordAccountPicker() {
     filterRecordAccounts('');
     openModal('record-account-modal');
 }
-
 function filterRecordAccounts(keyword) {
     const container = document.getElementById('record-account-options');
     if (!container) return;
     container.innerHTML = '';
-
     const accounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
     const filtered = accounts.filter(acc => acc.name.toLowerCase().includes(keyword.toLowerCase()));
 
-    if (filtered.length === 0) {
-        container.innerHTML = '<div class="option-item" style="color:#8a8a8e; text-align:center;">找不到相符帳戶</div>';
-        return;
-    }
-
+    if (filtered.length === 0) return container.innerHTML = '<div class="option-item" style="color:#8a8a8e; text-align:center;">找不到相符帳戶</div>';
+    
     filtered.forEach(acc => {
         container.insertAdjacentHTML('beforeend', `
             <div class="option-item" onclick="selectRecordAccount('${acc.name}')">
@@ -376,213 +397,118 @@ function filterRecordAccounts(keyword) {
         `);
     });
 }
-
 function selectRecordAccount(name) {
     recordState.account = name;
     document.getElementById('btn-select-account').innerText = name;
     closeModal('record-account-modal');
 }
 
+// 記錄頁：動態搜尋過濾專案
 function openRecordProjectPicker() {
     filterRecordProjects('');
     openModal('record-project-modal');
 }
-
 function filterRecordProjects(keyword) {
     const container = document.getElementById('record-project-options');
     if (!container) return;
     container.innerHTML = '';
-
     const projects = JSON.parse(localStorage.getItem('koin_projects')) || [];
     
-    if ('無專案'.includes(keyword)) {
-        container.insertAdjacentHTML('beforeend', `<div class="option-item" onclick="selectRecordProject('無專案')">無專案</div>`);
-    }
+    if ('無專案'.includes(keyword)) container.insertAdjacentHTML('beforeend', `<div class="option-item" onclick="selectRecordProject('無專案')">無專案</div>`);
 
     const filtered = projects.filter(proj => proj.name.toLowerCase().includes(keyword.toLowerCase()));
     filtered.forEach(proj => {
-        container.insertAdjacentHTML('beforeend', `
-            <div class="option-item" onclick="selectRecordProject('${proj.name}')">${proj.name}</div>
-        `);
+        container.insertAdjacentHTML('beforeend', `<div class="option-item" onclick="selectRecordProject('${proj.name}')">${proj.name}</div>`);
     });
 }
-
 function selectRecordProject(name) {
     recordState.project = name;
     document.getElementById('btn-select-project').innerText = name;
     closeModal('record-project-modal');
 }
 
-/**
- * 9. 進階多頁籤狀態機
- */
-function switchAdvancedTab(tabType) {
-    recordState.advType = tabType;
-    document.querySelectorAll('#record-advanced-modal .detail-tab').forEach(t => t.classList.remove('active'));
-    
-    document.getElementById(`adv-pane-single`).style.display = 'none';
-    document.getElementById(`adv-pane-cycle`).style.display = 'none';
-    document.getElementById(`adv-pane-install`).style.display = 'none';
-
-    if (tabType === 'single') {
-        document.getElementById('adv-tab-single').classList.add('active');
-        document.getElementById('adv-pane-single').style.display = 'block';
-    } else if (tabType === 'cycle') {
-        document.getElementById('adv-tab-cycle').classList.add('active');
-        document.getElementById('adv-pane-cycle').style.display = 'block';
-    } else if (tabType === 'install') {
-        document.getElementById('adv-tab-install').classList.add('active');
-        document.getElementById('adv-pane-install').style.display = 'block';
-    }
-}
-
-/**
- * 10. 自訂日期與時間選取器
- */
-function openRecordDatePicker() {
-    openModal('cycle-picker-modal'); 
-}
-
+// 記錄頁：自訂日期時間選取
+function openRecordDatePicker() { openModal('cycle-picker-modal'); } // 暫時聯動現有彈窗
 function openRecordTimePicker() {
     const now = new Date();
     document.getElementById('input-record-hour').value = now.getHours();
     document.getElementById('input-record-minute').value = now.getMinutes();
     openModal('record-time-modal');
 }
-
 function confirmRecordTime() {
     const hr = document.getElementById('input-record-hour').value;
     const min = document.getElementById('input-record-minute').value;
     const formattedTime = `${String(hr).padStart(2,'0')}:${String(min).padStart(2,'0')}`;
-    
     recordState.time = formattedTime;
     document.getElementById('btn-select-time').innerText = formattedTime;
     closeModal('record-time-modal');
 }
 
-function quickSelectBrand(name, defaultProj) {
-    document.getElementById('record-name').value = name;
-    selectRecordProject(defaultProj);
+// 記錄頁：進階設定頁籤
+function switchAdvancedTab(tabType) {
+    recordState.advType = tabType;
+    document.querySelectorAll('#record-advanced-modal .detail-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(`adv-pane-single`).style.display = 'none';
+    document.getElementById(`adv-pane-cycle`).style.display = 'none';
+    document.getElementById(`adv-pane-install`).style.display = 'none';
+
+    document.getElementById(`adv-tab-${tabType}`).classList.add('active');
+    document.getElementById(`adv-pane-${tabType}`).style.display = 'block';
 }
 
-function setRecordType(type, el) {
-    recordState.type = type;
-    document.querySelectorAll('#record-type-tabs span').forEach(s => s.classList.remove('active', 'text-blue'));
-    el.classList.add('active', 'text-blue');
-}
-
-/**
- * 11. FAB 控制中心與日曆聯動
- */
-function handleFabClick(element) {
-    const activePage = document.querySelector('.page.active');
-    if (!activePage) return;
-    
-    const currentPage = activePage.id;
-    
-    if (currentPage !== 'page-calendar') {
-        showPage('page-calendar', element);
-        
-        if (typeof selectedDate !== 'undefined') {
-            selectedDate = new Date(); 
+// ==========================================
+// 6. 更多功能與設定路由 (Settings Page)
+// ==========================================
+function handleSettingsAction(action) {
+    console.log(`[系統] 觸發設定功能: ${action}`);
+    if (action === 'Google 登入') alert('正在啟動 Google OAuth 安全登入驗證...');
+    else if (action === '匯出 CSV') alert('歷史帳目資料已成功匯出至下載資料夾！');
+    else if (action === '重新計算餘額') {
+        if (typeof renderAccountOverview === 'function') {
+            renderAccountOverview();
+            alert('全域餘額核心演算法重新計算重繪完畢！');
         }
-
-        if (typeof focusOnCurrentMonth === 'function') {
-            setTimeout(() => {
-                focusOnCurrentMonth();
-                updateCalendarHeaderToToday();
-            }, 50); 
+    } else if (action === '清除所有快取') {
+        if (confirm('警告：這將會永久刪除本機所有的帳戶與記帳紀錄，確定要重置嗎？')) {
+            localStorage.clear();
+            alert('資料已完全重置。系統將重新載入。');
+            window.location.reload();
         }
-    } else {
-        showPage('page-add-record', element);
     }
 }
 
-function highlightToday() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1;
-    const date = now.getDate();
-
-    const titleEl = document.querySelector('.calendar-header h2') || document.getElementById('calendar-title');
-    if (titleEl) {
-        titleEl.innerText = `${year}/${month.toString().padStart(2, '0')}`;
+function handleSettingsToggleHide(isChecked) {
+    if (typeof isAmountHidden !== 'undefined') {
+        isAmountHidden = isChecked;
+        const eyeIcon = document.getElementById('eye-toggle');
+        if (eyeIcon) eyeIcon.setAttribute('data-lucide', isAmountHidden ? 'eye-off' : 'eye');
+        if (typeof updateAmountDisplay === 'function') updateAmountDisplay();
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     }
-    console.log(`今天日期是：${year}/${month}/${date}`);
 }
 
+// ==========================================
+// 7. 通用 Modal 控制與日曆輔助
+// ==========================================
+function openModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.style.display = 'flex';
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+}
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) modal.style.display = 'none';
+}
 function updateCalendarHeaderToToday() {
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0'); 
-    
     const headerTitle = document.getElementById('full-calendar-month');
-    if (headerTitle) {
-        headerTitle.innerText = `${year}/${month}`;
-    }
+    if (headerTitle) headerTitle.innerText = `${year}/${month}`;
 }
-
-// === 12. 專案儲存結構與選擇器 ===
-function selectProjCurrency(currency) {
-    const el = document.getElementById('selected-proj-currency');
-    if (el) el.innerHTML = `${currency} <i data-lucide="chevron-right" class="s-icon"></i>`;
-    closeModal('proj-currency-modal');
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-}
-
-/* 為了避免 markdown 程式碼過長，其餘重複結構的單置選擇器如 selectProjType、selectProjPeriod、openProjDatePicker、selectProjDate 等基礎選擇控制，與底層 confirmCycle 模組在完整封裝中均維持原有高內聚邏輯設計運作。 */
-
-function saveProject() {
-    const name = document.getElementById('proj-name').value.trim();
-    const note = document.getElementById('proj-note').value.trim();
-    
-    if (!name) return alert("請輸入專案名稱");
-
-    const currency = document.getElementById('selected-proj-currency').textContent.trim();
-    const type = document.getElementById('selected-proj-type').textContent.trim();
-    const period = document.getElementById('selected-proj-period').textContent.trim();
-    const startDate = document.getElementById('selected-proj-date').textContent.trim();
-    
-    const autoBudget = document.getElementById('proj-auto-budget').checked;
-    const showHome = document.getElementById('proj-show-home').checked;
-
-    const newProject = {
-        id: Date.now(),
-        name: name,
-        currency: currency,
-        type: type,
-        period: period,
-        startDate: startDate,
-        autoBudget: autoBudget,
-        showHome: showHome,
-        note: note,
-        icon: "piggy-bank",
-        amount: 0
-    };
-
-    const projects = JSON.parse(localStorage.getItem('koin_projects') || '[]');
-    projects.push(newProject);
-    localStorage.setItem('koin_projects', JSON.stringify(projects));
-
-    if (typeof renderProjectsPage === 'function') renderProjectsPage();
-    
-    document.getElementById('proj-name').value = '';
-    document.getElementById('proj-note').value = '';
-    document.getElementById('selected-proj-currency').innerHTML = `TWD <i data-lucide="chevron-right" class="s-icon"></i>`;
-    document.getElementById('selected-proj-type').innerHTML = `重複循環 <i data-lucide="chevron-right" class="s-icon"></i>`;
-    document.getElementById('selected-proj-period').innerHTML = `每月 <i data-lucide="chevron-right" class="s-icon"></i>`;
-    document.getElementById('selected-proj-date').innerHTML = `第 1 天 <i data-lucide="chevron-right" class="s-icon"></i>`;
-    
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-    showPage('page-projects');
-}
-
-// === 13. 基礎 UI 彈窗控制與週期邏輯 ===
-function handleMenuAction(action) {
-    console.log("執行：" + action);
-    closeModal('more-options-modal');
-}
-
+function openCyclePicker() { openModal('cycle-picker-modal'); }
 function updateCycleText(val) {
     const rangeDisplay = document.getElementById('modal-date-range');
     const noteDisplay = document.getElementById('modal-cycle-note');
@@ -594,32 +520,22 @@ function updateCycleText(val) {
         noteDisplay.innerText = `帳單結帳日：每月 ${val} 號`;
     }
 }
-
 function confirmCycle() {
     const val = document.getElementById('cycle-slider').value;
     const text = (val == 31) ? "每月月底" : `每月 ${val} 號`;
-    document.getElementById('main-cycle-display').innerHTML = `${text} <i data-lucide="chevron-right" class="s-icon"></i>`;
-    lucide.createIcons();
+    updateSpan('main-cycle-display', text);
     closeModal('cycle-picker-modal');
 }
-
 function openGroupPicker() { openModal('group-picker-modal'); }
-function selectGroup(name) {
-    const display = document.getElementById('selected-group-text');
-    if (display) {
-        display.innerHTML = `${name} <i data-lucide="chevron-right" class="s-icon"></i>`;
-        lucide.createIcons();
-    }
-    closeModal('group-picker-modal');
-}
-
+function selectGroup(name) { updateSpan('selected-group-text', name); closeModal('group-picker-modal'); }
 function toggleCreditFields() {
     const isCredit = document.getElementById('in-is-credit').checked;
     document.getElementById('credit-extra-fields').style.display = isCredit ? 'block' : 'none';
     const displayAmount = document.getElementById('add-display-amount');
     if (displayAmount) displayAmount.className = isCredit ? 'val text-red' : 'val text-green';
 }
-
+let currentDueMode = 'fixed';
+let selectedDueDay = 1;
 function openDueDateModal() { backToDueMode(); openModal('due-date-modal'); }
 function backToDueMode() {
     document.getElementById('due-mode-selection').style.display = 'block';
@@ -648,42 +564,6 @@ function enterDueDetail(mode) {
 }
 function confirmDueDate() {
     const prefix = (currentDueMode === 'fixed') ? '每月' : '結帳後';
-    document.getElementById('due-date-display').innerHTML = `${prefix}${selectedDueDay}日 <i data-lucide="chevron-right" class="s-icon"></i>`;
-    lucide.createIcons();
+    updateSpan('due-date-display', `${prefix}${selectedDueDay}日`);
     closeModal('due-date-modal');
-}
-
-// === 14. 更多功能分頁 (Settings Page) 動作處理 ===
-function handleSettingsAction(action) {
-    console.log(`[系統] 觸發設定功能: ${action}`);
-    if (action === 'Google 登入') {
-        alert('正在啟動 Google OAuth 安全登入驗證...');
-    } else if (action === '匯出 CSV') {
-        alert('歷史帳目資料已成功匯出至下載資料夾！');
-    } else if (action === '重新計算餘額') {
-        if (typeof renderAccountOverview === 'function') {
-            renderAccountOverview();
-            alert('全域餘額核心演算法重新計算重繪完畢！');
-        }
-    } else if (action === '清除所有快取') {
-        if (confirm('警告：這將會永久刪除本機所有的帳戶與記帳紀錄，確定要重置嗎？')) {
-            localStorage.clear();
-            alert('資料已完全重置。系統將重新載入。');
-            window.location.reload();
-        }
-    }
-}
-
-function handleSettingsToggleHide(isChecked) {
-    if (typeof isAmountHidden !== 'undefined') {
-        isAmountHidden = isChecked;
-        const eyeIcon = document.getElementById('eye-toggle');
-        if (eyeIcon) {
-            eyeIcon.setAttribute('data-lucide', isAmountHidden ? 'eye-off' : 'eye');
-        }
-        if (typeof updateAmountDisplay === 'function') {
-            updateAmountDisplay();
-        }
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-    }
 }
