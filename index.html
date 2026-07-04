@@ -474,16 +474,20 @@
             </div>
         </div>
 
-        <div id="record-time-modal" class="modal-overlay" style="display: none;" onclick="closeModal('record-time-modal')">
-            <div class="modal-content" onclick="event.stopPropagation()">
-                <div class="modal-header">選擇時間</div>
-                <div style="display:flex; justify-content:center; gap:20px; padding: 20px 0;">
-                    <div>時：<input type="number" id="input-record-hour" min="0" max="23" style="width:60px; font-size:20px; background:#2c2c3e; color:white; border:none; text-align:center; padding:5px; border-radius:6px;"></div>
-                    <div>分：<input type="number" id="input-record-minute" min="0" max="59" style="width:60px; font-size:20px; background:#2c2c3e; color:white; border:none; text-align:center; padding:5px; border-radius:6px;"></div>
-                </div>
-                <div class="modal-footer" style="border:none;"><button class="btn-confirm" style="background:#3d3d4d; width:100%;" onclick="confirmRecordTime()">確定</button></div>
-            </div>
+       <!-- 新增記錄專用：時間選擇彈窗 -->
+<div id="record-time-modal" class="modal-overlay" style="display: none;" onclick="closeModal('record-time-modal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">選擇時間</div>
+        <div style="display:flex; justify-content:center; align-items:center; gap:10px; padding: 30px 0;">
+            <input type="number" id="input-record-hour" min="0" max="23" style="width:70px; font-size:24px; font-weight:bold; background:#2c2c3e; color:white; border:none; text-align:center; padding:10px; border-radius:10px; outline:none;">
+            <span style="font-size:24px; font-weight:bold; color:white;">:</span>
+            <input type="number" id="input-record-minute" min="0" max="59" style="width:70px; font-size:24px; font-weight:bold; background:#2c2c3e; color:white; border:none; text-align:center; padding:10px; border-radius:10px; outline:none;">
         </div>
+        <div class="modal-footer" style="border:none;">
+            <button class="btn-confirm" style="background:#3d3d4d; width:100%; border-radius:12px; margin: 0 15px 15px 15px; padding: 15px 0; color: white !important;" onclick="confirmRecordTime()">確定</button>
+        </div>
+    </div>
+</div>
 
         <div id="group-picker-modal" class="modal-overlay" style="display: none;" onclick="closeModal('group-picker-modal')">
             <div class="modal-content" onclick="event.stopPropagation()">
