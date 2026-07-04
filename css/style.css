@@ -657,11 +657,11 @@ input:checked + .slider:before { transform: translateX(20px); }
 }
 
 /* =========================================
-   11. 新增記錄 - 分類網格樣式 (對齊 image.png)
+   11. 新增記錄 - 分類網格樣式
    ========================================= */
 .category-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); /* 完美的 5 等分網格 */
+    grid-template-columns: repeat(5, 1fr); /* 5 等分網格 */
     gap: 16px 10px;
     padding: 10px 15px 20px 15px;
 }
@@ -708,7 +708,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 }
 
 /* =========================================
-   各分類 iOS 個性化配色 (對齊設計稿)
+   各分類 iOS 個性化配色
    ========================================= */
 .i-eat           { background: linear-gradient(135deg, #fcd34d, #f59e0b); } /* 飲食：暖黃 */
 .i-transport     { background: linear-gradient(135deg, #60a5fa, #3b82f6); } /* 交通：寶藍 */
