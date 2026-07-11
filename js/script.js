@@ -473,48 +473,23 @@ function switchAdvancedTab(tabType) {
 /**
  * 5. 自訂日期選取器 (動態彈出日曆清單)
  */
-
-// 打開滑桿並初始化為今天日期
-function openRecordDatePicker() {
-    const now = new Date();
-    const slider = document.getElementById('record-date-slider');
+function openRecordCalendar() {
+    // 開啟我們剛剛建立的彈窗
+    openModal('record-calendar-modal');
     
-    if (slider) {
-        slider.value = now.getDate(); // 滑桿預設拉到今天
-        updateRecordSliderText(now.getDate());
-    }
-    
-    openModal('record-slider-date-modal'); 
+    // 如果有現成的渲染日曆函式 (例如 renderCalendar)，在這裡觸發它
+    // 例如：renderCalendar('record-calendar-body');
+    console.log("正在開啟行事曆...");
 }
 
-// 拖動滑桿時即時更新上方日期文字
-function updateRecordSliderText(val) {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(val).padStart(2, '0');
-    
-    const display = document.getElementById('record-modal-date-display');
-    if (display) {
-        display.innerText = `${year}/${month}/${day}`;
-    }
-}
-
-// 按下確定，將日期反填回畫面的按鈕上
-function confirmRecordSliderDate() {
-    const display = document.getElementById('record-modal-date-display');
-    if (display) {
-        const dateStr = display.innerText;
-        recordState.date = dateStr; // 存入全域變數
-        
-        // 更新前端按鈕文字 (只顯示 月/日)
-        const btn = document.getElementById('btn-select-date');
-        if (btn) {
-            const parts = dateStr.split('/');
-            btn.innerText = `${parts[1]}/${parts[2]}`; 
-        }
-    }
-    closeModal('record-slider-date-modal');
+/**
+ * 當使用者點擊日曆中的某一天
+ */
+function onDateSelected(dateStr) {
+    recordState.date = dateStr;
+    const btn = document.getElementById('btn-select-date');
+    if (btn) btn.innerText = dateStr; // 反填日期
+    closeModal('record-calendar-modal');
 }
 
 // ==========================================
@@ -682,7 +657,7 @@ function selectProjDate(dateText) {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// === 升級版：完整專案資料儲存結構 ===
+// === 完整專案資料儲存結構 ===
 function saveProject() {
     const name = document.getElementById('proj-name').value.trim();
     const note = document.getElementById('proj-note').value.trim();
