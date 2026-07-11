@@ -748,6 +748,6 @@ input:checked + .slider:before { transform: translateX(20px); }
 }
 
 /* 轉帳專屬：沉穩橘褐*/
-.i-transfer-dark {
+.i-transfer-orange {
     background: linear-gradient(135deg, #e07a2c, #b45309);
 }
