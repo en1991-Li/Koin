@@ -332,48 +332,89 @@
                     <span onclick="setRecordType('應收款項', this)">應收款項</span>
                 </div>
 
-                <div class="category-grid">
-                    <div class="category-item" onclick="selectCategory('飲食', 'utensils')">
-                        <div class="cate-icon-wrapper i-eat"><i data-lucide="utensils"></i></div>
-                        <p>飲食</p>
-                    </div>
-                    <div class="category-item" onclick="selectCategory('交通', 'car')">
-                        <div class="cate-icon-wrapper i-transport"><i data-lucide="car"></i></div>
-                        <p>交通</p>
-                    </div>
-                    <div class="category-item" onclick="selectCategory('娛樂', 'party-popper')">
-                        <div class="cate-icon-wrapper i-entertainment"><i data-lucide="party-popper"></i></div>
-                        <p>娛樂</p>
-                    </div>
-                    <div class="category-item" onclick="selectCategory('購物', 'shopping-bag')">
-                        <div class="cate-icon-wrapper i-shopping"><i data-lucide="shopping-bag"></i></div>
-                        <p>購物</p>
-                    </div>
-                    <div class="category-item" onclick="selectCategory('個人', 'user')">
-                        <div class="cate-icon-wrapper i-personal"><i data-lucide="user"></i></div>
-                        <p>個人</p>
-                    </div>
-                    <div class="category-item" onclick="selectCategory('醫療', 'stethoscopes')">
-                        <div class="cate-icon-wrapper i-medical"><i data-lucide="stethoscope"></i></div>
-                        <p>醫療</p>
-                    </div>
-                    <div class="category-item" onclick="selectCategory('家居', 'home')">
-                        <div class="cate-icon-wrapper i-home"><i data-lucide="home"></i></div>
-                        <p>家居</p>
-                    </div>
-                    <div class="category-item" onclick="selectCategory('家庭', 'users')">
-                        <div class="cate-icon-wrapper i-family"><i data-lucide="users"></i></div>
-                        <p>家庭</p>
-                    </div>
-                    <div class="category-item" onclick="selectCategory('生活', 'coffee')">
-                        <div class="cate-icon-wrapper i-life"><i data-lucide="coffee"></i></div>
-                        <p>生活</p>
-                    </div>
-                    <div class="category-item" onclick="selectCategory('學習', 'graduation-cap')">
-                        <div class="cate-icon-wrapper i-learn"><i data-lucide="graduation-cap"></i></div>
-                        <p>學習</p>
-                    </div>
-                </div>
+<!-- 支出分類網格 -->
+<div class="category-grid active" id="grid-expense">
+    <div class="category-item" onclick="selectCategory('飲食')">
+        <div class="cate-icon-wrapper i-eat"><i data-lucide="utensils"></i></div>
+        <p>飲食</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('交通')">
+        <div class="cate-icon-wrapper i-transport"><i data-lucide="car"></i></div>
+        <p>交通</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('娛樂')">
+        <div class="cate-icon-wrapper i-entertainment"><i data-lucide="party-popper"></i></div>
+        <p>娛樂</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('購物')">
+        <div class="cate-icon-wrapper i-shopping"><i data-lucide="shopping-bag"></i></div>
+        <p>購物</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('個人')">
+        <div class="cate-icon-wrapper i-personal"><i data-lucide="user"></i></div>
+        <p>個人</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('醫療')">
+        <div class="cate-icon-wrapper i-medical"><i data-lucide="stethoscope"></i></div>
+        <p>醫療</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('家居')">
+        <div class="cate-icon-wrapper i-home"><i data-lucide="home"></i></div>
+        <p>家居</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('家庭')">
+        <div class="cate-icon-wrapper i-family"><i data-lucide="users"></i></div>
+        <p>家庭</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('生活')">
+        <div class="cate-icon-wrapper i-life"><i data-lucide="coffee"></i></div>
+        <p>生活</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('學習')">
+        <div class="cate-icon-wrapper i-learn"><i data-lucide="graduation-cap"></i></div>
+        <p>學習</p>
+    </div>
+</div>
+
+<!-- 收入分類網格 -->
+<div class="category-grid" id="grid-income">
+    <div class="category-item" onclick="selectCategory('薪水')">
+        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="wrapped-gift"></i></div>
+        <p>薪水</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('獎金')">
+        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="coins"></i></div>
+        <p>獎金</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('投資')">
+        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="trending-up"></i></div>
+        <p>投資</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('收款')">
+        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="hand-coins"></i></div>
+        <p>收款</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('彩券')">
+        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="newspaper"></i></div>
+        <p>彩券</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('利息')">
+        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="landmark"></i></div>
+        <p>利息</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('零用錢')">
+        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="circle-dollar-sign"></i></div>
+        <p>零用錢</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('發票')">
+        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="receipt"></i></div>
+        <p>發票</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('補助')">
+        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="building-2"></i></div>
+        <p>補助</p>
+    </div>
+</div>
 
                 <div class="record-form" style="padding: 0 20px;">
                     <div class="amount-input-box" onclick="toggleCalculator(true)" style="background: #2c2c3e; border-radius: 15px; padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
