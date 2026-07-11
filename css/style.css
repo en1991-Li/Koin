@@ -756,3 +756,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 .i-receivable-gold {
     background: linear-gradient(135deg, #a7eed8, #81D8CF);
 }
+
+/* 應付款項專屬：質感磚紅漸層背景 */
+.i-payable-red {
+    background: linear-gradient(135deg, #f87171, #ef4444);
