@@ -326,13 +326,8 @@
 
             <div class="content-scroll no-scrollbar" style="padding-bottom: 280px;">
                 <div class="record-tabs" id="record-type-tabs" style="display: flex; overflow-x: auto; padding: 15px; gap: 20px; color: #8a8a8e;">
-                    <div class="tab-group" style="display: flex; justify-content: center; gap: 20px; margin-bottom: 20px;">
-    <div class="tab-item active" id="tab-record-expense" onclick="switchRecordType('expense')">支出</div>
-    <div class="tab-item" id="tab-record-income" onclick="switchRecordType('income')">收入</div>
-</div>
-
-<div id="record-category-grid" class="category-grid">
-    </div>
+                    <span class="active text-blue" onclick="setRecordType('支出', this)">支出</span>
+                    <span onclick="setRecordType('收入', this)">收入</span>
                     <span onclick="setRecordType('轉帳', this)">轉帳</span>
                     <span onclick="setRecordType('應收款項', this)">應收款項</span>
                 </div>
