@@ -742,9 +742,9 @@ input:checked + .slider:before { transform: translateX(20px); }
     display: grid; /* 只有加上 active 的網格才會顯示 */
 }
 
-/* 收入專屬：大地金黃色漸層背景 */
+/* 收入專屬：黃色漸層背景 */
 .i-income-gold { 
-    background: linear-gradient(135deg, #d97706, #b45309); 
+    background: linear-gradient(135deg, #fcd34d, #f59e0b); 
 }
 
 /* 轉帳專屬：沉穩橘褐*/
