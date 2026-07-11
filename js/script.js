@@ -603,7 +603,7 @@ function quickSelectBrand(name, defaultProj) {
 }
 
 /**
- * 切換記帳類型（支出/收入/轉帳）並連動切換對應的圖標網格
+ * 切換記帳類型（支出/收入/轉帳/應收款項）並連動切換對應的圖標網格
  */
 function setRecordType(type, el) {
     if (typeof recordState !== 'undefined') {
@@ -614,14 +614,16 @@ function setRecordType(type, el) {
     document.querySelectorAll('#record-type-tabs span').forEach(s => s.classList.remove('active', 'text-blue'));
     if (el) el.classList.add('active', 'text-blue');
 
-    // 2. 隱藏「所有」分類網格 (包含支出、收入、轉帳)
+    // 2. 隱藏「所有」分類網格 (支出、收入、轉帳、應收款項)
     const expenseGrid = document.getElementById('grid-expense');
     const incomeGrid = document.getElementById('grid-income');
     const transferGrid = document.getElementById('grid-transfer');
+    const receivableGrid = document.getElementById('grid-receivable');
     
     if (expenseGrid) expenseGrid.classList.remove('active');
     if (incomeGrid) incomeGrid.classList.remove('active');
     if (transferGrid) transferGrid.classList.remove('active');
+    if (receivableGrid) receivableGrid.classList.remove('active');
 
     // 3. 根據目前點擊的類型，決定開啟哪一組網格
     if (type === '支出' && expenseGrid) {
@@ -630,12 +632,13 @@ function setRecordType(type, el) {
         incomeGrid.classList.add('active');
     } else if (type === '轉帳' && transferGrid) {
         transferGrid.classList.add('active');
+    } else if (type === '應收款項' && receivableGrid) {
+        receivableGrid.classList.add('active');
     }
 
     // 4. 重新渲染新跑出來的 Lucide 圖標
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
-
   
 /**
  * 處理 FAB 點擊
