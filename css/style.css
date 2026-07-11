@@ -523,19 +523,13 @@ input:checked + .slider:before { transform: translateX(20px); }
 .calendar-grid-day.saturday .date-val { color: #a3e635; }
 .calendar-grid-day.not-current .date-val { color: #3a3a4c; }
 
-/* 讓日曆彈窗內的格子對齊 */
-#record-calendar-body {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-    text-align: center;
+.calendar-day-cell:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
-.day-cell {
-    padding: 10px;
-    cursor: pointer;
-    border-radius: 50%;
+.calendar-day-cell:active {
+    background: var(--purple);
+    color: white;
 }
-.day-cell:active { background: #3d3d4d; }
 
 /* =========================================
    9. 快捷商家群組與內嵌計算機鍵盤
