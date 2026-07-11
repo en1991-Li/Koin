@@ -470,25 +470,89 @@ function switchAdvancedTab(tabType) {
     }
 }
 
+// ==========================================
+// 獨立模組：新增記錄專用動態日曆視窗
+// ==========================================
+
+// 宣告日曆當前展示的年月變數
+let calendarDisplayDate = new Date();
+
 /**
- * 5. 自訂日期選取器 (動態彈出日曆清單)
+ * 1. 點擊「今天」按鈕時觸發：打開並初始化日曆
  */
 function openRecordCalendar() {
-    // 開啟我們剛剛建立的彈窗
+    calendarDisplayDate = new Date(); // 每次打開預設回到系統當前月份
+    renderDynamicRecordCalendar();
     openModal('record-calendar-modal');
-    
-    // 如果有現成的渲染日曆函式 (例如 renderCalendar)，在這裡觸發它
-    // 例如：renderCalendar('record-calendar-body');
-    console.log("正在開啟行事曆...");
 }
 
 /**
- * 當使用者點擊日曆中的某一天
+ * 2. 切換上個月/下個月
  */
-function onDateSelected(dateStr) {
-    recordState.date = dateStr;
-    const btn = document.getElementById('btn-select-date');
-    if (btn) btn.innerText = dateStr; // 反填日期
+function changeRecordMonth(direction) {
+    calendarDisplayDate.setMonth(calendarDisplayDate.getMonth() + direction);
+    renderDynamicRecordCalendar();
+}
+
+/**
+ * 3. 動態核心演算法：渲染月曆格子
+ */
+function renderDynamicRecordCalendar() {
+    const year = calendarDisplayDate.getFullYear();
+    const month = calendarDisplayDate.getMonth(); // 0 ~ 11
+
+    // 更新網頁彈窗上的年月標題
+    const titleTitle = document.getElementById('calendar-month-year-title');
+    if (titleTitle) {
+        titleTitle.innerText = `${year} 年 ${String(month + 1).padStart(2, '0')} 月`;
+    }
+
+    const gridContainer = document.getElementById('record-calendar-grid');
+    if (!gridContainer) return;
+    gridContainer.innerHTML = ''; // 清空舊格子
+
+    // 取得這個月的第一天是星期幾 (0 = 週日, 1 = 週一...)
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    // 取得這個月總共有幾天
+    const totalDays = new Date(year, month + 1, 0).getDate();
+
+    // A. 渲染開頭的空白格子 (填補第一天之前的星期空隙)
+    for (let i = 0; i < firstDayIndex; i++) {
+        gridContainer.insertAdjacentHTML('beforeend', `<div style="padding: 8px;"></div>`);
+    }
+
+    // B. 動態渲染 1 號到最後一天的實體格子
+    const today = new Date();
+    for (let day = 1; day <= totalDays; day++) {
+        // 檢查這一格是不是「今天」，是的話加上高亮外圈
+        const isToday = (year === today.getFullYear() && month === today.getMonth() && day === today.getDate());
+        const todayStyle = isToday ? 'border: 2px solid #5d5dff; font-weight: bold; color: #5d5dff;' : '';
+
+        const dateStr = `${year}/${String(month + 1).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
+        
+        const cellHTML = `
+            <div onclick="selectRecordCalendarDate('${dateStr}', '${month + 1}/${day}')" 
+                 style="padding: 8px 0; cursor: pointer; border-radius: 50%; font-size: 14px; transition: background 0.2s; ${todayStyle}"
+                 class="calendar-day-cell">
+                ${day}
+            </div>
+        `;
+        gridContainer.insertAdjacentHTML('beforeend', cellHTML);
+    }
+}
+
+/**
+ * 4. 點擊日曆格子：反填資料並關閉彈窗
+ */
+function selectRecordCalendarDate(fullDate, displayDate) {
+    recordState.date = fullDate; // 存入全域記帳狀態
+    
+    // 更新新增記錄畫面的按鈕文字
+    const dateBtn = document.getElementById('btn-select-date');
+    if (dateBtn) {
+        dateBtn.innerText = displayDate; 
+    }
+    
     closeModal('record-calendar-modal');
 }
 
