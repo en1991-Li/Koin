@@ -421,6 +421,7 @@
     </div>
 </div>
 
+<!-- 轉帳分類網格 -->                
 <div class="category-grid" id="grid-transfer">
     <div class="category-item" onclick="selectCategory('轉帳')">
         <div class="cate-icon-wrapper i-transfer-orange"><i data-lucide="arrow-left-right"></i></div>
@@ -439,6 +440,23 @@
         <p>還款</p>
     </div>
 </div>
+
+<!-- 應收款項分類網格 -->                     
+<div class="category-grid" id="grid-receivable">
+    <div class="category-item" onclick="selectCategory('借出')">
+        <div class="cate-icon-wrapper i-receivable-gold"><i data-lucide="hand-coins"></i></div>
+        <p>借出</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('代付')">
+        <div class="cate-icon-wrapper i-receivable-gold"><i data-lucide="handshake"></i></div>
+        <p>代付</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('報帳')">
+        <div class="cate-icon-wrapper i-receivable-gold"><i data-lucide="briefcase-business"></i></div>
+        <p>報帳</p>
+    </div>
+</div>
+                
                 <div class="record-form" style="padding: 0 20px;">
                     <div class="amount-input-box" onclick="toggleCalculator(true)" style="background: #2c2c3e; border-radius: 15px; padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
                         <span style="background: #3d3d4d; padding: 5px 12px; border-radius: 8px;">TWD</span>
