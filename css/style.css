@@ -746,3 +746,8 @@ input:checked + .slider:before { transform: translateX(20px); }
 .i-income-gold { 
     background: linear-gradient(135deg, #d97706, #b45309); 
 }
+
+/* 轉帳專屬：沉穩橘褐*/
+.i-transfer-dark {
+    background: linear-gradient(135deg, #e07a2c, #b45309);
+}
