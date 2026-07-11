@@ -636,9 +636,8 @@ function setRecordType(type, el) {
         transferGrid.classList.add('active');
     } else if (type === '應收款項' && receivableGrid) {
         receivableGrid.classList.add('active');
-    } else if (type === '應付帳款' || type === '應付款項') {
-        // 自動相容的頁籤中文字，點擊時點亮應付網格
-        if (payableGrid) payableGrid.classList.add('active');
+    } else if (type === '應付款項' && payableGrid) {
+        payableGrid.classList.add('active');
     }
 
     // 4. 重新渲染新跑出來的 Lucide 向量圖標
