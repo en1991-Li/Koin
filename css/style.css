@@ -729,3 +729,20 @@ input:checked + .slider:before { transform: translateX(20px); }
 .i-family        { background: linear-gradient(135deg, #f472b6, #ec4899); } /* 家庭：芭比粉 */
 .i-life          { background: linear-gradient(135deg, #84cc16, #65a30d); } /* 生活：軍綠 */
 .i-learn         { background: linear-gradient(135deg, #fb923c, #f97316); } /* 學習：澄橘 */
+
+/* 控制網格顯示或隱藏 */
+.category-grid {
+    display: none; /* 預設都隱藏 */
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px 10px;
+    padding: 10px 15px 20px 15px;
+}
+
+.category-grid.active {
+    display: grid; /* 只有加上 active 的網格才會顯示 */
+}
+
+/* 收入專屬：大地金黃色漸層背景 */
+.i-income-gold { 
+    background: linear-gradient(135deg, #d97706, #b45309); 
+}
