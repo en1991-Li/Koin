@@ -602,11 +602,34 @@ function quickSelectBrand(name, defaultProj) {
     selectRecordProject(defaultProj);
 }
 
-// 分類頂部 Tab 切換
+/**
+ * 切換記帳類型（支出/收入/轉帳...）並連動切換圖標網格
+ */
 function setRecordType(type, el) {
-    recordState.type = type;
-    document.querySelectorAll('#record-type-tabs span').forEach(s => s.classList.remove('active', 'text-blue'));
-    el.classList.add('active', 'text-blue');
+    if (typeof recordState !== 'undefined') {
+        recordState.type = type;
+    }
+    
+    // 1. 切換頂部頁籤的高亮狀態
+    document.querySelectorAll('#record-type-tabs span').forEach(s => s.classList.remove('active', 'text-blue'));
+    if (el) el.classList.add('active', 'text-blue');
+
+    // 2. 移除所有分類網格的顯示狀態
+    const expenseGrid = document.getElementById('grid-expense');
+    const incomeGrid = document.getElementById('grid-income');
+    
+    if (expenseGrid) expenseGrid.classList.remove('active');
+    if (incomeGrid) incomeGrid.classList.remove('active');
+
+    // 3. 根據目前點擊的類型，決定開啟哪一組網格
+    if (type === '支出' && expenseGrid) {
+        expenseGrid.classList.add('active');
+    } else if (type === '收入' && incomeGrid) {
+        incomeGrid.classList.add('active');
+    }
+
+    // 4. 重新渲染可能新跑出來的 Lucide 圖標
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
   
@@ -756,7 +779,7 @@ function saveProject() {
     projects.push(newProject);
     localStorage.setItem('koin_projects', JSON.stringify(projects));
 
-    // 如果你有渲染專案總覽的函式，在此觸發重繪
+    // 如果有渲染專案總覽的函式，在此觸發重繪
     if (typeof renderProjectsPage === 'function') renderProjectsPage();
     
     // 清空表單欄位與重設預設值
