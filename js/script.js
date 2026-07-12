@@ -188,6 +188,54 @@ function selectCategory(categoryName) {
 }
 
 /**
+ * 核心儲存功能：打包當前輸入的所有數據並存入 LocalStorage
+ */
+function saveRecord() {
+    // 1. 抓取當前畫面上的計算機金額
+    const amountDisplay = document.getElementById('record-amount-display');
+    const amount = amountDisplay ? parseFloat(amountDisplay.innerText) : 0;
+
+    if (amount <= 0) {
+        alert('請輸入大於 0 的金額！');
+        return;
+    }
+
+    // 2. 抓取備註說明
+    const noteInput = document.getElementById('record-note');
+    const note = noteInput ? noteInput.value.trim() : '';
+
+    // 3. 整合所有數據，打包成一筆標準記帳物件
+    const newRecord = {
+        id: Date.now(),                                      // 用時間戳記當作不重複 ID
+        type: recordState.type || '支出',                    // 支出 / 收入 / 轉帳 等
+        category: recordState.category || '未分類', 
+        amount: amount,                                      // 記帳金額
+        date: recordState.date || new Date().toLocaleDateString(), // 記帳日期
+        note: note                                           // 備註事項
+    };
+
+    // 4. 從 LocalStorage 取出舊資料，並把新資料塞進去
+    let localRecords = JSON.parse(localStorage.getItem('koin_records')) || [];
+    localRecords.push(newRecord);
+    localStorage.setItem('koin_records', JSON.stringify(localRecords));
+
+    // 5. 儲存成功後，清空輸入框，並流暢跳回日曆主頁面
+    if (noteInput) noteInput.value = '';
+    if (amountDisplay) amountDisplay.innerText = '0';
+    
+    // 重置主分類網格視圖
+    changeSubGrid('main-expense'); 
+
+    // 跳回原本的行事曆或首頁
+    showPage('page-calendar'); 
+    
+    // 如果有全域更新首頁金額的函式（例如 renderAccountOverview），就在這裡呼叫它
+    if (typeof renderAccountOverview === 'function') {
+        renderAccountOverview();
+    }
+}
+
+/**
  * 統一更新畫面上所有帶有 amount-val 類別的金額顯示
  */
 function updateAmountDisplay() {
