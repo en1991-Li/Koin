@@ -188,12 +188,12 @@ function selectCategory(categoryName) {
 }
 
 /**
- * 核心儲存功能：打包當前輸入的所有數據並存入 LocalStorage
+ * 打包當前數據、同步扣減帳戶餘額並存入 LocalStorage
  */
 function saveRecord() {
     // 1. 抓取當前畫面上的計算機金額
     const amountDisplay = document.getElementById('record-amount-display');
-    const amount = amountDisplay ? parseFloat(amountDisplay.innerText) : 0;
+    const amount = amountDisplay ? parseFloat(amountDisplay.innerText.replace(/,/g, '')) : 0;
 
     if (amount <= 0) {
         alert('請輸入大於 0 的金額！');
@@ -204,35 +204,70 @@ function saveRecord() {
     const noteInput = document.getElementById('record-note');
     const note = noteInput ? noteInput.value.trim() : '';
 
-    // 3. 整合所有數據，打包成一筆標準記帳物件
+    // 3. 讀取目前全域選擇的帳戶 (預設為 '錢包')
+    const currentAccountName = recordState.account || '錢包';
+    const currentRecordType = recordState.type || '支出';
+    const currentCategory = recordState.category || '未分類';
+
+    // 4. 連動修改對應帳戶的餘額
+    let localAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
+    
+    // 尋找目前選取用來扣款/收款的帳戶
+    let targetAccount = localAccounts.find(acc => acc.name === currentAccountName);
+    
+    if (targetAccount) {
+        // 根據交易類型決定金額增減
+        if (currentRecordType === '支出' || currentRecordType === '應付款項') {
+            // 支出或要付別人的錢：帳戶餘額減少
+            targetAccount.amount = (parseFloat(targetAccount.amount) || 0) - amount;
+        } else if (currentRecordType === '收入' || currentRecordType === '應收款項') {
+            // 收入或收回別人的錢：帳戶餘額增加
+            targetAccount.amount = (parseFloat(targetAccount.amount) || 0) + amount;
+        }
+        // 轉帳類型，可依據未來開發的「轉入帳戶」擴充
+        
+        // 將修改完餘額的帳戶列表回存至硬碟
+        localStorage.setItem('koin_accounts', JSON.stringify(localAccounts));
+    }
+
+    // 5. 整合所有數據，打包成一筆標準記帳物件
     const newRecord = {
-        id: Date.now(),                                      // 用時間戳記當作不重複 ID
-        type: recordState.type || '支出',                    // 支出 / 收入 / 轉帳 等
-        category: recordState.category || '未分類', 
+        id: Date.now(),                                      
+        type: currentRecordType,                             // 支出 / 收入 / 轉帳 等
+        category: currentCategory,                           // 飲食 / 早餐 / 午餐 等
+        account: currentAccountName,                         // 扣款帳戶名稱
         amount: amount,                                      // 記帳金額
         date: recordState.date || new Date().toLocaleDateString(), // 記帳日期
+        time: recordState.time || '12:00',                   // 記帳時間
         note: note                                           // 備註事項
     };
 
-    // 4. 從 LocalStorage 取出舊資料，並把新資料塞進去
+    // 6. 將紀錄存入 LocalStorage
     let localRecords = JSON.parse(localStorage.getItem('koin_records')) || [];
     localRecords.push(newRecord);
     localStorage.setItem('koin_records', JSON.stringify(localRecords));
 
-    // 5. 儲存成功後，清空輸入框，並流暢跳回日曆主頁面
+    // 7. 儲存成功後，清空輸入緩衝，並流暢跳回日曆主頁面
     if (noteInput) noteInput.value = '';
     if (amountDisplay) amountDisplay.innerText = '0';
     
-    // 重置主分類網格視圖
-    changeSubGrid('main-expense'); 
+    // 重置計算機引擎狀態
+    recordState.currentInput = '0';
+    recordState.prevInput = '0';
+    recordState.operator = null;
+    const indicator = document.getElementById('calc-operator-indicator');
+    if (indicator) indicator.innerText = '';
+    
+    // 重置主分類網格視圖（如果是從飲食子網格儲存的，自動幫你切換回主選單，防呆用）
+    if (typeof changeSubGrid === 'function') {
+        changeSubGrid('main-expense'); 
+    }
 
-    // 跳回原本的行事曆或首頁
+    // 跳回行事曆主頁
     showPage('page-calendar'); 
     
-    // 如果有全域更新首頁金額的函式（例如 renderAccountOverview），就在這裡呼叫它
-    if (typeof renderAccountOverview === 'function') {
-        renderAccountOverview();
-    }
+    // 觸發全域金額重繪，讓首頁的錢包餘額、總資產、總餘額立刻跳動更新！
+    renderAccountOverview();
 }
 
 /**
