@@ -760,3 +760,16 @@ input:checked + .slider:before { transform: translateX(20px); }
 /* 應付款項專屬：質感磚紅漸層背景 */
 .i-payable-red {
     background: linear-gradient(135deg, #f87171, #ef4444);
+
+/* 確保飲食子網格在沒有 active 時完全不佔用空間 */
+#grid-expense-eat {
+    display: none;
+}
+
+/* 點擊後，以獨立的網格型態展現 */
+#grid-expense-eat.active {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px 10px;
+    padding: 10px 15px 20px 15px;
+}   
