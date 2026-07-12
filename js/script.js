@@ -163,28 +163,81 @@ function toggleAmountVisibility() {
 }
 
 /**
- * 當使用者點擊任何分類圖標（包含主分類與子分類）
+ * 點擊分類時，不立刻儲存，而是收合網格並開啟金額鍵盤
  */
 function selectCategory(categoryName) {
-    // 1. 將選取的分類名稱寫入全域狀態機
+    // 1. 寫入全域狀態機
     if (typeof recordState !== 'undefined') {
         recordState.category = categoryName;
     }
 
-    // 2. 自動將名稱同步反填到介面的名稱輸入框或欄位
-    const nameInput = document.getElementById('record-note');
-    if (nameInput && !nameInput.value) {
-        nameInput.value = categoryName; 
-    }
+    // 2. 找出這個分類對應的 Lucide 圖標名稱
+    let iconName = 'utensils';
+    if (categoryName === '早餐') iconName = 'croissant';
+    if (categoryName === '午餐') iconName = 'utensils';
+    if (categoryName === '晚餐') iconName = 'soup';
+    if (categoryName === '點心') iconName = 'cookie';
+    if (categoryName === '飲料') iconName = 'cup-text';
+    if (categoryName === '酒類') iconName = 'beer';
+    if (categoryName === '水果') iconName = 'apple';
+    if (categoryName === '宵夜') iconName = 'pizza';
+    if (categoryName === '礦泉水') iconName = 'droplet';
 
-    // 3. 點擊後直接觸發現有的儲存記錄函式
-    console.log(`已選取分類：${categoryName}，正在自動儲存...`);
+    // 3. 更新動態展示卡片上的文字、圖標與子金額
+    const cardName = document.getElementById('selected-card-name');
+    const cardIcon = document.getElementById('selected-card-icon');
+    const cardAmountSub = document.getElementById('selected-card-amount-sub');
     
-    if (typeof saveRecord === 'function') {
-        saveRecord();
-    } else {
-        alert(`已選取 ${categoryName}！(saveRecord 函式)`);
+    if (cardName) cardName.innerText = categoryName;
+    if (cardIcon) {
+        cardIcon.setAttribute('data-lucide', iconName);
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     }
+    if (cardAmountSub) cardAmountSub.innerText = '$0';
+
+    // 4. 隱藏所有 5 大分類主副網格
+    const grids = ['grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable', 'grid-expense-eat'];
+    grids.forEach(id => {
+        const g = document.getElementById(id);
+        if (g) g.classList.remove('active');
+    });
+
+    // 5. 秀出左上角已選取卡片，並自動彈開計算機鍵盤
+    const cardZone = document.getElementById('selected-category-card-zone');
+    if (cardZone) cardZone.classList.add('show-card');
+    
+    // 自動開啟原本的計算機
+    toggleCalculator(true); 
+}
+
+/**
+ * 輔助連動：當使用者在計算機按數字時，即時連動卡片下方的綠色細字 $金額
+ */
+const originalPressCalc = pressCalc; // 攔截你原本的計算機功能
+pressCalc = function(val) {
+    originalPressCalc(val); // 先執行你原本的按鍵計算
+    
+    // 即時把計算機當前的最新數字，同步反映到卡片下方的綠色 $ 金額
+    const currentAmt = document.getElementById('record-amount-display').innerText;
+    const cardAmountSub = document.getElementById('selected-card-amount-sub');
+    if (cardAmountSub) {
+        cardAmountSub.innerText = `$${currentAmt}`;
+    }
+};
+
+/**
+ * 點擊卡片旁的「+」按鈕：清除選取狀態，重新攤開原本的主分類網格
+ */
+function resetCategorySelection() {
+    const cardZone = document.getElementById('selected-category-card-zone');
+    if (cardZone) cardZone.classList.remove('show-card');
+
+    // 根據當前記帳類型（支出/收入等），重新攤開對應的網格
+    const currentType = recordState.type || '支出';
+    setRecordType(currentType, document.querySelector(`#record-type-tabs span.active`));
+    
+    // 關閉計算機
+    toggleCalculator(false);
 }
 
 /**
@@ -265,6 +318,10 @@ function saveRecord() {
 
     // 跳回行事曆主頁
     showPage('page-calendar'); 
+
+    // 儲存成功後把卡片收起來
+const cardZone = document.getElementById('selected-category-card-zone');
+if (cardZone) cardZone.classList.remove('show-card');
     
     // 觸發全域金額重繪，讓首頁的錢包餘額、總資產、總餘額立刻跳動更新！
     renderAccountOverview();
