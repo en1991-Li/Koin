@@ -778,3 +778,31 @@ input:checked + .slider:before { transform: translateX(20px); }
 #selected-category-card-zone.show-card {
     display: flex !important;
 }
+
+/* 1. 當網格進入「已選取狀態」時，調整為符合影片中的靠左對齊與間距 */
+.category-grid.has-selected {
+    display: flex !important;
+    justify-content: flex-start;
+    gap: 15px;
+    padding-left: 20px;
+}
+
+/* 2. 只要網格內有東西被選中，其他沒被選中的分類項目通通隱藏 */
+.category-grid.has-selected .category-item:not(.selected-active) {
+    display: none !important;
+}
+
+/* 3. 修正：動態產生的「＋」按鈕圓圈樣式  */
+.dynamic-add-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #2c2c3e;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    color: #8a8a8e;
+    cursor: pointer;
+    margin-top: 10px; /* 對齊大圓圈圖標的高度位置 */
+}
