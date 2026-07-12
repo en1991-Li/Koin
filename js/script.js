@@ -163,22 +163,27 @@ function toggleAmountVisibility() {
 }
 
 /**
- * 分類大圓圈點擊選取事件
- * @param {string} name 分類中文名稱
- * @param {string} iconName 備用的圖標名稱
+ * 當使用者點擊任何分類圖標（包含主分類與子分類）
  */
-function selectCategory(name, iconName) {
-    console.log(`[記帳] 已選取分類: ${name}`);
-    
-    // 自動將名稱填入項目輸入框（如：飲食、交通）
-    const nameInput = document.getElementById('record-name');
-    if (nameInput) {
-        nameInput.value = name;
-    }
-    
-    // 可以自動連動 recordState 變數，方便未來寫入後端 API
+function selectCategory(categoryName) {
+    // 1. 將選取的分類名稱寫入全域狀態機
     if (typeof recordState !== 'undefined') {
-        recordState.categorySelected = name;
+        recordState.category = categoryName;
+    }
+
+    // 2. 自動將名稱同步反填到介面的名稱輸入框或欄位
+    const nameInput = document.getElementById('record-note');
+    if (nameInput && !nameInput.value) {
+        nameInput.value = categoryName; 
+    }
+
+    // 3. 點擊後直接觸發現有的儲存記錄函式
+    console.log(`已選取分類：${categoryName}，正在自動儲存...`);
+    
+    if (typeof saveRecord === 'function') {
+        saveRecord();
+    } else {
+        alert(`已選取 ${categoryName};
     }
 }
 
