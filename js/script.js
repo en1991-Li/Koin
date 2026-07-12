@@ -643,6 +643,31 @@ function setRecordType(type, el) {
     // 4. 重新渲染新跑出來的 Lucide 向量圖標
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
+
+/**
+ * 控制主分類與次級子分類網格之間的切換
+ */
+function changeSubGrid(target) {
+    const expenseGrid = document.getElementById('grid-expense');
+    const eatGrid = document.getElementById('grid-expense-eat');
+    
+    if (!expenseGrid || !eatGrid) return;
+
+    // 先將兩個區塊的 active 隱藏
+    expenseGrid.classList.remove('active');
+    eatGrid.classList.remove('active');
+
+    if (target === 'eat') {
+        // 進入飲食子分類
+        eatGrid.classList.add('active');
+    } else if (target === 'main-expense') {
+        // 返回支出主分類
+        expenseGrid.classList.add('active');
+    }
+
+    // 重新渲染新跑出來的圖標
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
   
 /**
  * 處理 FAB 點擊
