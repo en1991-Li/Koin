@@ -183,7 +183,7 @@ function selectCategory(categoryName) {
     if (typeof saveRecord === 'function') {
         saveRecord();
     } else {
-        alert(`已選取 ${categoryName};
+        alert(`已選取 ${categoryName}！(saveRecord 函式)`);
     }
 }
 
