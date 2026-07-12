@@ -310,13 +310,6 @@ function saveRecord() {
     // 跳回行事曆主頁
     showPage('page-calendar'); 
 
-    // 儲存成功後清除卡片並還原頂部頁籤
-const cardZone = document.getElementById('selected-category-card-zone');
-if (cardZone) cardZone.classList.remove('show-card');
-
-const typeTabs = document.getElementById('record-type-tabs');
-if (typeTabs) typeTabs.style.display = 'flex'; // 確保下次進來時頁籤列預設看得見
-    
     // 觸發全域金額重繪，讓首頁的錢包餘額、總資產、總餘額立刻跳動更新！
     renderAccountOverview();
 
