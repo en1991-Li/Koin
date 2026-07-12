@@ -645,7 +645,7 @@ function setRecordType(type, el) {
 }
 
 /**
- * 控制主分類與次級子分類網格之間的切換
+ * 支出主分類與飲食子分類網格切換核心
  */
 function changeSubGrid(target) {
     const expenseGrid = document.getElementById('grid-expense');
@@ -653,19 +653,18 @@ function changeSubGrid(target) {
     
     if (!expenseGrid || !eatGrid) return;
 
-    // 先將兩個區塊的 active 隱藏
+    // 移除活躍狀態，避免兩個網格同時出現在畫面上
     expenseGrid.classList.remove('active');
     eatGrid.classList.remove('active');
 
+    // 依據目的地，精準點亮單一網格
     if (target === 'eat') {
-        // 進入飲食子分類
         eatGrid.classList.add('active');
     } else if (target === 'main-expense') {
-        // 返回支出主分類
         expenseGrid.classList.add('active');
     }
 
-    // 重新渲染新跑出來的圖標
+    // 重新繪製新視圖中的 Lucide 向量圖標
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
   
