@@ -163,98 +163,71 @@ function toggleAmountVisibility() {
 }
 
 /**
- * 隱藏其他同層圖標，原位只留下選中的單一圖標與加號
+ * 點擊分類時，連同頂部頁籤一起隱藏，只留下單個分類圖標卡片
  */
-function selectCategory(categoryName, element) {
-    // 1. 寫入全域狀態
+function selectCategory(categoryName) {
     if (typeof recordState !== 'undefined') {
         recordState.category = categoryName;
     }
 
-    // 如果 HTML 沒有傳 this 過來，用文字主動去畫面上抓這個元素
-    const targetEl = element || Array.from(document.querySelectorAll('.category-item p'))
-                                    .find(p => p.innerText === categoryName)?.parentNode;
-    if (!targetEl) return;
+    // 1. 自動對照 Lucide 圖標名稱
+    let iconName = 'utensils';
+    if (categoryName === '早餐') iconName = 'croissant';
+    if (categoryName === '午餐') iconName = 'utensils';
+    if (categoryName === '晚餐') iconName = 'soup';
+    if (categoryName === '點心') iconName = 'cookie';
+    if (categoryName === '飲料') iconName = 'cup-text';
+    if (categoryName === '酒類') iconName = 'beer';
+    if (categoryName === '水果') iconName = 'apple';
+    if (categoryName === '宵夜') iconName = 'pizza';
+    if (categoryName === '礦泉水') iconName = 'droplet';
 
-    // 2. 找到這個分類隸屬的父網格 (例如 #grid-expense-eat)
-    const parentGrid = targetEl.parentNode;
-    if (!parentGrid) return;
-
-    // 3. 為選中的項目加上活躍類別，並為父網格加上「已有選中項目」的類別
-    targetEl.classList.add('selected-active');
-    parentGrid.classList.add('has-selected');
-
-    if (!document.getElementById('dyn-add-btn')) {
-        const addBtnHTML = `
-            <div id="dyn-add-btn" class="dynamic-add-btn" onclick="resetCategorySelection(event)">
-                <i data-lucide="plus" style="width: 22px; height: 22px;"></i>
-            </div>
-        `;
-        parentGrid.insertAdjacentHTML('beforeend', addBtnHTML);
+    // 2. 更新動態展示卡片內容
+    const cardName = document.getElementById('selected-card-name');
+    const cardIcon = document.getElementById('selected-card-icon');
+    const cardAmountSub = document.getElementById('selected-card-amount-sub');
+    
+    if (cardName) cardName.innerText = categoryName;
+    if (cardIcon) {
+        cardIcon.setAttribute('data-lucide', iconName);
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
+    if (cardAmountSub) cardAmountSub.innerText = '$0';
 
-    // 4. 即時更新下方綠色金額字體 $0
-    updateCardSubAmount('0');
-
-    // 5. 自動彈開下方的計算機鍵盤
-    toggleCalculator(true);
-}
-
-/**
- * 即時更新圖標下方的綠色細字金額 (如 $100)
- */
-function updateCardSubAmount(amountText) {
-    // 找到畫面上那個唯一亮著的 selected-active 項目
-    const activeItem = document.querySelector('.category-item.selected-active');
-    if (!activeItem) return;
-
-    // 檢查裡面有沒有綠色金額標籤，沒有就動態塞一塊進去
-    let subAmtEl = activeItem.querySelector('.sub-amt-text');
-    if (!subAmtEl) {
-        const pEl = activeItem.querySelector('p');
-        if (pEl) {
-            pEl.insertAdjacentHTML('afterend', `<span class="sub-amt-text" style="font-size: 11px; color: #4ade80; display: block; margin-top: 2px;">$0</span>`);
-            subAmtEl = activeItem.querySelector('.sub-amt-text');
-        }
-    }
-    if (subAmtEl) {
-        subAmtEl.innerText = `$${amountText}`;
-    }
-}
-
-/**
- * 攔截並優化你原本的計算機按鍵核心：按數字時，大圓圈下的金額要即時跟著跳動
- */
-const originalPressCalc = pressCalc; 
-pressCalc = function(val) {
-    originalPressCalc(val); // 先執行原本計算機的邏輯
-    
-    // 抓取計算機當前最新的數字字串
-    const currentAmt = document.getElementById('record-amount-display').innerText;
-    // 即時同步給大圓圈下方的綠色細字
-    updateCardSubAmount(currentAmt);
-};
-
-/**
- * 點擊「＋」號：解除單一圖標孤立狀態，重新攤開原本的所有圖標，並關閉鍵盤
- */
-function resetCategorySelection(event) {
-    if (event) event.stopPropagation();
-
-    // 1. 移除畫面上動態生成的「＋」號
-    const addBtn = document.getElementById('dyn-add-btn');
-    if (addBtn) addBtn.remove();
-
-    // 2. 找到所有亮著的項目並拔除類別，讓所有圖標再次全部攤開
-    document.querySelectorAll('.category-grid').forEach(grid => grid.classList.remove('has-selected'));
-    document.querySelectorAll('.category-item').forEach(item => {
-        item.classList.remove('selected-active');
-        const subAmt = item.querySelector('.sub-amt-text');
-        if (subAmt) subAmt.remove(); // 清除金額小字
+    // 3. 隱藏所有分類網格
+    const grids = ['grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable', 'grid-expense-eat'];
+    grids.forEach(id => {
+        const g = document.getElementById(id);
+        if (g) g.classList.remove('active');
     });
 
-    // 3. 收起鍵盤
+    // 4. 同時隱藏最頂部的「支出/收入/轉帳」頁籤列
+    const typeTabs = document.getElementById('record-type-tabs');
+    if (typeTabs) typeTabs.style.display = 'none';
+
+    // 5. 秀出單個分類卡片區塊，並彈開計算機
+    const cardZone = document.getElementById('selected-category-card-zone');
+    if (cardZone) cardZone.classList.add('show-card');
+    
+    toggleCalculator(true); 
+}
+
+/**
+ * 點擊卡片旁的「+」按鈕：清除卡片，還原頂部頁籤與網格
+ */
+function resetCategorySelection() {
+    // 1. 隱藏單個分類卡片區塊
+    const cardZone = document.getElementById('selected-category-card-zone');
+    if (cardZone) cardZone.classList.remove('show-card');
+
+    // 2. 還原顯示最頂部的「支出/收入/轉帳」頁籤列
+    const typeTabs = document.getElementById('record-type-tabs');
+    if (typeTabs) typeTabs.style.display = 'flex';
+
+    // 3. 重新攤開原本的分類網格
+    const currentType = recordState.type || '支出';
+    setRecordType(currentType, document.querySelector(`#record-type-tabs span.active`));
+    
     toggleCalculator(false);
 }
 
