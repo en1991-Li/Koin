@@ -166,46 +166,102 @@ function toggleAmountVisibility() {
 }
 
 /**
- * 點擊分類圖標後，隱藏網格並展示單個圖標卡片畫面
+ * 點擊分類圖標後（支援支出/收入），隱藏網格並展示單個圖標卡片畫面
+ * @param {string} categoryName 分類名稱
+ * @param {string} parentType 父類型判定 ('income' 代表收入，未傳代表支出)
  */
-function selectCategory(categoryName) {
+function selectCategory(categoryName, parentType) {
+    // 1. 寫入全域狀態機
     if (typeof recordState !== 'undefined') {
         recordState.category = categoryName;
     }
 
+    // 2. 核心圖標映射字典 (整合支出子分類與收入主分類)
     let iconName = 'utensils';
+    
+    // 支出系列
     if (categoryName === '早餐') iconName = 'croissant';
     if (categoryName === '午餐') iconName = 'utensils';
     if (categoryName === '晚餐') iconName = 'soup';
     if (categoryName === '點心') iconName = 'cookie';
-    if (categoryName === '飲料') iconName = 'cup-text';
+    if (categoryName === '飲料') iconName = 'cup-soda';
     if (categoryName === '酒類') iconName = 'beer';
-    if (categoryName === '水果') iconName = 'apple';
+    if (categoryName === '水果') iconName = 'grape';
     if (categoryName === '宵夜') iconName = 'pizza';
-    if (categoryName === '礦泉水') iconName = 'droplet';
+    if (categoryName === '礦泉水') iconName = 'glass-water';
+    if (categoryName === '交通') iconName = 'car';
+    if (categoryName === '娛樂') iconName = 'party-popper';
+    if (categoryName === '購物') iconName = 'shopping-bag';
+    
+    // 收入系列
+    if (categoryName === '薪水') iconName = 'dollar-sign';
+    if (categoryName === '獎金') iconName = 'coins';
+    if (categoryName === '投資') iconName = 'trending-up';
+    if (categoryName === '收款') iconName = 'hand-coins';
+    if (categoryName === '彩券') iconName = 'newspaper';
+    if (categoryName === '利息') iconName = 'landmark';
+    if (categoryName === '消費回饋') iconName = 'credit-card';
+    if (categoryName === '零用錢') iconName = 'circle-dollar-sign';
+    if (categoryName === '發票') iconName = 'receipt';
+    if (categoryName === '補助') iconName = 'building-2';
 
+    // 3. 取得 UI 節點
     const cardName = document.getElementById('selected-card-name');
     const cardIcon = document.getElementById('selected-card-icon');
     const cardAmountSub = document.getElementById('selected-card-amount-sub');
+    const cardIconWrapper = document.getElementById('selected-card-icon-wrapper');
     
     if (cardName) cardName.innerText = categoryName;
     if (cardIcon) {
         cardIcon.setAttribute('data-lucide', iconName);
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
-    if (cardAmountSub) cardAmountSub.innerText = '$0';
 
+    // 4. 連動卡片樣式：根據 parentType 切換文字顏色與圓圈背景
+    if (cardAmountSub) {
+        if (parentType === 'income') {
+            cardAmountSub.innerText = '+$0';
+            cardAmountSub.className = 'text-green'; // 收入用綠色
+            if (cardIconWrapper) cardIconWrapper.className = 'cate-icon-wrapper i-income-gold';
+        } else {
+            cardAmountSub.innerText = '$0';
+            cardAmountSub.className = 'text-red'; // 支出用紅色
+            if (cardIconWrapper) cardIconWrapper.className = 'cate-icon-wrapper i-income-gold'; // 共用黃漸層
+        }
+    }
+
+    // 5. 收合目前畫面上所有的分類網格
     const gridIds = ['grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable', 'grid-expense-eat'];
     gridIds.forEach(id => {
         const g = document.getElementById(id);
         if (g) g.classList.remove('active');
     });
 
+    // 6. 顯示單個圖標卡片區塊，並開啟鍵盤
     const cardZone = document.getElementById('selected-category-card-zone');
     if (cardZone) cardZone.classList.add('show-card');
     
+    // 開啟內建計算機鍵盤
     toggleCalculator(true); 
 }
+
+/**
+ * 優化計算機即時同步，支援收入的正號 (+) 顯示
+ */
+const originalPressCalc = pressCalc; 
+pressCalc = function(val) {
+    originalPressCalc(val); 
+    
+    const display = document.getElementById('record-amount-display');
+    const currentAmt = display ? display.innerText : '0';
+    const cardAmountSub = document.getElementById('selected-card-amount-sub');
+    
+    if (cardAmountSub) {
+        // 自動檢查全域記帳狀態，如果是收入就加上正號
+        const isIncome = (recordState.type === '收入');
+        cardAmountSub.innerText = `${isIncome ? '+' : ''}$${currentAmt}`;
+    }
+};
 
 /**
  * 點擊卡片旁「+」按鈕：重置狀態，回溯顯示原本的分類網格
@@ -221,21 +277,6 @@ function resetCategorySelection() {
     setRecordType(currentType, activeTab);
     toggleCalculator(false);
 }
-
-/**
- * 攔截並優化計算機引擎：讓鍵盤輸入的數字能即時同步到卡片的綠色細字上
- */
-const originalPressCalc = pressCalc; 
-pressCalc = function(val) {
-    originalPressCalc(val); 
-    
-    const display = document.getElementById('record-amount-display');
-    const currentAmt = display ? display.innerText : '0';
-    const cardAmountSub = document.getElementById('selected-card-amount-sub');
-    if (cardAmountSub) {
-        cardAmountSub.innerText = `$${currentAmt}`;
-    }
-};
 
 /**
  * 打包當前數據、同步扣減帳戶餘額並存入 LocalStorage
