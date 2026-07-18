@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. 初始頁面渲染
     renderAccountOverview(); 
     if (typeof renderProjectsPage === 'function') renderProjectsPage();
+
+    // 確保一開 App 進入首頁或行事曆時，當天的明細就會預先載入出來
+    renderDailyDetailsList();
     
     // 4. 預設首頁狀態
     showPage('page-overview');
