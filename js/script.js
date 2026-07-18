@@ -166,12 +166,10 @@ function toggleAmountVisibility() {
  * 點擊分類圖標後，隱藏網格並展示單個圖標卡片畫面
  */
 function selectCategory(categoryName) {
-    // 1. 寫入全域狀態機
     if (typeof recordState !== 'undefined') {
         recordState.category = categoryName;
     }
 
-    // 2. 對照分類名稱自動對應 Lucide 圖標
     let iconName = 'utensils';
     if (categoryName === '早餐') iconName = 'croissant';
     if (categoryName === '午餐') iconName = 'utensils';
@@ -183,7 +181,6 @@ function selectCategory(categoryName) {
     if (categoryName === '宵夜') iconName = 'pizza';
     if (categoryName === '礦泉水') iconName = 'droplet';
 
-    // 3. 更新卡片區塊的文字、圖標與初始金額 $0
     const cardName = document.getElementById('selected-card-name');
     const cardIcon = document.getElementById('selected-card-icon');
     const cardAmountSub = document.getElementById('selected-card-amount-sub');
@@ -195,35 +192,17 @@ function selectCategory(categoryName) {
     }
     if (cardAmountSub) cardAmountSub.innerText = '$0';
 
-    // 4. 收合目前畫面上所有的分類網格
     const gridIds = ['grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable', 'grid-expense-eat'];
     gridIds.forEach(id => {
         const g = document.getElementById(id);
         if (g) g.classList.remove('active');
     });
 
-    // 5. 顯示單個圖標卡片區塊，並開啟鍵盤
     const cardZone = document.getElementById('selected-category-card-zone');
     if (cardZone) cardZone.classList.add('show-card');
     
-    // 開啟內建計算機
     toggleCalculator(true); 
 }
-
-/**
- * 攔截並優化計算機引擎：讓鍵盤輸入的數字能即時同步到卡片的綠色細字上
- */
-const originalPressCalc = pressCalc; 
-pressCalc = function(val) {
-    originalPressCalc(val); // 先執行原本寫好的計算緩衝邏輯
-    
-    // 抓取當前最新計算機金額，即時反填到卡片下的綠色金額
-    const currentAmt = document.getElementById('record-amount-display').innerText;
-    const cardAmountSub = document.getElementById('selected-card-amount-sub');
-    if (cardAmountSub) {
-        cardAmountSub.innerText = `$${currentAmt}`;
-    }
-};
 
 /**
  * 點擊卡片旁「+」按鈕：重置狀態，回溯顯示原本的分類網格
@@ -232,12 +211,28 @@ function resetCategorySelection() {
     const cardZone = document.getElementById('selected-category-card-zone');
     if (cardZone) cardZone.classList.remove('show-card');
 
-    // 還原目前記帳類型的分類網格
+    // 還原為標準 CSS 屬性選擇器以抓取 .active 的 span
     const currentType = recordState.type || '支出';
-    setRecordType(currentType, document.querySelector(`#record-type-tabs span.classList.contains('active')`));
+    const activeTab = document.querySelector('#record-type-tabs span.active');
     
-    toggleCalculator(false); // 關閉鍵盤
+    setRecordType(currentType, activeTab);
+    toggleCalculator(false);
 }
+
+/**
+ * 攔截並優化計算機引擎：讓鍵盤輸入的數字能即時同步到卡片的綠色細字上
+ */
+const originalPressCalc = pressCalc; 
+pressCalc = function(val) {
+    originalPressCalc(val); 
+    
+    const display = document.getElementById('record-amount-display');
+    const currentAmt = display ? display.innerText : '0';
+    const cardAmountSub = document.getElementById('selected-card-amount-sub');
+    if (cardAmountSub) {
+        cardAmountSub.innerText = `$${currentAmt}`;
+    }
+};
 
 /**
  * 打包當前數據、同步扣減帳戶餘額並存入 LocalStorage
