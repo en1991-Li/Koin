@@ -73,7 +73,7 @@ body, html {
     padding: 10px 20px;
     height: 60px;
     background: var(--bg);
-    position: relative; /* 確保 absolute 子元素定位精確 */
+    position: relative; 
 }
 
 .nav-header .page-title {
@@ -236,7 +236,7 @@ body, html {
     transition: background 0.2s;
 }
 .amount-input-box:active {
-    background: #34344a !important; /* 點擊金額區塊的回饋色 */
+    background: #34344a !important; 
 }
 
 .form-btn {
@@ -382,7 +382,7 @@ input:checked + .slider:before { transform: translateX(20px); }
     border-radius: 50%;
     display: flex; 
     align-items: center; 
-    justify-content: center; /* 確保內部的 Lucide 圖示上下左右絕對置中 */
+    justify-content: center; 
     border: 1px solid var(--border);
     margin-bottom: 15px;
     flex-shrink: 0;
@@ -560,13 +560,13 @@ input:checked + .slider:before { transform: translateX(20px); }
 /* 計算機專屬內嵌安全底盤 */
 .inline-calculator-container,
 .inline-calc-container {
-    position: absolute; /* 修改為 absolute 鎖定在模擬手機框容器的底部 */
+    position: absolute; 
     bottom: 0;
     left: 0;
     width: 100%;
     background: #1c1c27;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    z-index: 150; /* 低於底部 Tab-bar 但高於內容滾動層 */
+    z-index: 150; 
     padding-bottom: env(safe-area-inset-bottom);
     box-shadow: 0 -8px 25px rgba(0,0,0,0.4);
     animation: slideUp 0.2s cubic-bezier(0.1, 0.8, 0.25, 1);
@@ -643,7 +643,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 }
 
 #page-settings .form-row:last-child {
-    border-bottom: none; /* 移除卡片最後一行的底線 */
+    border-bottom: none; 
 }
 
 #page-settings .form-row label {
@@ -668,10 +668,14 @@ input:checked + .slider:before { transform: translateX(20px); }
    11. 新增記錄 - 分類網格樣式
    ========================================= */
 .category-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr); /* 5 等分網格 */
+    display: none; /* 預設都隱藏 */
+    grid-template-columns: repeat(5, 1fr); 
     gap: 16px 10px;
     padding: 10px 15px 20px 15px;
+}
+
+.category-grid.active {
+    display: grid; /* 只有加上 active 的網格才會顯示 */
 }
 
 .category-item {
@@ -685,7 +689,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 }
 
 .category-item:active {
-    transform: scale(0.92); /* 點擊時內縮回饋 */
+    transform: scale(0.92); 
 }
 
 /* 分類圓圈本體 */
@@ -704,7 +708,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 .cate-icon-wrapper svg {
     width: 22px;
     height: 22px;
-    color: #ffffff; /* 圖標線條一律維持純白 */
+    color: #ffffff; 
     stroke: #ffffff;
 }
 
@@ -718,48 +722,37 @@ input:checked + .slider:before { transform: translateX(20px); }
 /* =========================================
    各分類 iOS 個性化配色
    ========================================= */
-.i-eat           { background: linear-gradient(135deg, #fcd34d, #f59e0b); } /* 飲食：暖黃 */
-.i-transport     { background: linear-gradient(135deg, #60a5fa, #3b82f6); } /* 交通：寶藍 */
-.i-entertainment { background: linear-gradient(135deg, #c084fc, #8b5cf6); } /* 娛樂：粉紫 */
-.i-shopping      { background: linear-gradient(135deg, #f87171, #ef4444); } /* 購物：磚紅 */
-.i-personal      { background: linear-gradient(135deg, #9ca3af, #6b7280); } /* 個人：煙灰 */
+.i-eat           { background: linear-gradient(135deg, #fcd34d, #f59e0b); } 
+.i-transport     { background: linear-gradient(135deg, #60a5fa, #3b82f6); } 
+.i-entertainment { background: linear-gradient(135deg, #c084fc, #8b5cf6); } 
+.i-shopping      { background: linear-gradient(135deg, #f87171, #ef4444); } 
+.i-personal      { background: linear-gradient(135deg, #9ca3af, #6b7280); } 
 
-.i-medical       { background: linear-gradient(135deg, #f43f5e, #e11d48); } /* 醫療：亮紅 */
-.i-home          { background: linear-gradient(135deg, #4b5563, #374151); } /* 家居：深灰藍 */
-.i-family        { background: linear-gradient(135deg, #f472b6, #ec4899); } /* 家庭：芭比粉 */
-.i-life          { background: linear-gradient(135deg, #84cc16, #65a30d); } /* 生活：軍綠 */
-.i-learn         { background: linear-gradient(135deg, #fb923c, #f97316); } /* 學習：澄橘 */
-
-/* 控制網格顯示或隱藏 */
-.category-grid {
-    display: none; /* 預設都隱藏 */
-    grid-template-columns: repeat(5, 1fr);
-    gap: 16px 10px;
-    padding: 10px 15px 20px 15px;
-}
-
-.category-grid.active {
-    display: grid; /* 只有加上 active 的網格才會顯示 */
-}
+.i-medical       { background: linear-gradient(135deg, #f43f5e, #e11d48); } 
+.i-home          { background: linear-gradient(135deg, #4b5563, #374151); } 
+.i-family        { background: linear-gradient(135deg, #f472b6, #ec4899); } 
+.i-life          { background: linear-gradient(135deg, #84cc16, #65a30d); } 
+.i-learn         { background: linear-gradient(135deg, #fb923c, #f97316); } 
 
 /* 收入專屬：黃色漸層背景 */
 .i-income-gold { 
-    background: linear-gradient(135deg, #fcd34d, #f59e0b); 
+    background: linear-gradient(135deg, #fcd34d, #f59e0b) !important; 
 }
 
 /* 轉帳專屬：沉穩橘褐漸層背景 */
 .i-transfer-orange {
-    background: linear-gradient(135deg, #e07a2c, #b45309);
+    background: linear-gradient(135deg, #e07a2c, #b45309) !important;
 }
 
 /* 應收款項專屬：質感粉綠漸層背景 */
 .i-receivable-gold {
-    background: linear-gradient(135deg, #a7eed8, #81D8CF);
+    background: linear-gradient(135deg, #a7eed8, #81D8CF) !important;
 }
 
 /* 應付款項專屬：質感磚紅漸層背景 */
 .i-payable-red {
-    background: linear-gradient(135deg, #f87171, #ef4444);
+    background: linear-gradient(135deg, #f87171, #ef4444) !important;
+}
 
 /* 確保飲食子網格在沒有 active 時完全不佔用空間 */
 #grid-expense-eat {
@@ -779,7 +772,7 @@ input:checked + .slider:before { transform: translateX(20px); }
     display: flex !important;
 }
 
-/* 1. 當網格進入「已選取狀態」時，調整為符合影片中的靠左對齊與間距 */
+/* 當網格進入「已選取狀態」時的靠左配置 */
 .category-grid.has-selected {
     display: flex !important;
     justify-content: flex-start;
@@ -787,12 +780,12 @@ input:checked + .slider:before { transform: translateX(20px); }
     padding-left: 20px;
 }
 
-/* 2. 只要網格內有東西被選中，其他沒被選中的分類項目通通隱藏 */
+/* 網格激活狀態隱藏其餘項目 */
 .category-grid.has-selected .category-item:not(.selected-active) {
     display: none !important;
 }
 
-/* 3. 修正：動態產生的「＋」按鈕圓圈樣式  */
+/* 增加動態按鈕圓圈 */
 .dynamic-add-btn {
     display: flex;
     flex-direction: column;
@@ -804,10 +797,5 @@ input:checked + .slider:before { transform: translateX(20px); }
     border-radius: 50%;
     color: #8a8a8e;
     cursor: pointer;
-    margin-top: 10px; /* 對齊大圓圈圖標的高度位置 */
+    margin-top: 10px; 
 }
-
-/* 控制單個圖標卡片區塊的顯示 */
-#selected-category-card-zone.show-card {
-    display: flex !important;
-}   
