@@ -322,6 +322,9 @@ function saveRecord() {
     // 加在 saveRecord() 函式的最底部
 const cardZone = document.getElementById('selected-category-card-zone');
 if (cardZone) cardZone.classList.remove('show-card');
+
+    // 加在 saveRecord() 儲存成功後立刻刷新日曆下方的明細
+    renderDailyDetailsList();
 }
 
 /**
