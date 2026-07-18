@@ -577,8 +577,8 @@ function filterRecordProjects(keyword) {
     const projects = JSON.parse(localStorage.getItem('koin_projects')) || [];
     
     // 永遠保留「無專案」選項
-    if ('無專案'.includes(keyword)) {
-        container.insertAdjacentHTML('beforeend', `<div class="option-item" onclick="selectRecordProject('無專案')">無專案</div>`);
+    if ('生活開銷'.includes(keyword)) {
+        container.insertAdjacentHTML('beforeend', `<div class="option-item" onclick="selectRecordProject('生活開銷')">生活開銷</div>`);
     }
 
     const filtered = projects.filter(proj => proj.name.toLowerCase().includes(keyword.toLowerCase()));
