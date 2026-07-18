@@ -1143,3 +1143,87 @@ function handleSettingsToggleHide(isChecked) {
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 }
+
+/**
+ * 根據 LocalStorage 內的紀錄，動態渲染日曆頁面下方的每日交易明細
+ */
+function renderDailyDetailsList() {
+    const detailContainer = document.getElementById('daily-details-list');
+    if (!detailContainer) return;
+
+    // 1. 取出 LocalStorage 中的流水帳紀錄
+    const localRecords = JSON.parse(localStorage.getItem('koin_records')) || [];
+
+    // 2. 取得當前日曆所選取的日期（對齊 recordState 目前暫存的日期）
+    // 如果 recordState 沒有日期，預設使用系統今天的日期格式
+    const currentSelectedDate = recordState.date || new Date().toLocaleDateString();
+
+    // 3. 過濾出「日期符合當天」的記帳紀錄
+    const todayRecords = localRecords.filter(rec => {
+        // 相容相等的日期字串比對 (例如 "2026/07/18")
+        return rec.date === currentSelectedDate;
+    });
+
+    // 4. 如果當天沒有任何紀錄，顯示預設提示
+    if (todayRecords.length === 0) {
+        detailContainer.innerHTML = `<p style="color: #8a8a8e; text-align: center; margin-top: 30px; font-size: 14px;">當天尚無交易明細</p>`;
+        return;
+    }
+
+    // 5. 開始動態建構標準 iOS 質感的交易條目卡片結構
+    detailContainer.innerHTML = ''; // 清空舊畫面
+
+    todayRecords.forEach(rec => {
+        // 對照分類並給予正確的 Lucide 圖標名稱與獨立配色 Class
+        let iconName = 'utensils';
+        let bgClass = 'i-eat'; // 預設黃色漸層
+
+        if (rec.category === '早餐') { iconName = 'croissant'; bgClass = 'i-income-gold'; }
+        else if (rec.category === '午餐') { iconName = 'utensils'; bgClass = 'i-income-gold'; }
+        else if (rec.category === '晚餐') { iconName = 'soup'; bgClass = 'i-income-gold'; }
+        else if (rec.category === '點心') { iconName = 'cookie'; bgClass = 'i-income-gold'; }
+        else if (rec.category === '飲料') { iconName = 'cup-soda'; bgClass = 'i-income-gold'; }
+        else if (rec.category === '酒類') { iconName = 'beer'; bgClass = 'i-income-gold'; }
+        else if (rec.category === '水果') { iconName = 'grape'; bgClass = 'i-income-gold'; }
+        else if (rec.category === '宵夜') { iconName = 'pizza'; bgClass = 'i-income-gold'; }
+        else if (rec.category === '礦泉水') { iconName = 'glass-water'; bgClass = 'i-income-gold'; }
+        else if (rec.category === '交通') { iconName = 'car'; bgClass = 'i-transport'; }
+        else if (rec.category === '娛樂') { iconName = 'party-popper'; bgClass = 'i-entertainment'; }
+        else if (rec.category === '購物') { iconName = 'shopping-bag'; bgClass = 'i-shopping'; }
+
+        // 依據交易型態（支出/收入）決定右側金額顏色數字字串
+        const isExpense = (rec.type === '支出' || rec.type === '應付款項');
+        const amountColorClass = isExpense ? 'text-red' : 'text-green';
+        const formattedAmount = `${isExpense ? '' : '+'}${rec.amount.toLocaleString()}`;
+
+        // 建立標準卡片 HTML 結構
+        const itemHTML = `
+            <div class="form-group" style="padding: 0; margin-bottom: 12px;">
+                <div class="form-row" style="background: #1c1c28; padding: 14px 16px; border-radius: 16px; border-bottom: none;">
+                    <!-- 左側：圖標與名稱說明區 -->
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <div class="cate-icon-wrapper ${bgClass}" style="width: 44px; height: 44px; margin-bottom: 0;">
+                            <i data-lucide="${iconName}"></i>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <span style="font-size: 15px; font-weight: 600; color: #ffffff; text-align: left;">${rec.category}</span>
+                            <!-- 下方小標籤群組 (專案、帳戶、時間) -->
+                            <div style="display: flex; gap: 6px;">
+                                <span style="background: rgba(255,255,255,0.05); color: #8e8e93; font-size: 10px; padding: 2px 8px; border-radius: 6px;">${rec.project || '生活開銷'}</span>
+                                <span style="background: rgba(93,93,255,0.1); color: #8e8e93; font-size: 10px; padding: 2px 8px; border-radius: 6px;">${rec.account || '錢包'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 右側：交易實體金額 -->
+                    <span class="${amountColorClass}" style="font-size: 17px; font-weight: 700;">
+                        $${formattedAmount}
+                    </span>
+                </div>
+            </div>
+        `;
+        detailContainer.insertAdjacentHTML('beforeend', itemHTML);
+    });
+
+    // 重新繪製剛跑出來的 Lucide 向量小圖示
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
