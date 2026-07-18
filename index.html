@@ -325,18 +325,17 @@
             </header>
 
 <div class="record-tabs" id="record-type-tabs" ...> ... </div>
-
-<!-- ==================== 已選分類動態展示卡片 ==================== -->
+<!-- 已選分類動態展示卡片 -->
 <div id="selected-category-card-zone" style="display: none; padding: 10px 20px; align-items: center; gap: 15px;">
-    <!-- 對齊大圓圈卡片外框 -->
+    <!-- 左側獨立分類卡片框 -->
     <div style="display: flex; flex-direction: column; align-items: center; background: #2c2c3e; padding: 12px 16px; border-radius: 16px; min-width: 70px;">
         <div id="selected-card-icon-wrapper" class="cate-icon-wrapper i-income-gold" style="margin-bottom: 6px;">
-            <i id="selected-card-icon" data-lucide="utensils"></i>
+            <i id="selected-card-icon" data-lucide="croissant"></i>
         </div>
         <span id="selected-card-name" style="font-size: 13px; color: #ffffff;">早餐</span>
         <span id="selected-card-amount-sub" style="font-size: 11px; color: #4ade80; margin-top: 2px;">$0</span>
     </div>
-    <!-- 右側的新增 + 按鈕-->
+    <!-- 右側的重新選取 + 按鈕 -->
     <div style="background: #2c2c3e; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #8a8a8e; cursor: pointer;" onclick="resetCategorySelection()">
         <i data-lucide="plus" style="width: 20px; height: 20px;"></i>
     </div>
