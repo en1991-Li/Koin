@@ -278,7 +278,7 @@
 
                 <div class="list-divider"><span class="date-text" style="color: var(--purple); font-size: 12px;">資料與工具</span></div>
                 <div class="form-group">
-                    <div class="form-row" onclick="handleSettingsAction('Google 登入')">
+                    <div class="form-row" onclick="handleSettingsAction('Google 帳號登入')">
                         <label>🌐 Google 帳號登入</label>
                         <i data-lucide="log-in" class="s-icon" style="color: var(--text-muted);"></i>
                     </div> 
@@ -324,24 +324,8 @@
                 <i data-lucide="check" class="s-icon" onclick="saveRecord()"></i>
             </header>
 
-<div class="record-tabs" id="record-type-tabs" ...> ... </div>
-<!-- 已選分類動態展示卡片 -->
-<div id="selected-category-card-zone" style="display: none; padding: 10px 20px; align-items: center; gap: 15px;">
-    <!-- 左側獨立分類卡片框 -->
-    <div style="display: flex; flex-direction: column; align-items: center; background: #2c2c3e; padding: 12px 16px; border-radius: 16px; min-width: 70px;">
-        <div id="selected-card-icon-wrapper" class="cate-icon-wrapper i-income-gold" style="margin-bottom: 6px;">
-            <i id="selected-card-icon" data-lucide="croissant"></i>
-        </div>
-        <span id="selected-card-name" style="font-size: 13px; color: #ffffff;">早餐</span>
-        <span id="selected-card-amount-sub" style="font-size: 11px; color: #4ade80; margin-top: 2px;">$0</span>
-    </div>
-    <!-- 右側的重新選取 + 按鈕 -->
-    <div style="background: #2c2c3e; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #8a8a8e; cursor: pointer;" onclick="resetCategorySelection()">
-        <i data-lucide="plus" style="width: 20px; height: 20px;"></i>
-    </div>
-</div>
-
             <div class="content-scroll no-scrollbar" style="padding-bottom: 280px;">
+                <!-- 記帳類別切換頁籤 -->
                 <div class="record-tabs" id="record-type-tabs" style="display: flex; overflow-x: auto; padding: 15px; gap: 20px; color: #8a8a8e;">
                     <span class="active text-blue" onclick="setRecordType('支出', this)">支出</span>
                     <span onclick="setRecordType('收入', this)">收入</span>
@@ -350,13 +334,27 @@
                     <span onclick="setRecordType('應付款項', this)">應付款項</span>
                 </div>
 
+                <!-- 已選分類動態展示卡片 -->
+                <div id="selected-category-card-zone" style="display: none; padding: 10px 20px; align-items: center; gap: 15px;">
+                    <div style="display: flex; flex-direction: column; align-items: center; background: #2c2c3e; padding: 12px 16px; border-radius: 16px; min-width: 70px;">
+                        <div id="selected-card-icon-wrapper" class="cate-icon-wrapper i-income-gold" style="margin-bottom: 6px;">
+                            <i id="selected-card-icon" data-lucide="croissant"></i>
+                        </div>
+                        <span id="selected-card-name" style="font-size: 13px; color: #ffffff;">早餐</span>
+                        <span id="selected-card-amount-sub" style="font-size: 11px; color: #4ade80; margin-top: 2px;">$0</span>
+                    </div>
+                    <div style="background: #2c2c3e; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #8a8a8e; cursor: pointer;" onclick="resetCategorySelection()">
+                        <i data-lucide="plus" style="width: 20px; height: 20px;"></i>
+                    </div>
+                </div>
+
                 <!-- 支出分類網格 -->
                 <div class="category-grid active" id="grid-expense">
                     <div class="category-item" onclick="changeSubGrid('eat')">
                         <div class="cate-icon-wrapper i-eat"><i data-lucide="utensils"></i></div>
                         <p>飲食</p>
                     </div>
-                 <div class="category-item" onclick="selectCategory('交通')">
+                    <div class="category-item" onclick="selectCategory('交通')">
                         <div class="cate-icon-wrapper i-transport"><i data-lucide="car"></i></div>
                         <p>交通</p>
                     </div>
@@ -394,49 +392,49 @@
                     </div>
                 </div>
 
-                <!-- ==================== 飲食子分類網格 ==================== -->
-<div class="category-grid" id="grid-expense-eat">
-    <div class="category-item" onclick="changeSubGrid('main-expense')">
-        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="undo-2"></i></div>
-        <p>返回</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('早餐', this)">
-        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="croissant"></i></div>
-        <p>早餐</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('午餐', this)">
-        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="salad"></i></div>
-        <p>午餐</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('晚餐', this)">
-        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="soup"></i></div>
-        <p>晚餐</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('點心', this)">
-        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="cookie"></i></div>
-        <p>點心</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('飲料', this)">
-        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="cup-soda"></i></div>
-        <p>飲料</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('酒類', this)">
-        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="beer"></i></div>
-        <p>酒類</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('水果', this)">
-        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="grape"></i></div>
-        <p>水果</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('宵夜', this)">
-        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="pizza"></i></div>
-        <p>宵夜</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('礦泉水', this)">
-        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="glass-water"></i></div>
-        <p>礦泉水</p>
-    </div>
-</div>
+                <!-- 飲食子分類網格 -->
+                <div class="category-grid" id="grid-expense-eat">
+                    <div class="category-item" onclick="changeSubGrid('main-expense')">
+                        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="undo-2"></i></div>
+                        <p>返回</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('早餐')">
+                        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="croissant"></i></div>
+                        <p>早餐</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('午餐')">
+                        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="salad"></i></div>
+                        <p>午餐</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('晚餐')">
+                        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="soup"></i></div>
+                        <p>晚餐</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('點心')">
+                        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="cookie"></i></div>
+                        <p>點心</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('飲料')">
+                        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="cup-soda"></i></div>
+                        <p>飲料</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('酒類')">
+                        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="beer"></i></div>
+                        <p>酒類</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('水果')">
+                        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="grape"></i></div>
+                        <p>水果</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('宵夜')">
+                        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="pizza"></i></div>
+                        <p>宵夜</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('礦泉水')">
+                        <div class="cate-icon-wrapper i-income-gold"><i data-lucide="glass-water"></i></div>
+                        <p>礦泉水</p>
+                    </div>
+                </div>
 
                 <!-- 收入分類網格 -->
                 <div class="category-grid" id="grid-income">
@@ -537,7 +535,7 @@
                         <p>房貸</p>
                     </div>
                 </div>
-                        
+                                
                 <div class="record-form" style="padding: 0 20px;">
                     <div class="amount-input-box" onclick="toggleCalculator(true)" style="background: #2c2c3e; border-radius: 15px; padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
                         <span style="background: #3d3d4d; padding: 5px 12px; border-radius: 8px;">TWD</span>
