@@ -163,14 +163,15 @@ function toggleAmountVisibility() {
 }
 
 /**
- * 點擊分類時，連同頂部頁籤一起隱藏，只留下單個分類圖標卡片
+ * 點擊分類圖標後，隱藏網格並展示單個圖標卡片畫面
  */
 function selectCategory(categoryName) {
+    // 1. 寫入全域狀態機
     if (typeof recordState !== 'undefined') {
         recordState.category = categoryName;
     }
 
-    // 1. 自動對照 Lucide 圖標名稱
+    // 2. 對照分類名稱自動對應 Lucide 圖標
     let iconName = 'utensils';
     if (categoryName === '早餐') iconName = 'croissant';
     if (categoryName === '午餐') iconName = 'utensils';
@@ -182,7 +183,7 @@ function selectCategory(categoryName) {
     if (categoryName === '宵夜') iconName = 'pizza';
     if (categoryName === '礦泉水') iconName = 'droplet';
 
-    // 2. 更新動態展示卡片內容
+    // 3. 更新卡片區塊的文字、圖標與初始金額 $0
     const cardName = document.getElementById('selected-card-name');
     const cardIcon = document.getElementById('selected-card-icon');
     const cardAmountSub = document.getElementById('selected-card-amount-sub');
@@ -194,41 +195,48 @@ function selectCategory(categoryName) {
     }
     if (cardAmountSub) cardAmountSub.innerText = '$0';
 
-    // 3. 隱藏所有分類網格
-    const grids = ['grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable', 'grid-expense-eat'];
-    grids.forEach(id => {
+    // 4. 收合目前畫面上所有的分類網格
+    const gridIds = ['grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable', 'grid-expense-eat'];
+    gridIds.forEach(id => {
         const g = document.getElementById(id);
         if (g) g.classList.remove('active');
     });
 
-    // 4. 同時隱藏最頂部的「支出/收入/轉帳」頁籤列
-    const typeTabs = document.getElementById('record-type-tabs');
-    if (typeTabs) typeTabs.style.display = 'none';
-
-    // 5. 秀出單個分類卡片區塊，並彈開計算機
+    // 5. 顯示單個圖標卡片區塊，並開啟鍵盤
     const cardZone = document.getElementById('selected-category-card-zone');
     if (cardZone) cardZone.classList.add('show-card');
     
+    // 開啟內建計算機
     toggleCalculator(true); 
 }
 
 /**
- * 點擊卡片旁的「+」按鈕：清除卡片，還原頂部頁籤與網格
+ * 攔截並優化計算機引擎：讓鍵盤輸入的數字能即時同步到卡片的綠色細字上
+ */
+const originalPressCalc = pressCalc; 
+pressCalc = function(val) {
+    originalPressCalc(val); // 先執行原本寫好的計算緩衝邏輯
+    
+    // 抓取當前最新計算機金額，即時反填到卡片下的綠色金額
+    const currentAmt = document.getElementById('record-amount-display').innerText;
+    const cardAmountSub = document.getElementById('selected-card-amount-sub');
+    if (cardAmountSub) {
+        cardAmountSub.innerText = `$${currentAmt}`;
+    }
+};
+
+/**
+ * 點擊卡片旁「+」按鈕：重置狀態，回溯顯示原本的分類網格
  */
 function resetCategorySelection() {
-    // 1. 隱藏單個分類卡片區塊
     const cardZone = document.getElementById('selected-category-card-zone');
     if (cardZone) cardZone.classList.remove('show-card');
 
-    // 2. 還原顯示最頂部的「支出/收入/轉帳」頁籤列
-    const typeTabs = document.getElementById('record-type-tabs');
-    if (typeTabs) typeTabs.style.display = 'flex';
-
-    // 3. 重新攤開原本的分類網格
+    // 還原目前記帳類型的分類網格
     const currentType = recordState.type || '支出';
-    setRecordType(currentType, document.querySelector(`#record-type-tabs span.active`));
+    setRecordType(currentType, document.querySelector(`#record-type-tabs span.classList.contains('active')`));
     
-    toggleCalculator(false);
+    toggleCalculator(false); // 關閉鍵盤
 }
 
 /**
@@ -315,6 +323,10 @@ function saveRecord() {
 
     // 放在 saveRecord() 函式的最後面，儲存成功後把孤立狀態解開、清除加號
     resetCategorySelection();
+
+    // 加在 saveRecord() 函式的最底部
+const cardZone = document.getElementById('selected-category-card-zone');
+if (cardZone) cardZone.classList.remove('show-card');
 }
 
 /**
