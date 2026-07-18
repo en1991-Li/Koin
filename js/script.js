@@ -1278,6 +1278,6 @@ function renderDailyDetailsList() {
         detailContainer.insertAdjacentHTML('beforeend', itemHTML);
     });
 
-    // 重新繪製剛跑出來的 Lucide 向量小圖示
+    // 重新繪製跑出來的 Lucide 圖示
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
