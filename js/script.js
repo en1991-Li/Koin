@@ -62,92 +62,99 @@ let currentActiveAccountIndex = null;
 let isAmountHidden = false; 
 
 /**
- * 渲染帳戶總覽列表與總額計算
- */
+ * 帳戶總覽列表排版
+ */
 function renderAccountOverview() {
-    const listContainer = document.getElementById('account-list');
-    if (!listContainer) return;
+    const listContainer = document.getElementById('account-list');
+    if (!listContainer) return;
 
-    const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
-    listContainer.innerHTML = ''; 
+    const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
+    listContainer.innerHTML = ''; 
 
-    let totalBalance = 0;
-    let totalAssets = 0;
-    let totalDebts = 0;
+    let totalBalance = 0;
+    let totalAssets = 0;
+    let totalDebts = 0;
 
-    // 分組容器邏輯
-    const groups = { '現金': { accounts: [], subtotal: 0 }, '銀行': { accounts: [], subtotal: 0 }, '信用卡': { accounts: [], subtotal: 0 }, '其他': { accounts: [], subtotal: 0 } };
+    // 分組容器邏輯
+    const groups = { 
+        '現金': { accounts: [], subtotal: 0 }, 
+        '銀行': { accounts: [], subtotal: 0 }, 
+        '信用卡': { accounts: [], subtotal: 0 }, 
+        '其他': { accounts: [], subtotal: 0 } 
+    };
 
-    savedAccounts.forEach((acc, index) => {
-        const amount = parseFloat(acc.amount) || 0;
-        if (acc.isCredit) {
-            totalDebts += Math.abs(amount);
-            totalBalance -= Math.abs(amount);
-        } else {
-            totalAssets += amount;
-            totalBalance += amount;
-        }
+    savedAccounts.forEach((acc, index) => {
+        const amount = parseFloat(acc.amount) || 0;
+        if (acc.isCredit) {
+            totalDebts += Math.abs(amount);
+            totalBalance -= Math.abs(amount);
+        } else {
+            totalAssets += amount;
+            totalBalance += amount;
+        }
 
-        let category = '其他';
-        if (acc.group.includes('現金')) category = '現金';
-        else if (acc.group.includes('銀行')) category = '銀行';
-        else if (acc.group.includes('信用卡')) category = '信用卡';
+        let category = '其他';
+        if (acc.group.includes('現金')) category = '現金';
+        else if (acc.group.includes('銀行')) category = '銀行';
+        else if (acc.group.includes('信用卡')) category = '信用卡';
 
-        if (!groups[category]) groups[category] = { accounts: [], subtotal: 0 };
-        groups[category].accounts.push({ ...acc, originalIndex: index });
-        groups[category].subtotal += acc.isCredit ? -Math.abs(amount) : amount;
-    });
+        if (!groups[category]) groups[category] = { accounts: [], subtotal: 0 };
+        groups[category].accounts.push({ ...acc, originalIndex: index });
+        groups[category].subtotal += acc.isCredit ? -Math.abs(amount) : amount;
+    });
 
-    // 遍歷並渲染 HTML
-    for (const [groupName, data] of Object.entries(groups)) {
-        if (data.accounts.length === 0) continue;
+    // 遍歷並渲染符合附圖結構的 HTML
+    for (const [groupName, data] of Object.entries(groups)) {
+        if (data.accounts.length === 0) continue;
 
-        // 分類小計金額也加上 data-value 與 amount-val
-        const groupHeaderHTML = `
-            <div class="account-group-header" style="display:flex; justify-content:space-between; padding:10px 4px; color:#8a8a8e; font-size:13px; font-weight:500;">
-                <span>－ ${groupName} (${data.accounts.length})</span>
-                <span class="amount-val ${data.subtotal < 0 ? 'text-red' : ''}" data-value="${data.subtotal}">
-                    ${data.subtotal < 0 ? '-' : '+'}${Math.abs(data.subtotal).toLocaleString()}
-                </span>
-            </div>
-        `;
-        listContainer.insertAdjacentHTML('beforeend', groupHeaderHTML);
+        // 1. 生成分組標頭 (例如: － 現金 (1) )
+        const groupHeaderHTML = `
+            <div class="account-group-header" style="display:flex; justify-content:space-between; padding:15px 4px 10px 4px; color:#ffffff; font-size:14px; font-weight:700;">
+                <span>－ ${groupName} (${data.accounts.length})</span>
+                <span class="amount-val ${data.subtotal < 0 ? 'text-red' : ''}" data-value="${data.subtotal}" style="color: #ffffff; font-weight: 600;">
+                    ${data.subtotal < 0 ? '-' : '+'}${Math.abs(data.subtotal).toLocaleString()}
+                </span>
+            </div>
+        `;
+        listContainer.insertAdjacentHTML('beforeend', groupHeaderHTML);
 
-        data.accounts.forEach(acc => {
-            const amount = parseFloat(acc.amount) || 0;
-            // 列表內帳戶金額也加上 data-value 與 amount-val
-            const accountHTML = `
-                <div class="form-group" style="margin-bottom: 8px; cursor: pointer;" onclick="openAccountDetail(${acc.originalIndex})">
-                    <div class="form-row">
-                        <div style="display:flex; align-items:center; gap:12px;">
-                            <div style="background:#3d3d4d; padding:8px; border-radius:10px; display:flex;">
-                                <i data-lucide="${acc.isCredit ? 'credit-card' : 'wallet'}" style="width:20px; height:20px;"></i>
-                            </div>
-                            <div style="display:flex; flex-direction:column;">
-                                <span style="font-size:15px; font-weight:500;">${acc.name}</span>
-                            </div>
-                        </div>
-                        <span class="amount-val ${acc.isCredit ? 'text-red' : 'text-green'}" style="font-weight:600;" data-value="${acc.isCredit ? -Math.abs(amount) : amount}">
-                            ${acc.isCredit ? '-' : ''}${Math.abs(amount).toLocaleString()}
-                        </span>
-                    </div>
-                </div>
-            `;
-            listContainer.insertAdjacentHTML('beforeend', accountHTML);
-        });
-    }
+        // 2. 建立一個 form-group 作為該分組內所有帳戶的灰色大卡片外底框
+        let accountsCardHTML = `<div class="form-group" style="background: #1c1c28; border-radius: 20px; padding: 0 16px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.03);">`;
 
-    // 將真實金額寫入 Hero 區塊的 data-value
-    if (document.getElementById('total-balance')) document.getElementById('total-balance').setAttribute('data-value', totalBalance);
-    if (document.getElementById('total-assets')) document.getElementById('total-assets').setAttribute('data-value', totalAssets);
-    if (document.getElementById('total-debts')) document.getElementById('total-debts').setAttribute('data-value', totalDebts);
+        data.accounts.forEach((acc, idx) => {
+            const amount = parseFloat(acc.amount) || 0;
+            const isLastItems = (idx === data.accounts.length - 1);
+            
+            // 內部每一行帳戶條目 (去除重複包覆的 form-group，改用標準 form-row 橫列)
+            accountsCardHTML += `
+                <div class="form-row" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: ${isLastItems ? 'none' : '1px solid rgba(255,255,255,0.05)'}; cursor: pointer;" onclick="openAccountDetail(${acc.originalIndex})">
+                    <div style="display:flex; align-items:center; gap:14px;">
+                        <div style="background:#2c2c3e; width: 44px; height: 44px; border-radius:12px; display:flex; align-items:center; justify-content:center;">
+                            <i data-lucide="${acc.isCredit ? 'credit-card' : 'wallet'}" style="width:22px; height:22px; color:#ffffff;"></i>
+                        </div>
+                        <span style="font-size:16px; font-weight:600; color:#ffffff;">${acc.name}</span>
+                    </div>
+                    <span class="amount-val ${acc.isCredit ? 'text-red' : 'text-green'}" style="font-weight:700; font-size:17px;" data-value="${acc.isCredit ? -Math.abs(amount) : amount}">
+                        ${acc.isCredit ? '-' : ''}${Math.abs(amount).toLocaleString()}
+                    </span>
+                </div>
+            `;
+        });
 
-    //渲染完資料後，根據當前的隱藏狀態刷新一次金額顯示
-    updateAmountDisplay();
+        accountsCardHTML += `</div>`; // 關閉大卡片外框
+        listContainer.insertAdjacentHTML('beforeend', accountsCardHTML);
+    }
 
-    if (typeof lucide !== 'undefined') lucide.createIcons();
+    // 將真實金額寫入 Hero 區塊的 data-value
+    if (document.getElementById('total-balance')) document.getElementById('total-balance').setAttribute('data-value', totalBalance);
+    if (document.getElementById('total-assets')) document.getElementById('total-assets').setAttribute('data-value', totalAssets);
+    if (document.getElementById('total-debts')) document.getElementById('total-debts').setAttribute('data-value', totalDebts);
+
+    // 依據隱私狀態更新顯示
+    updateAmountDisplay();
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
-
 /**
  * 切換眼睛隱藏狀態
  */
