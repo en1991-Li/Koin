@@ -806,3 +806,8 @@ input:checked + .slider:before { transform: translateX(20px); }
     cursor: pointer;
     margin-top: 10px; /* 對齊大圓圈圖標的高度位置 */
 }
+
+/* 控制單個圖標卡片區塊的顯示 */
+#selected-category-card-zone.show-card {
+    display: flex !important;
+}   
