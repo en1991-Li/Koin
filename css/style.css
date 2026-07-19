@@ -799,3 +799,16 @@ input:checked + .slider:before { transform: translateX(20px); }
     cursor: pointer;
     margin-top: 10px; 
 }
+
+/* 確保交通子網格在沒有 active 時完全不佔用空間與跑版 */
+#grid-expense-transport {
+    display: none;
+}
+
+/* 點擊後，以獨立的 5 等分網格型態完美展現 */
+#grid-expense-transport.active {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px 10px;
+    padding: 10px 15px 20px 15px;
+}
