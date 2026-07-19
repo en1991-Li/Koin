@@ -173,20 +173,45 @@ function toggleAmountVisibility() {
 }
 
 /**
- * 點擊分類圖標後（支援支出/收入），隱藏網格並展示單個圖標卡片畫面
- * @param {string} categoryName 分類名稱
- * @param {string} parentType 父類型判定 ('income' 代表收入，未傳代表支出)
+ * 支出主分類、飲食子分類、交通子分類網格切換核心（全防禦互斥寫法）
+ */
+function changeSubGrid(target) {
+    const expenseGrid = document.getElementById('grid-expense');
+    const eatGrid = document.getElementById('grid-expense-eat');
+    const transportGrid = document.getElementById('grid-expense-transport');
+    
+    if (!expenseGrid || !eatGrid || !transportGrid) return;
+
+    // 先全面移除活躍狀態，避免多個網格同時擠在畫面造成嚴重跑版
+    expenseGrid.classList.remove('active');
+    eatGrid.classList.remove('active');
+    transportGrid.classList.remove('active');
+
+    // 依據目的地，精準點亮單一網格
+    if (target === 'eat') {
+        eatGrid.classList.add('active');
+    } else if (target === 'transport') {
+        transportGrid.classList.add('active');
+    } else if (target === 'main-expense') {
+        expenseGrid.classList.add('active');
+    }
+
+    // 重新繪製新視圖中的 Lucide 向量圖標
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+/**
+ * 點擊分類圖標後，隱藏網格並展示單個圖標卡片畫面
  */
 function selectCategory(categoryName, parentType) {
-    // 1. 寫入全域狀態機
     if (typeof recordState !== 'undefined') {
         recordState.category = categoryName;
     }
 
-    // 2. 核心圖標映射字典 (整合支出子分類與收入主分類)
+    // 核心圖標映射字典
     let iconName = 'utensils';
     
-    // 支出系列
+    // 支出 - 飲食系列
     if (categoryName === '早餐') iconName = 'croissant';
     if (categoryName === '午餐') iconName = 'utensils';
     if (categoryName === '晚餐') iconName = 'soup';
@@ -200,6 +225,20 @@ function selectCategory(categoryName, parentType) {
     if (categoryName === '娛樂') iconName = 'party-popper';
     if (categoryName === '購物') iconName = 'shopping-bag';
     
+    // 【補齊】支出 - 交通子項目系列
+    if (categoryName === '加油費') iconName = 'fuel';
+    if (categoryName === '停車費') iconName = 'square-parking';
+    if (categoryName === '火車') iconName = 'train-front';
+    if (categoryName === '公車') iconName = 'bus-front';
+    if (categoryName === '捷運') iconName = 'train-front-tunnel';
+    if (categoryName === '悠遊卡') iconName = 'credit-card';
+    if (categoryName === '汽車') iconName = 'car-front';
+    if (categoryName === '計程車') iconName = 'car-taxi-front';
+    if (categoryName === '摩托車') iconName = 'motorbike';
+    if (categoryName === '單車') iconName = 'bike';
+    if (categoryName === '機票') iconName = 'plane';
+    if (categoryName === '船票') iconName = 'ship';
+    
     // 收入系列
     if (categoryName === '薪水') iconName = 'dollar-sign';
     if (categoryName === '獎金') iconName = 'coins';
@@ -212,7 +251,6 @@ function selectCategory(categoryName, parentType) {
     if (categoryName === '發票') iconName = 'receipt';
     if (categoryName === '補助') iconName = 'building-2';
 
-    // 3. 取得 UI 節點
     const cardName = document.getElementById('selected-card-name');
     const cardIcon = document.getElementById('selected-card-icon');
     const cardAmountSub = document.getElementById('selected-card-amount-sub');
@@ -224,31 +262,34 @@ function selectCategory(categoryName, parentType) {
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    // 4. 連動卡片樣式：根據 parentType 切換文字顏色與圓圈背景
+    // 連動卡片樣式：決定大圓圈背景色
     if (cardAmountSub) {
         if (parentType === 'income') {
             cardAmountSub.innerText = '+$0';
-            cardAmountSub.className = 'text-green'; // 收入用綠色
+            cardAmountSub.className = 'text-green';
             if (cardIconWrapper) cardIconWrapper.className = 'cate-icon-wrapper i-income-gold';
         } else {
             cardAmountSub.innerText = '$0';
-            cardAmountSub.className = 'text-red'; // 支出用紅色
-            if (cardIconWrapper) cardIconWrapper.className = 'cate-icon-wrapper i-income-gold'; // 共用黃漸層
+            cardAmountSub.className = 'text-red';
+            
+            // 如果是交通子分類項目，展示大圓圈自動改為寶藍色漸層背景
+            const isTransportItem = ['加油費','停車費','火車','公車','捷運','悠遊卡','汽車','計程車','摩托車','單車','機票','船票'].includes(categoryName);
+            if (cardIconWrapper) {
+                cardIconWrapper.className = isTransportItem ? 'cate-icon-wrapper i-transport' : 'cate-icon-wrapper i-income-gold';
+            }
         }
     }
 
-    // 5. 收合目前畫面上所有的分類網格
-    const gridIds = ['grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable', 'grid-expense-eat'];
+    // 收合目前畫面上所有的分類網格
+    const gridIds = ['grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable', 'grid-expense-eat', 'grid-expense-transport'];
     gridIds.forEach(id => {
         const g = document.getElementById(id);
         if (g) g.classList.remove('active');
     });
 
-    // 6. 顯示單個圖標卡片區塊，並開啟鍵盤
     const cardZone = document.getElementById('selected-category-card-zone');
     if (cardZone) cardZone.classList.add('show-card');
     
-    // 開啟內建計算機鍵盤
     toggleCalculator(true); 
 }
 
@@ -839,31 +880,7 @@ function setRecordType(type, el) {
     // 4. 重新渲染新跑出來的 Lucide 向量圖標
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
-
-/**
- * 支出主分類與飲食子分類網格切換核心
- */
-function changeSubGrid(target) {
-    const expenseGrid = document.getElementById('grid-expense');
-    const eatGrid = document.getElementById('grid-expense-eat');
-    
-    if (!expenseGrid || !eatGrid) return;
-
-    // 移除活躍狀態，避免兩個網格同時出現在畫面上
-    expenseGrid.classList.remove('active');
-    eatGrid.classList.remove('active');
-
-    // 依據目的地，精準點亮單一網格
-    if (target === 'eat') {
-        eatGrid.classList.add('active');
-    } else if (target === 'main-expense') {
-        expenseGrid.classList.add('active');
-    }
-
-    // 重新繪製新視圖中的 Lucide 向量圖標
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-}
-  
+ 
 /**
  * 處理 FAB 點擊
  */
