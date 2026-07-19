@@ -354,7 +354,7 @@
                         <div class="cate-icon-wrapper i-eat"><i data-lucide="utensils"></i></div>
                         <p>飲食</p>
                     </div>
-                    <div class="category-item" onclick="selectCategory('交通')">
+                    <div class="category-item" onclick="changeSubGrid('transport')">
                         <div class="cate-icon-wrapper i-transport"><i data-lucide="car"></i></div>
                         <p>交通</p>
                     </div>
@@ -435,6 +435,62 @@
                         <p>礦泉水</p>
                     </div>
                 </div>
+
+<!-- 交通子分類網格 -->
+<div class="category-grid" id="grid-expense-transport">
+    <div class="category-item" onclick="changeSubGrid('main-expense')">
+        <div class="cate-icon-wrapper i-transport"><i data-lucide="undo-2"></i></div>
+        <p>返回</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('加油費')">
+        <div class="cate-icon-wrapper i-transport"><i data-lucide="fuel"></i></div>
+        <p>加油費</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('停車費')">
+        <div class="cate-icon-wrapper i-transport"><i data-lucide="square-parking"></i></div>
+        <p>停車費</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('火車')">
+        <div class="cate-icon-wrapper i-transport"><i data-lucide="train-front"></i></div>
+        <p>火車</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('公車')">
+        <div class="cate-icon-wrapper i-transport"><i data-lucide="bus-front"></i></div>
+        <p>公車</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('捷運')">
+        <div class="cate-icon-wrapper i-transport"><i data-lucide="train-front-tunnel"></i></div>
+        <p>捷運</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('悠遊卡')">
+        <div class="cate-icon-wrapper i-transport"><i data-lucide="credit-card"></i></div>
+        <p>悠遊卡</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('汽車')">
+        <div class="cate-icon-wrapper i-transport"><i data-lucide="car-front"></i></div>
+        <p>汽車</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('計程車')">
+        <div class="cate-icon-wrapper i-transport"><i data-lucide="car-taxi-front"></i></div>
+        <p>計程車</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('摩托車')">
+        <div class="cate-icon-wrapper i-transport"><i data-lucide="motorbike"></i></div>
+        <p>摩托車</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('單車')">
+        <div class="cate-icon-wrapper i-transport"><i data-lucide="bike"></i></div>
+        <p>單車</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('機票')">
+        <div class="cate-icon-wrapper i-transport"><i data-lucide="plane"></i></div>
+        <p>機票/p>
+    </div>
+    <div class="category-item" onclick="selectCategory('船票')">
+        <div class="cate-icon-wrapper i-transport"><i data-lucide="ship"></i></div>
+        <p>船票/p>
+    </div>
+</div>
 
                 <!-- 收入分類網格 -->
                 <div class="category-grid" id="grid-income">
