@@ -173,25 +173,29 @@ function toggleAmountVisibility() {
 }
 
 /**
- * 支出主分類、飲食子分類、交通子分類網格切換核心（全防禦互斥寫法）
+ * 支出主分類、飲食/交通/娛樂子分類網格切換核心（全防禦互斥寫法）
  */
 function changeSubGrid(target) {
     const expenseGrid = document.getElementById('grid-expense');
     const eatGrid = document.getElementById('grid-expense-eat');
     const transportGrid = document.getElementById('grid-expense-transport');
+    const entertainmentGrid = document.getElementById('grid-expense-entertainment');
     
-    if (!expenseGrid || !eatGrid || !transportGrid) return;
+    if (!expenseGrid || !eatGrid || !transportGrid || !entertainmentGrid) return;
 
     // 先全面移除活躍狀態，避免多個網格同時擠在畫面造成嚴重跑版
     expenseGrid.classList.remove('active');
     eatGrid.classList.remove('active');
     transportGrid.classList.remove('active');
+    entertainmentGrid.classList.remove('active');
 
     // 依據目的地，精準點亮單一網格
     if (target === 'eat') {
         eatGrid.classList.add('active');
     } else if (target === 'transport') {
         transportGrid.classList.add('active');
+    } else if (target === 'entertainment') {
+        entertainmentGrid.classList.add('active');
     } else if (target === 'main-expense') {
         expenseGrid.classList.add('active');
     }
@@ -225,7 +229,7 @@ function selectCategory(categoryName, parentType) {
     if (categoryName === '娛樂') iconName = 'party-popper';
     if (categoryName === '購物') iconName = 'shopping-bag';
     
-    // 【補齊】支出 - 交通子項目系列
+    // 支出 - 交通子項目系列
     if (categoryName === '加油費') iconName = 'fuel';
     if (categoryName === '停車費') iconName = 'square-parking';
     if (categoryName === '火車') iconName = 'train-front';
@@ -238,6 +242,15 @@ function selectCategory(categoryName, parentType) {
     if (categoryName === '單車') iconName = 'bike';
     if (categoryName === '機票') iconName = 'plane';
     if (categoryName === '船票') iconName = 'ship';
+
+    // 支出 - 娛樂子項目系列
+    if (categoryName === '手遊') iconName = 'gamepad-2';
+    if (categoryName === '音樂') iconName = 'music';
+    if (categoryName === 'Netflix') iconName = 'monitor-play';
+    if (categoryName === '電影') iconName = 'clapperboard';
+    if (categoryName === '遊樂園') iconName = 'roller-coaster';
+    if (categoryName === '展覽') iconName = 'landmark';
+    if (categoryName === '運動') iconName = 'dumbbell';
     
     // 收入系列
     if (categoryName === '薪水') iconName = 'dollar-sign';
@@ -272,16 +285,24 @@ function selectCategory(categoryName, parentType) {
             cardAmountSub.innerText = '$0';
             cardAmountSub.className = 'text-red';
             
-            // 如果是交通子分類項目，展示大圓圈自動改為寶藍色漸層背景
+            // 判定如果是交通系列則套用藍色，若是娛樂系列則套用專屬的粉紫色漸層背景
             const isTransportItem = ['加油費','停車費','火車','公車','捷運','悠遊卡','汽車','計程車','摩托車','單車','機票','船票'].includes(categoryName);
+            const isEntertainmentItem = ['手遊','音樂','Netflix','電影','遊樂園','展覽','運動'].includes(categoryName);
+            
             if (cardIconWrapper) {
-                cardIconWrapper.className = isTransportItem ? 'cate-icon-wrapper i-transport' : 'cate-icon-wrapper i-income-gold';
+                if (isTransportItem) {
+                    cardIconWrapper.className = 'cate-icon-wrapper i-transport';
+                } else if (isEntertainmentItem) {
+                    cardIconWrapper.className = 'cate-icon-wrapper i-entertainment';
+                } else {
+                    cardIconWrapper.className = 'cate-icon-wrapper i-income-gold';
+                }
             }
         }
     }
 
     // 收合目前畫面上所有的分類網格
-    const gridIds = ['grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable', 'grid-expense-eat', 'grid-expense-transport'];
+    const gridIds = ['grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable', 'grid-expense-eat', 'grid-expense-transport', 'grid-expense-entertainment'];
     gridIds.forEach(id => {
         const g = document.getElementById(id);
         if (g) g.classList.remove('active');
