@@ -370,7 +370,7 @@
                         <div class="cate-icon-wrapper i-personal"><i data-lucide="user"></i></div>
                         <p>個人</p>
                     </div>
-                    <div class="category-item" onclick="selectCategory('醫療')">
+                    <div class="category-item" onclick="changeSubGrid('medical')">
                         <div class="cate-icon-wrapper i-medical"><i data-lucide="stethoscope"></i></div>
                         <p>醫療</p>
                     </div>
@@ -649,6 +649,46 @@
     <div class="category-item" onclick="selectCategory('彩券')">
         <div class="cate-icon-wrapper i-personal"><i data-lucide="receipt"></i></div>
         <p>彩券</p>
+    </div>
+    <div class="category-item">
+        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
+        <p>新增</p>
+    </div>
+</div>
+
+<!-- 醫療子分類網格 -->           
+<div class="category-grid" id="grid-expense-medical">
+    <div class="category-item" onclick="changeSubGrid('main-expense')">
+        <div class="cate-icon-wrapper i-medical"><i data-lucide="undo-2"></i></div>
+        <p>返回</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('門診')">
+        <div class="cate-icon-wrapper i-medical"><i data-lucide="stethoscope"></i></div>
+        <p>門診</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('藥品')">
+        <div class="cate-icon-wrapper i-medical"><i data-lucide="pill"></i></div>
+        <p>藥品</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('醫療用品')">
+        <div class="cate-icon-wrapper i-medical"><i data-lucide="briefcase-medical"></i></div>
+        <p>醫療用品</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('打針')">
+        <div class="cate-icon-wrapper i-medical"><i data-lucide="syringe"></i></div>
+        <p>打針</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('住院')">
+        <div class="cate-icon-wrapper i-medical"><i data-lucide="bed-single"></i></div>
+        <p>住院</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('手術')">
+        <div class="cate-icon-wrapper i-medical"><i data-lucide="slice"></i></div>
+        <p>手術</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('健康檢查')">
+        <div class="cate-icon-wrapper i-medical"><i data-lucide="clipboard-plus"></i></div>
+        <p>健康檢查</p>
     </div>
     <div class="category-item">
         <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
