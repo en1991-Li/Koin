@@ -173,7 +173,7 @@ function toggleAmountVisibility() {
 }
 
 /**
- * 支出主分類、飲食/交通/娛樂/購物/個人/醫療子分類網格切換核心
+ * 支出主分類、飲食/交通/娛樂/購物/個人/醫療/家居子分類網格切換核心
  */
 function changeSubGrid(target) {
     const expenseGrid = document.getElementById('grid-expense');
@@ -183,8 +183,9 @@ function changeSubGrid(target) {
     const shoppingGrid = document.getElementById('grid-expense-shopping');
     const personalGrid = document.getElementById('grid-expense-personal');
     const medicalGrid = document.getElementById('grid-expense-medical');
+    const homeGrid = document.getElementById('grid-expense-home');
     
-    if (!expenseGrid || !eatGrid || !transportGrid || !entertainmentGrid || !shoppingGrid || !personalGrid || !medicalGrid) return;
+    if (!expenseGrid || !eatGrid || !transportGrid || !entertainmentGrid || !shoppingGrid || !personalGrid || !medicalGrid || !homeGrid) return;
 
     // 先全面移除活躍狀態，避免多個網格同時擠在畫面造成跑版
     expenseGrid.classList.remove('active');
@@ -194,6 +195,7 @@ function changeSubGrid(target) {
     shoppingGrid.classList.remove('active');
     personalGrid.classList.remove('active');
     medicalGrid.classList.remove('active');
+    homeGrid.classList.remove('active');
 
     // 依據目的地，精準點亮單一網格
     if (target === 'eat') {
@@ -208,6 +210,8 @@ function changeSubGrid(target) {
         personalGrid.classList.add('active');
     } else if (target === 'medical') {
         medicalGrid.classList.add('active');
+    } else if (target === 'home') {
+        homeGrid.classList.add('active');
     } else if (target === 'main-expense') {
         expenseGrid.classList.add('active');
     }
@@ -215,7 +219,6 @@ function changeSubGrid(target) {
     // 重新繪製新視圖中的 Lucide 向量圖標
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
-
 /**
  * 點擊分類圖標後，隱藏網格並展示單個圖標卡片畫面
  */
@@ -299,6 +302,23 @@ function selectCategory(categoryName, parentType) {
     if (categoryName === '住院') iconName = 'bed-single';
     if (categoryName === '手術') iconName = 'slice';
     if (categoryName === '健康檢查') iconName = 'clipboard-plus';
+
+    // 【補齊】支出 - 家居子項目系列
+    if (categoryName === '日常用品') iconName = 'soap-dispenser-droplet';
+    if (categoryName === '水費') iconName = 'droplets';
+    if (categoryName === '電費') iconName = 'zap';
+    if (categoryName === '燃料費') iconName = 'flame';
+    if (categoryName === '電話費') iconName = 'phone-call';
+    if (categoryName === '網路費') iconName = 'house-wifi';
+    if (categoryName === '房租') iconName = 'building';
+    if (categoryName === '洗衣費') iconName = 'washing-machine';
+    if (categoryName === '修繕費') iconName = 'wrench';
+    if (categoryName === '家具') iconName = 'sofa';
+    if (categoryName === '訂閱') iconName = 'newspaper';
+    if (categoryName === '家電') iconName = 'tv';
+    if (categoryName === '全聯') iconName = 'store';
+    if (categoryName === '屈臣氏') iconName = 'store';
+    if (categoryName === '康是美') iconName = 'store';
     
     // 收入系列
     if (categoryName === '薪水') iconName = 'dollar-sign';
@@ -339,6 +359,7 @@ function selectCategory(categoryName, parentType) {
             const isShoppingItem = ['蝦皮購物','momo購物','市場','衣物','鞋子','配件','包包','美妝保養','精品','禮物','電子產品','應用軟體','UNIQLO','NET'].includes(categoryName);
             const isPersonalItem = ['社交','電信費','借款','投資','稅金','保險','捐款','寵物','彩券'].includes(categoryName);
             const isMedicalItem = ['門診','藥品','醫療用品','打針','住院','手術','健康檢查'].includes(categoryName);
+            const isHomeItem = ['日常用品','水費','電費','燃料費','電話費','網路費','房租','洗衣費','修繕費','家具','訂閱','家電','全聯','屈臣氏','康是美'].includes(categoryName);
             
             if (cardIconWrapper) {
                 if (isTransportItem) {
@@ -351,6 +372,8 @@ function selectCategory(categoryName, parentType) {
                     cardIconWrapper.className = 'cate-icon-wrapper i-personal';
                 } else if (isMedicalItem) {
                     cardIconWrapper.className = 'cate-icon-wrapper i-medical';
+                } else if (isHomeItem) {
+                    cardIconWrapper.className = 'cate-icon-wrapper i-home';
                 } else {
                     cardIconWrapper.className = 'cate-icon-wrapper i-income-gold';
                 }
@@ -359,7 +382,7 @@ function selectCategory(categoryName, parentType) {
     }
 
     // 收合目前畫面上所有的分類網格
-    const gridIds = ['grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable', 'grid-expense-eat', 'grid-expense-transport', 'grid-expense-entertainment', 'grid-expense-shopping', 'grid-expense-personal', 'grid-expense-medical'];
+    const gridIds = ['grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable', 'grid-expense-eat', 'grid-expense-transport', 'grid-expense-entertainment', 'grid-expense-shopping', 'grid-expense-personal', 'grid-expense-medical', 'grid-expense-home'];
     gridIds.forEach(id => {
         const g = document.getElementById(id);
         if (g) g.classList.remove('active');
