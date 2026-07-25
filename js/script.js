@@ -173,7 +173,7 @@ function toggleAmountVisibility() {
 }
 
 /**
- * 支出主分類、飲食/交通/娛樂/購物子分類網格切換核心（全防禦互斥寫法）
+ * 支出主分類、飲食/交通/娛樂/購物/個人子分類網格切換核心
  */
 function changeSubGrid(target) {
     const expenseGrid = document.getElementById('grid-expense');
@@ -181,15 +181,17 @@ function changeSubGrid(target) {
     const transportGrid = document.getElementById('grid-expense-transport');
     const entertainmentGrid = document.getElementById('grid-expense-entertainment');
     const shoppingGrid = document.getElementById('grid-expense-shopping');
+    const personalGrid = document.getElementById('grid-expense-personal');
     
-    if (!expenseGrid || !eatGrid || !transportGrid || !entertainmentGrid || !shoppingGrid) return;
+    if (!expenseGrid || !eatGrid || !transportGrid || !entertainmentGrid || !shoppingGrid || !personalGrid) return;
 
-    // 先全面移除活躍狀態，避免多個網格同時擠在畫面造成嚴重跑版
+    // 先全面移除活躍狀態，避免多個網格同時擠在畫面造成跑版
     expenseGrid.classList.remove('active');
     eatGrid.classList.remove('active');
     transportGrid.classList.remove('active');
     entertainmentGrid.classList.remove('active');
     shoppingGrid.classList.remove('active');
+    personalGrid.classList.remove('active');
 
     // 依據目的地，精準點亮單一網格
     if (target === 'eat') {
@@ -200,6 +202,8 @@ function changeSubGrid(target) {
         entertainmentGrid.classList.add('active');
     } else if (target === 'shopping') {
         shoppingGrid.classList.add('active');
+    } else if (target === 'personal') {
+        personalGrid.classList.add('active');
     } else if (target === 'main-expense') {
         expenseGrid.classList.add('active');
     }
@@ -209,7 +213,7 @@ function changeSubGrid(target) {
 }
 
 /**
- * 點擊分類圖標後，隱藏網格並展示單個圖標卡片畫面（已補齊購物項目字典）
+ * 點擊分類圖標後，隱藏網格並展示單個圖標卡片畫面
  */
 function selectCategory(categoryName, parentType) {
     if (typeof recordState !== 'undefined') {
@@ -271,6 +275,17 @@ function selectCategory(categoryName, parentType) {
     if (categoryName === '應用軟體') iconName = 'app-window';
     if (categoryName === 'UNIQLO') iconName = 'shirt';
     if (categoryName === 'NET') iconName = 'shirt';
+
+    // 支出 - 個人子項目系列
+    if (categoryName === '社交') iconName = 'handshake';
+    if (categoryName === '電信費') iconName = 'phone';
+    if (categoryName === '借款') iconName = 'coins';
+    if (categoryName === '投資') iconName = 'trending-up';
+    if (categoryName === '稅金') iconName = 'circle-dollar-sign';
+    if (categoryName === '保險') iconName = 'shield-check';
+    if (categoryName === '捐款') iconName = 'hand-heart';
+    if (categoryName === '寵物') iconName = 'dog';
+    if (categoryName === '彩券') iconName = 'receipt';
     
     // 收入系列
     if (categoryName === '薪水') iconName = 'dollar-sign';
@@ -305,10 +320,11 @@ function selectCategory(categoryName, parentType) {
             cardAmountSub.innerText = '$0';
             cardAmountSub.className = 'text-red';
             
-            // 檢查分類所屬的家族，動態更換外框漸層
+            // 檢查分類所屬，動態更換外框漸層
             const isTransportItem = ['加油費','停車費','火車','公車','捷運','悠遊卡','汽車','計程車','摩托車','單車','機票','船票'].includes(categoryName);
             const isEntertainmentItem = ['手遊','音樂','Netflix','電影','遊樂園','展覽','運動'].includes(categoryName);
             const isShoppingItem = ['蝦皮購物','momo購物','市場','衣物','鞋子','配件','包包','美妝保養','精品','禮物','電子產品','應用軟體','UNIQLO','NET'].includes(categoryName);
+            const isPersonalItem = ['社交','電信費','借款','投資','稅金','保險','捐款','寵物','彩券'].includes(categoryName);
             
             if (cardIconWrapper) {
                 if (isTransportItem) {
@@ -317,6 +333,8 @@ function selectCategory(categoryName, parentType) {
                     cardIconWrapper.className = 'cate-icon-wrapper i-entertainment';
                 } else if (isShoppingItem) {
                     cardIconWrapper.className = 'cate-icon-wrapper i-shopping';
+                } else if (isPersonalItem) {
+                    cardIconWrapper.className = 'cate-icon-wrapper i-personal';
                 } else {
                     cardIconWrapper.className = 'cate-icon-wrapper i-income-gold';
                 }
@@ -325,7 +343,7 @@ function selectCategory(categoryName, parentType) {
     }
 
     // 收合目前畫面上所有的分類網格
-    const gridIds = ['grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable', 'grid-expense-eat', 'grid-expense-transport', 'grid-expense-entertainment', 'grid-expense-shopping'];
+    const gridIds = ['grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable', 'grid-expense-eat', 'grid-expense-transport', 'grid-expense-entertainment', 'grid-expense-shopping', 'grid-expense-personal'];
     gridIds.forEach(id => {
         const g = document.getElementById(id);
         if (g) g.classList.remove('active');
