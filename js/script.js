@@ -173,7 +173,7 @@ function toggleAmountVisibility() {
 }
 
 /**
- * 支出主分類、飲食/交通/娛樂/購物/個人子分類網格切換核心
+ * 支出主分類、飲食/交通/娛樂/購物/個人/醫療子分類網格切換核心
  */
 function changeSubGrid(target) {
     const expenseGrid = document.getElementById('grid-expense');
@@ -182,8 +182,9 @@ function changeSubGrid(target) {
     const entertainmentGrid = document.getElementById('grid-expense-entertainment');
     const shoppingGrid = document.getElementById('grid-expense-shopping');
     const personalGrid = document.getElementById('grid-expense-personal');
+    const medicalGrid = document.getElementById('grid-expense-medical');
     
-    if (!expenseGrid || !eatGrid || !transportGrid || !entertainmentGrid || !shoppingGrid || !personalGrid) return;
+    if (!expenseGrid || !eatGrid || !transportGrid || !entertainmentGrid || !shoppingGrid || !personalGrid || !medicalGrid) return;
 
     // 先全面移除活躍狀態，避免多個網格同時擠在畫面造成跑版
     expenseGrid.classList.remove('active');
@@ -192,6 +193,7 @@ function changeSubGrid(target) {
     entertainmentGrid.classList.remove('active');
     shoppingGrid.classList.remove('active');
     personalGrid.classList.remove('active');
+    medicalGrid.classList.remove('active');
 
     // 依據目的地，精準點亮單一網格
     if (target === 'eat') {
@@ -204,6 +206,8 @@ function changeSubGrid(target) {
         shoppingGrid.classList.add('active');
     } else if (target === 'personal') {
         personalGrid.classList.add('active');
+    } else if (target === 'medical') {
+        medicalGrid.classList.add('active');
     } else if (target === 'main-expense') {
         expenseGrid.classList.add('active');
     }
@@ -286,6 +290,15 @@ function selectCategory(categoryName, parentType) {
     if (categoryName === '捐款') iconName = 'hand-heart';
     if (categoryName === '寵物') iconName = 'dog';
     if (categoryName === '彩券') iconName = 'receipt';
+
+    // 支出 - 醫療子項目系列
+    if (categoryName === '門診') iconName = 'stethoscope';
+    if (categoryName === '藥品') iconName = 'pill';
+    if (categoryName === '醫療用品') iconName = 'briefcase-medical';
+    if (categoryName === '打針') iconName = 'syringe';
+    if (categoryName === '住院') iconName = 'bed-single';
+    if (categoryName === '手術') iconName = 'slice';
+    if (categoryName === '健康檢查') iconName = 'clipboard-plus';
     
     // 收入系列
     if (categoryName === '薪水') iconName = 'dollar-sign';
@@ -325,6 +338,7 @@ function selectCategory(categoryName, parentType) {
             const isEntertainmentItem = ['手遊','音樂','Netflix','電影','遊樂園','展覽','運動'].includes(categoryName);
             const isShoppingItem = ['蝦皮購物','momo購物','市場','衣物','鞋子','配件','包包','美妝保養','精品','禮物','電子產品','應用軟體','UNIQLO','NET'].includes(categoryName);
             const isPersonalItem = ['社交','電信費','借款','投資','稅金','保險','捐款','寵物','彩券'].includes(categoryName);
+            const isMedicalItem = ['門診','藥品','醫療用品','打針','住院','手術','健康檢查'].includes(categoryName);
             
             if (cardIconWrapper) {
                 if (isTransportItem) {
@@ -335,6 +349,8 @@ function selectCategory(categoryName, parentType) {
                     cardIconWrapper.className = 'cate-icon-wrapper i-shopping';
                 } else if (isPersonalItem) {
                     cardIconWrapper.className = 'cate-icon-wrapper i-personal';
+                } else if (isMedicalItem) {
+                    cardIconWrapper.className = 'cate-icon-wrapper i-medical';
                 } else {
                     cardIconWrapper.className = 'cate-icon-wrapper i-income-gold';
                 }
@@ -343,7 +359,7 @@ function selectCategory(categoryName, parentType) {
     }
 
     // 收合目前畫面上所有的分類網格
-    const gridIds = ['grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable', 'grid-expense-eat', 'grid-expense-transport', 'grid-expense-entertainment', 'grid-expense-shopping', 'grid-expense-personal'];
+    const gridIds = ['grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable', 'grid-expense-eat', 'grid-expense-transport', 'grid-expense-entertainment', 'grid-expense-shopping', 'grid-expense-personal', 'grid-expense-medical'];
     gridIds.forEach(id => {
         const g = document.getElementById(id);
         if (g) g.classList.remove('active');
