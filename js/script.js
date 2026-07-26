@@ -173,7 +173,7 @@ function toggleAmountVisibility() {
 }
 
 /**
- * 支出主分類、飲食/交通/娛樂/購物/個人/醫療/家居子分類網格切換核心
+ * 支出主分類、飲食/交通/娛樂/購物/個人/醫療/家居/家庭子分類網格切換核心
  */
 function changeSubGrid(target) {
     const expenseGrid = document.getElementById('grid-expense');
@@ -184,8 +184,9 @@ function changeSubGrid(target) {
     const personalGrid = document.getElementById('grid-expense-personal');
     const medicalGrid = document.getElementById('grid-expense-medical');
     const homeGrid = document.getElementById('grid-expense-home');
+    const familyGrid = document.getElementById('grid-expense-family');
     
-    if (!expenseGrid || !eatGrid || !transportGrid || !entertainmentGrid || !shoppingGrid || !personalGrid || !medicalGrid || !homeGrid) return;
+    if (!expenseGrid || !eatGrid || !transportGrid || !entertainmentGrid || !shoppingGrid || !personalGrid || !medicalGrid || !homeGrid || !familyGrid) return;
 
     // 先全面移除活躍狀態，避免多個網格同時擠在畫面造成跑版
     expenseGrid.classList.remove('active');
@@ -196,6 +197,7 @@ function changeSubGrid(target) {
     personalGrid.classList.remove('active');
     medicalGrid.classList.remove('active');
     homeGrid.classList.remove('active');
+    familyGrid.classList.remove('active');
 
     // 依據目的地，精準點亮單一網格
     if (target === 'eat') {
@@ -212,6 +214,8 @@ function changeSubGrid(target) {
         medicalGrid.classList.add('active');
     } else if (target === 'home') {
         homeGrid.classList.add('active');
+    } else if (target === 'family') {
+        familyGrid.classList.add('active');
     } else if (target === 'main-expense') {
         expenseGrid.classList.add('active');
     }
@@ -319,6 +323,13 @@ function selectCategory(categoryName, parentType) {
     if (categoryName === '全聯') iconName = 'store';
     if (categoryName === '屈臣氏') iconName = 'store';
     if (categoryName === '康是美') iconName = 'store';
+
+    // 支出 - 家庭子項目系列
+    if (categoryName === '生活費') iconName = 'wallet-minimal';
+    if (categoryName === '教育') iconName = 'graduation-cap';
+    if (categoryName === '看護') iconName = 'person-standing';
+    if (categoryName === '玩具') iconName = 'toy-brick';
+    if (categoryName === '才藝') iconName = 'palette';
     
     // 收入系列
     if (categoryName === '薪水') iconName = 'dollar-sign';
@@ -360,6 +371,7 @@ function selectCategory(categoryName, parentType) {
             const isPersonalItem = ['社交','電信費','借款','投資','稅金','保險','捐款','寵物','彩券'].includes(categoryName);
             const isMedicalItem = ['門診','藥品','醫療用品','打針','住院','手術','健康檢查'].includes(categoryName);
             const isHomeItem = ['日常用品','水費','電費','燃料費','電話費','網路費','房租','洗衣費','修繕費','家具','訂閱','家電','全聯','屈臣氏','康是美'].includes(categoryName);
+            const isFamilyItem = ['生活費','教育','看護','玩具','才藝'].includes(categoryName);
             
             if (cardIconWrapper) {
                 if (isTransportItem) {
@@ -374,6 +386,8 @@ function selectCategory(categoryName, parentType) {
                     cardIconWrapper.className = 'cate-icon-wrapper i-medical';
                 } else if (isHomeItem) {
                     cardIconWrapper.className = 'cate-icon-wrapper i-home';
+                } else if (isFamilyItem) {
+                    cardIconWrapper.className = 'cate-icon-wrapper i-family';
                 } else {
                     cardIconWrapper.className = 'cate-icon-wrapper i-income-gold';
                 }
@@ -382,7 +396,7 @@ function selectCategory(categoryName, parentType) {
     }
 
     // 收合目前畫面上所有的分類網格
-    const gridIds = ['grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable', 'grid-expense-eat', 'grid-expense-transport', 'grid-expense-entertainment', 'grid-expense-shopping', 'grid-expense-personal', 'grid-expense-medical', 'grid-expense-home'];
+    const gridIds = ['grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable', 'grid-expense-eat', 'grid-expense-transport', 'grid-expense-entertainment', 'grid-expense-shopping', 'grid-expense-personal', 'grid-expense-medical', 'grid-expense-home', 'grid-expense-family'];
     gridIds.forEach(id => {
         const g = document.getElementById(id);
         if (g) g.classList.remove('active');
