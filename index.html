@@ -386,7 +386,7 @@
                         <div class="cate-icon-wrapper i-life"><i data-lucide="coffee"></i></div>
                         <p>生活</p>
                     </div>
-                    <div class="category-item" onclick="selectCategory('學習')">
+                    <div class="category-item" onclick="changeSubGrid('learn')">
                         <div class="cate-icon-wrapper i-learn"><i data-lucide="graduation-cap"></i></div>
                         <p>學習</p>
                     </div>
@@ -821,6 +821,50 @@
     <div class="category-item" onclick="selectCategory('派對')">
         <div class="cate-icon-wrapper i-life"><i data-lucide="wine"></i></div>
         <p>派對</p>
+    </div>
+    <div class="category-item">
+        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
+        <p>新增</p>
+    </div>
+</div>
+
+<!-- 學習子分類網格 --> 
+<div class="category-grid" id="grid-expense-learn">
+    <div class="category-item" onclick="changeSubGrid('main-expense')">
+        <div class="cate-icon-wrapper i-learn"><i data-lucide="undo-2"></i></div>
+        <p>返回</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('書籍')">
+        <div class="cate-icon-wrapper i-learn"><i data-lucide="book-open-text"></i></div>
+        <p>書籍</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('課程')">
+        <div class="cate-icon-wrapper i-learn"><i data-lucide="presentation"></i></div>
+        <p>課程</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('教材')">
+        <div class="cate-icon-wrapper i-learn"><i data-lucide="book-marked"></i></div>
+        <p>教材</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('證書')">
+        <div class="cate-icon-wrapper i-learn"><i data-lucide="book-user"></i></div>
+        <p>證書</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('文具')">
+        <div class="cate-icon-wrapper i-learn"><i data-lucide="pencil-ruler"></i></div>
+        <p>文具</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('考試')">
+        <div class="cate-icon-wrapper i-learn"><i data-lucide="book-open-check"></i></div>
+        <p>考試</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('金石堂')">
+        <div class="cate-icon-wrapper i-learn"><i data-lucide="book-open"></i></div>
+        <p>金石堂</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('博客來')">
+        <div class="cate-icon-wrapper i-learn"><i data-lucide="book-open"></i></div>
+        <p>博客來</p>
     </div>
     <div class="category-item">
         <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
