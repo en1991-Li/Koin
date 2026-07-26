@@ -382,7 +382,7 @@
                         <div class="cate-icon-wrapper i-family"><i data-lucide="users"></i></div>
                         <p>家庭</p>
                     </div>
-                    <div class="category-item" onclick="selectCategory('生活')">
+                    <div class="category-item" onclick="changeSubGrid('life')">
                         <div class="cate-icon-wrapper i-life"><i data-lucide="coffee"></i></div>
                         <p>生活</p>
                     </div>
@@ -793,6 +793,34 @@
     <div class="category-item" onclick="selectCategory('才藝')">
         <div class="cate-icon-wrapper i-family"><i data-lucide="palette"></i></div>
         <p>才藝</p>
+    </div>
+    <div class="category-item">
+        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
+        <p>新增</p>
+    </div>
+</div>
+
+<!-- 生活子分類網格 -->               
+<div class="category-grid" id="grid-expense-life">
+    <div class="category-item" onclick="changeSubGrid('main-expense')">
+        <div class="cate-icon-wrapper i-life"><i data-lucide="undo-2"></i></div>
+        <p>返回</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('美容美髮')">
+        <div class="cate-icon-wrapper i-life"><i data-lucide="scissors"></i></div>
+        <p>美容美髮</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('住宿')">
+        <div class="cate-icon-wrapper i-life"><i data-lucide="hotel"></i></div>
+        <p>住宿</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('旅行')">
+        <div class="cate-icon-wrapper i-life"><i data-lucide="tree-palm"></i></div>
+        <p>旅行</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('派對')">
+        <div class="cate-icon-wrapper i-life"><i data-lucide="wine"></i></div>
+        <p>派對</p>
     </div>
     <div class="category-item">
         <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
