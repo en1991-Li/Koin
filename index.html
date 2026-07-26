@@ -378,7 +378,7 @@
                         <div class="cate-icon-wrapper i-home"><i data-lucide="home"></i></div>
                         <p>家居</p>
                     </div>
-                    <div class="category-item" onclick="selectCategory('家庭')">
+                    <div class="category-item" onclick="changeSubGrid('family')">
                         <div class="cate-icon-wrapper i-family"><i data-lucide="users"></i></div>
                         <p>家庭</p>
                     </div>
@@ -761,6 +761,38 @@
     <div class="category-item" onclick="selectCategory('康是美')">
         <div class="cate-icon-wrapper i-home"><i data-lucide="store"></i></div>
         <p>康是美</p>
+    </div>
+    <div class="category-item">
+        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
+        <p>新增</p>
+    </div>
+</div>
+
+<!-- 家庭子分類網格 -->                
+<div class="category-grid" id="grid-expense-family">
+    <div class="category-item" onclick="changeSubGrid('main-expense')">
+        <div class="cate-icon-wrapper i-family"><i data-lucide="undo-2"></i></div>
+        <p>返回</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('生活費')">
+        <div class="cate-icon-wrapper i-family"><i data-lucide="wallet-minimal"></i></div>
+        <p>生活費</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('教育')">
+        <div class="cate-icon-wrapper i-family"><i data-lucide="graduation-cap"></i></div>
+        <p>教育</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('看護')">
+        <div class="cate-icon-wrapper i-family"><i data-lucide="person-standing"></i></div>
+        <p>看護</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('玩具')">
+        <div class="cate-icon-wrapper i-family"><i data-lucide="toy-brick"></i></div>
+        <p>玩具</p>
+    </div>
+    <div class="category-item" onclick="selectCategory('才藝')">
+        <div class="cate-icon-wrapper i-family"><i data-lucide="palette"></i></div>
+        <p>才藝</p>
     </div>
     <div class="category-item">
         <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
