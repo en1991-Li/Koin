@@ -173,7 +173,7 @@ function toggleAmountVisibility() {
 }
 
 /**
- * 支出主分類、飲食/交通/娛樂/購物/個人/醫療/家居/家庭/生活子分類網格切換核心（全防禦互斥寫法）
+ * 支出主分類、飲食/交通/娛樂/購物/個人/醫療/家居/家庭/生活/學習子分類網格切換核心
  */
 function changeSubGrid(target) {
     const expenseGrid = document.getElementById('grid-expense');
@@ -186,8 +186,9 @@ function changeSubGrid(target) {
     const homeGrid = document.getElementById('grid-expense-home');
     const familyGrid = document.getElementById('grid-expense-family');
     const lifeGrid = document.getElementById('grid-expense-life');
+    const learnGrid = document.getElementById('grid-expense-learn');
     
-    if (!expenseGrid || !eatGrid || !transportGrid || !entertainmentGrid || !shoppingGrid || !personalGrid || !medicalGrid || !homeGrid || !familyGrid || !lifeGrid) return;
+    if (!expenseGrid || !eatGrid || !transportGrid || !entertainmentGrid || !shoppingGrid || !personalGrid || !medicalGrid || !homeGrid || !familyGrid || !lifeGrid || !learnGrid) return;
 
     // 先全面移除活躍狀態，避免多個網格同時擠在畫面造成跑版
     expenseGrid.classList.remove('active');
@@ -200,6 +201,7 @@ function changeSubGrid(target) {
     homeGrid.classList.remove('active');
     familyGrid.classList.remove('active');
     lifeGrid.classList.remove('active');
+    learnGrid.classList.remove('active');
 
     // 依據目的地，精準點亮單一網格
     if (target === 'eat') {
@@ -220,6 +222,8 @@ function changeSubGrid(target) {
         familyGrid.classList.add('active');
     } else if (target === 'life') {
         lifeGrid.classList.add('active');
+    } else if (target === 'learn') {
+        learnGrid.classList.add('active');
     } else if (target === 'main-expense') {
         expenseGrid.classList.add('active');
     }
@@ -340,6 +344,16 @@ function selectCategory(categoryName, parentType) {
     if (categoryName === '住宿') iconName = 'hotel';
     if (categoryName === '旅行') iconName = 'tree-palm';
     if (categoryName === '派對') iconName = 'wine';
+
+    // 支出 - 學習子項目系列
+    if (categoryName === '書籍') iconName = 'book-open-text';
+    if (categoryName === '課程') iconName = 'presentation';
+    if (categoryName === '教材') iconName = 'book-marked';
+    if (categoryName === '讀書') iconName = 'book-user';
+    if (categoryName === '文具') iconName = 'pen-ruler';
+    if (categoryName === '考試') iconName = 'book-open-check';
+    if (categoryName === '金石堂') iconName = 'book-open';
+    if (categoryName === '博客來') iconName = 'book-open';
     
     // 收入系列
     if (categoryName === '薪水') iconName = 'dollar-sign';
@@ -383,6 +397,7 @@ function selectCategory(categoryName, parentType) {
             const isHomeItem = ['日常用品','水費','電費','燃料費','電話費','網路費','房租','洗衣費','修繕費','家具','訂閱','家電','全聯','屈臣氏','康是美'].includes(categoryName);
             const isFamilyItem = ['生活費','教育','看護','玩具','才藝'].includes(categoryName);
             const isLifeItem = ['美容美髮','住宿','旅行','派對'].includes(categoryName);
+            const isLearnItem = ['書籍','課程','教材','讀書','文具','考試','金石堂','博客來'].includes(categoryName);
             
             if (cardIconWrapper) {
                 if (isTransportItem) {
@@ -401,6 +416,8 @@ function selectCategory(categoryName, parentType) {
                     cardIconWrapper.className = 'cate-icon-wrapper i-family';
                 } else if (isLifeItem) {
                     cardIconWrapper.className = 'cate-icon-wrapper i-life';
+                } else if (isLearnItem) {
+                    cardIconWrapper.className = 'cate-icon-wrapper i-learn';
                 } else {
                     cardIconWrapper.className = 'cate-icon-wrapper i-income-gold';
                 }
@@ -409,7 +426,7 @@ function selectCategory(categoryName, parentType) {
     }
 
     // 收合目前畫面上所有的分類網格
-    const gridIds = ['grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable', 'grid-expense-eat', 'grid-expense-transport', 'grid-expense-entertainment', 'grid-expense-shopping', 'grid-expense-personal', 'grid-expense-medical', 'grid-expense-home', 'grid-expense-family', 'grid-expense-life'];
+    const gridIds = ['grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable', 'grid-expense-eat', 'grid-expense-transport', 'grid-expense-entertainment', 'grid-expense-shopping', 'grid-expense-personal', 'grid-expense-medical', 'grid-expense-home', 'grid-expense-family', 'grid-expense-life', 'grid-expense-learn'];
     gridIds.forEach(id => {
         const g = document.getElementById(id);
         if (g) g.classList.remove('active');
