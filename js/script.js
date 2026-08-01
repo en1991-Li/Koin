@@ -240,7 +240,9 @@ function selectCategory(categoryName, parentType) {
     }
 
     // 核心圖標映射字典
+    let iconName = 'croissant';
     let iconName = 'utensils';
+    let iconName = 'credit-card';
     
     // 支出 - 主系列與飲食系列
     if (categoryName === '早餐') iconName = 'croissant';
