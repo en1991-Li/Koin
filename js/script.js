@@ -396,6 +396,9 @@ function selectCategory(categoryName, parentType) {
     // 4. 精準判定當前分類對應的 Lucide 圖標名稱
     let iconName = null;
 
+    // 安全處理：強制轉為字串並去除前後無意中留下的空白格
+    const cleanCategory = String(categoryName || '').trim();
+
     if (parentType === 'income') {
         iconName = incomeIconMap[categoryName];
     } else if (parentType === 'expense') {
@@ -407,6 +410,17 @@ function selectCategory(categoryName, parentType) {
         iconName = expenseIconMap[categoryName] || 
                    incomeIconMap[categoryName] || 
                    otherIconMap[categoryName];
+    }
+
+    // 如果還是找不到，進行「關鍵字模糊比對」防線，避免一律掉回 utensils
+    if (!iconName) {
+        if (cleanCategory.includes('餐') || cleanCategory.includes('食') || cleanCategory.includes('吃')) iconName = 'utensils';
+        else if (cleanCategory.includes('車') || cleanCategory.includes('交通') || cleanCategory.includes('運')) iconName = 'car';
+        else if (cleanCategory.includes('買') || cleanCategory.includes('購物') || cleanCategory.includes('店')) iconName = 'shopping-bag';
+        else if (cleanCategory.includes('房') || cleanCategory.includes('家') || cleanCategory.includes('屋')) iconName = 'home';
+        else if (cleanCategory.includes('醫') || cleanCategory.includes('藥') || cleanCategory.includes('病')) iconName = 'stethoscope';
+        else if (cleanCategory.includes('書') || cleanCategory.includes('學') || cleanCategory.includes('課')) iconName = 'book-open';
+        else iconName = (parentType === 'income') ? 'dollar-sign' : 'tag'; // 預設改為更通用的標籤圖標 tag
     }
    
     // 5. 更新前端動態卡片節點
