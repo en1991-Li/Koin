@@ -1404,101 +1404,85 @@ function handleSettingsToggleHide(isChecked) {
 }
 
 /**
- * 根據 LocalStorage 內的紀錄，動態渲染日曆頁面下方的每日交易明細（已同步全分類字典）
- */
+ * 根據 LocalStorage 內的紀錄，動態渲染日曆頁面下方的每日交易明細
+ */
 function renderDailyDetailsList() {
-    const detailContainer = document.getElementById('daily-details-list');
-    if (!detailContainer) return;
+    const detailContainer = document.getElementById('daily-details-list');
+    if (!detailContainer) return;
 
-    // 1. 取出 LocalStorage 中的流水帳紀錄
-    const localRecords = JSON.parse(localStorage.getItem('koin_records')) || [];
+    // 1. 取出 LocalStorage 中的流水帳紀錄
+    const localRecords = JSON.parse(localStorage.getItem('koin_records')) || [];
 
-    // 2. 取得當前日曆所選取的日期
-    const currentSelectedDate = recordState.date || new Date().toLocaleDateString();
+    // 2. 取得當前日曆所選取的日期（對齊 recordState 目前暫存的日期）
+    // 如果 recordState 沒有日期，預設使用系統今天的日期格式
+    const currentSelectedDate = recordState.date || new Date().toLocaleDateString();
 
-    // 3. 過濾出「日期符合當天」的記帳紀錄
-    const todayRecords = localRecords.filter(rec => rec.date === currentSelectedDate);
+    // 3. 過濾出「日期符合當天」的記帳紀錄
+    const todayRecords = localRecords.filter(rec => {
+        // 相容相等的日期字串比對 (例如 "2026/07/18")
+        return rec.date === currentSelectedDate;
+    });
 
-    // 4. 如果當天沒有任何紀錄，顯示預設提示
-    if (todayRecords.length === 0) {
-        detailContainer.innerHTML = `<p style="color: #8a8a8e; text-align: center; margin-top: 30px; font-size: 14px;">當天尚無交易明細</p>`;
-        return;
-    }
+    // 4. 如果當天沒有任何紀錄，顯示預設提示
+    if (todayRecords.length === 0) {
+        detailContainer.innerHTML = `<p style="color: #8a8a8e; text-align: center; margin-top: 30px; font-size: 14px;">當天尚無交易明細</p>`;
+        return;
+    }
 
-    // === 全域圖標與顏色字典 ===
-    const expenseIconMap = {
-        '飲食': 'utensils', '交通': 'car', '娛樂': 'party-popper', '購物': 'shopping-bag', '個人': 'user', '醫療': 'stethoscope', '家居': 'home', '家庭': 'users', '生活': 'coffee', '學習': 'book',
-        '早餐': 'croissant', '午餐': 'utensils', '晚餐': 'soup', '點心': 'cookie', '飲料': 'cup-soda', '酒類': 'beer', '水果': 'grape', '宵夜': 'pizza', '礦泉水': 'glass-water',
-        '加油費': 'fuel', '停車費': 'square-parking', '火車': 'train-front', '公車': 'bus-front', '捷運': 'train-front-tunnel', '悠遊卡': 'credit-card', '汽車': 'car-front', '計程車': 'car-taxi-front', '摩托車': 'motorbike', '單車': 'bike', '機票': 'plane', '船票': 'ship',
-        '手遊': 'gamepad-2', '音樂': 'music', 'Netflix': 'monitor-play', '電影': 'clapperboard', '遊樂園': 'roller-coaster', '展覽': 'landmark', '運動': 'dumbbell',
-        '蝦皮購物': 'shopping-bag', 'momo購物': 'shopping-bag', '市場': 'shopping-cart', '衣物': 'shirt', '鞋子': 'sport-shoe', '配件': 'glasses', '包包': 'handbag', '美妝保養': 'mirror-round', '精品': 'gem', '禮物': 'gift', '電子產品': 'laptop', '應用軟體': 'app-window', 'UNIQLO': 'shirt', 'NET': 'shirt',
-        '社交': 'handshake', '電信費': 'phone', '借款': 'coins', '投資': 'trending-up', '稅金': 'circle-dollar-sign', '保險': 'shield-check', '捐款': 'hand-heart', '寵物': 'dog', '彩券': 'receipt',
-        '門診': 'stethoscope', '藥品': 'pill', '醫療用品': 'briefcase-medical', '打針': 'syringe', '住院': 'bed-single', '手術': 'slice', '健康檢查': 'clipboard-plus',
-        '日常用品': 'soap-dispenser-droplet', '水費': 'droplets', '電費': 'zap', '燃料費': 'flame', '電話費': 'phone-call', '網路費': 'house-wifi', '房租': 'building', '洗衣費': 'washing-machine', '修繕費': 'wrench', '家具': 'sofa', '訂閱': 'newspaper', '家電': 'tv', '全聯': 'store', '屈臣氏': 'store', '康是美': 'store',
-        '生活費': 'wallet-minimal', '教育': 'graduation-cap', '看護': 'person-standing', '玩具': 'toy-brick', '才藝': 'palette',
-        '美容美髮': 'scissors', '住宿': 'hotel', '旅行': 'tree-palm', '派對': 'wine',
-        '書籍': 'book-open-text', '課程': 'presentation', '教材': 'book-marked', '證書': 'book-user', '探索': 'compass', '文具': 'pen-ruler', '考試': 'book-open-check', '金石堂': 'book-open', '博客來': 'book-open'
-    };
-    const incomeIconMap = { '薪水': 'dollar-sign', '獎金': 'coins', '投資': 'trending-up', '收款': 'hand-coins', '彩券': 'newspaper', '利息': 'landmark', '消費回饋': 'credit-card', '零用錢': 'circle-dollar-sign', '發票': 'receipt', '補助': 'building-2' };
-    const otherIconMap = { '轉帳': 'arrow-left-right', '提款': 'credit-card', '存款': 'banknote', '還款': 'undo-2', '借出': 'hand-coins', '代付': 'handshake', '報帳': 'briefcase-business', '借入': 'hand-coins', '信貸': 'credit-card', '車貸': 'car', '房貸': 'house' };
+    // 5. 開始動態建構標準 iOS 質感的交易條目卡片結構
+    detailContainer.innerHTML = ''; // 清空舊畫面
 
-    // 5. 開始動態建構標準 iOS 質感的交易條目卡片結構
-    detailContainer.innerHTML = ''; // 清空舊畫面
+    todayRecords.forEach(rec => {
+        // 對照分類並給予正確的 Lucide 圖標名稱與獨立配色 Class
+        let iconName = 'utensils';
+        let bgClass = 'i-eat'; // 預設黃色漸層
 
-    todayRecords.forEach(rec => {
-        const cleanCategory = String(rec.category || '').trim();
-        const parentType = (rec.type === '收入') ? 'income' : 'expense';
+        if (rec.category === '早餐') { iconName = 'croissant'; bgClass = 'i-income-gold'; }
+        else if (rec.category === '午餐') { iconName = 'utensils'; bgClass = 'i-income-gold'; }
+        else if (rec.category === '晚餐') { iconName = 'soup'; bgClass = 'i-income-gold'; }
+        else if (rec.category === '點心') { iconName = 'cookie'; bgClass = 'i-income-gold'; }
+        else if (rec.category === '飲料') { iconName = 'cup-soda'; bgClass = 'i-income-gold'; }
+        else if (rec.category === '酒類') { iconName = 'beer'; bgClass = 'i-income-gold'; }
+        else if (rec.category === '水果') { iconName = 'grape'; bgClass = 'i-income-gold'; }
+        else if (rec.category === '宵夜') { iconName = 'pizza'; bgClass = 'i-income-gold'; }
+        else if (rec.category === '礦泉水') { iconName = 'glass-water'; bgClass = 'i-income-gold'; }
+        else if (rec.category === '交通') { iconName = 'car'; bgClass = 'i-transport'; }
+        else if (rec.category === '娛樂') { iconName = 'party-popper'; bgClass = 'i-entertainment'; }
+        else if (rec.category === '購物') { iconName = 'shopping-bag'; bgClass = 'i-shopping'; }
 
-        // 判定圖標：全字典匹配
-        let iconName = expenseIconMap[cleanCategory] || incomeIconMap[cleanCategory] || otherIconMap[cleanCategory];
-        if (!iconName) iconName = (parentType === 'income') ? 'dollar-sign' : 'tag'; // 預設防呆
+        // 依據交易型態（支出/收入）決定右側金額顏色數字字串
+        const isExpense = (rec.type === '支出' || rec.type === '應付款項');
+        const amountColorClass = isExpense ? 'text-red' : 'text-green';
+        const formattedAmount = `${isExpense ? '' : '+'}${rec.amount.toLocaleString()}`;
 
-        // 判定背景漸層色
-        let bgClass = 'i-income-gold'; 
-        if (parentType === 'income') {
-            bgClass = 'i-income-gold';
-        } else {
-            if (['加油費','停車費','火車','公車','捷運','悠遊卡','汽車','計程車','摩托車','單車','機票','船票'].includes(cleanCategory)) bgClass = 'i-transport';
-            else if (['手遊','彩券/刮刮樂','音樂','Spotify','Netflix','電影','遊樂園','展覽','運動'].includes(cleanCategory)) bgClass = 'i-entertainment';
-            else if (['蝦皮購物','momo購物','市場','衣物','鞋子','配件','包包','美妝保養','精品','禮物','電子產品','應用軟體','UNIQLO','NET'].includes(cleanCategory)) bgClass = 'i-shopping';
-            else if (['社交','電信費','借款','投資','稅金','保險','捐款','寵物','彩券'].includes(cleanCategory)) bgClass = 'i-personal';
-            else if (['門診','藥品','醫療用品','打針','住院','手術','健康檢查'].includes(cleanCategory)) bgClass = 'i-medical';
-            else if (['日常用品','水費','電費','燃料費','電話費','網路費','房租','洗衣費','修繕費','家具','訂閱','家電','全聯','屈臣氏','康是美'].includes(cleanCategory)) bgClass = 'i-home';
-            else if (['生活費','教育','看護','玩具','才藝'].includes(cleanCategory)) bgClass = 'i-family';
-            else if (['美容美髮','住宿','旅行','派對'].includes(cleanCategory)) bgClass = 'i-life';
-            else if (['書籍','課程','教材','證書','探索','文具','考試','金石堂','博客來'].includes(cleanCategory)) bgClass = 'i-learn';
-        }
+        // 建立標準卡片 HTML 結構
+        const itemHTML = `
+            <div class="form-group" style="padding: 0; margin-bottom: 12px;">
+                <div class="form-row" style="background: #1c1c28; padding: 14px 16px; border-radius: 16px; border-bottom: none;">
+                    <!-- 左側：圖標與名稱說明區 -->
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <div class="cate-icon-wrapper ${bgClass}" style="width: 44px; height: 44px; margin-bottom: 0;">
+                            <i data-lucide="${iconName}"></i>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <span style="font-size: 15px; font-weight: 600; color: #ffffff; text-align: left;">${rec.category}</span>
+                            <!-- 下方小標籤群組 (專案、帳戶、時間) -->
+                            <div style="display: flex; gap: 6px;">
+                                <span style="background: rgba(255,255,255,0.05); color: #8e8e93; font-size: 10px; padding: 2px 8px; border-radius: 6px;">${rec.project || '生活開銷'}</span>
+                                <span style="background: rgba(93,93,255,0.1); color: #8e8e93; font-size: 10px; padding: 2px 8px; border-radius: 6px;">${rec.account || '錢包'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 右側：交易實體金額 -->
+                    <span class="${amountColorClass}" style="font-size: 17px; font-weight: 700;">
+                        $${formattedAmount}
+                    </span>
+                </div>
+            </div>
+        `;
+        detailContainer.insertAdjacentHTML('beforeend', itemHTML);
+    });
 
-        // 依據交易型態決定右側金額顏色與正負號
-        const isExpense = (rec.type === '支出' || rec.type === '應付款項');
-        const amountColorClass = isExpense ? 'text-red' : 'text-green';
-        const formattedAmount = `${isExpense ? '' : '+'}${rec.amount.toLocaleString()}`;
-
-        // 建立標準卡片 HTML 結構
-        const itemHTML = `
-            <div class="form-group" style="padding: 0; margin-bottom: 12px;">
-                <div class="form-row" style="background: #1c1c28; padding: 14px 16px; border-radius: 16px; border-bottom: none;">
-                    <div style="display: flex; align-items: center; gap: 14px;">
-                        <div class="cate-icon-wrapper ${bgClass}" style="width: 44px; height: 44px; margin-bottom: 0;">
-                            <i data-lucide="${iconName}"></i>
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 4px;">
-                            <span style="font-size: 15px; font-weight: 600; color: #ffffff; text-align: left;">${rec.category}</span>
-                            <div style="display: flex; gap: 6px;">
-                                <span style="background: rgba(255,255,255,0.05); color: #8e8e93; font-size: 10px; padding: 2px 8px; border-radius: 6px;">${rec.project || '生活開銷'}</span>
-                                <span style="background: rgba(93,93,255,0.1); color: #8e8e93; font-size: 10px; padding: 2px 8px; border-radius: 6px;">${rec.account || '錢包'}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <span class="${amountColorClass}" style="font-size: 17px; font-weight: 700;">
-                        $${formattedAmount}
-                    </span>
-                </div>
-            </div>
-        `;
-        detailContainer.insertAdjacentHTML('beforeend', itemHTML);
-    });
-
-    // 重新繪製跑出來的 Lucide 圖示
-    if (typeof lucide !== 'undefined') lucide.createIcons();
+    // 重新繪製跑出來的 Lucide 圖示
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
