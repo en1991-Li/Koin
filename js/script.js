@@ -408,12 +408,7 @@ function selectCategory(categoryName, parentType) {
                    incomeIconMap[categoryName] || 
                    otherIconMap[categoryName];
     }
-
-    // 備援預設圖標
-    if (!iconName) {
-        iconName = (parentType === 'income') ? 'dollar-sign' : 'utensils';
-    }
-
+   
     // 5. 更新前端動態卡片節點
     const cardName = document.getElementById('selected-card-name');
     const cardIcon = document.getElementById('selected-card-icon');
