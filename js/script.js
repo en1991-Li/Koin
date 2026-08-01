@@ -232,155 +232,174 @@ function changeSubGrid(target) {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 /**
- * 點擊分類圖標後，隱藏網格並展示單個圖標卡片畫面
+ * 點擊分類圖標後，隱藏網格並展示單個圖標卡片畫面（包含完整支出圖標映射）
  */
 function selectCategory(categoryName, parentType) {
     if (typeof recordState !== 'undefined') {
         recordState.category = categoryName;
     }
 
-    // 核心圖標映射字典
-    let iconName = 'croissant';
-    let iconName = 'utensils';
-    let iconName = 'credit-card';
-    
-    // 支出 - 主系列與飲食系列
-    if (categoryName === '早餐') iconName = 'croissant';
-    if (categoryName === '午餐') iconName = 'utensils';
-    if (categoryName === '晚餐') iconName = 'soup';
-    if (categoryName === '點心') iconName = 'cookie';
-    if (categoryName === '飲料') iconName = 'cup-soda';
-    if (categoryName === '酒類') iconName = 'beer';
-    if (categoryName === '水果') iconName = 'grape';
-    if (categoryName === '宵夜') iconName = 'pizza';
-    if (categoryName === '礦泉水') iconName = 'glass-water';
-    if (categoryName === '交通') iconName = 'car';
-    if (categoryName === '娛樂') iconName = 'party-popper';
-    if (categoryName === '購物') iconName = 'shopping-bag';
-    
-     // 支出 - 交通子項目系列
-    if (categoryName === '加油費') iconName = 'fuel';
-    if (categoryName === '停車費') iconName = 'square-parking';
-    if (categoryName === '火車') iconName = 'train-front';
-    if (categoryName === '公車') iconName = 'bus-front';
-    if (categoryName === '捷運') iconName = 'train-front-tunnel';
-    if (categoryName === '悠遊卡') iconName = 'credit-card';
-    if (categoryName === '汽車') iconName = 'car-front';
-    if (categoryName === '計程車') iconName = 'car-taxi-front';
-    if (categoryName === '摩托車') iconName = 'motorbike';
-    if (categoryName === '單車') iconName = 'bike';
-    if (categoryName === '機票') iconName = 'plane';
-    if (categoryName === '船票') iconName = 'ship';
+    // 1. 全支出分類圖標映射字典 (Lucide Icon Mapping)
+    const expenseIconMap = {
+        // 主分類系列
+        '飲食': 'utensils',
+        '交通': 'car',
+        '娛樂': 'party-popper',
+        '購物': 'shopping-bag',
+        '個人': 'user',
+        '醫療': 'stethoscope',
+        '家居': 'home',
+        '家庭': 'users',
+        '生活': 'coffee',
+        '學習': 'book',
 
-    // 支出 - 娛樂子項目系列
-    if (categoryName === '手遊') iconName = 'gamepad-2';
-    if (categoryName === '音樂') iconName = 'music';
-    if (categoryName === 'Netflix') iconName = 'monitor-play';
-    if (categoryName === '電影') iconName = 'clapperboard';
-    if (categoryName === '遊樂園') iconName = 'roller-coaster';
-    if (categoryName === '展覽') iconName = 'landmark';
-    if (categoryName === '運動') iconName = 'dumbbell';
+        // 飲食子分類
+        '早餐': 'croissant',
+        '午餐': 'utensils',
+        '晚餐': 'soup',
+        '點心': 'cookie',
+        '飲料': 'cup-soda',
+        '酒類': 'beer',
+        '水果': 'grape',
+        '宵夜': 'pizza',
+        '礦泉水': 'glass-water',
 
-    // 支出 - 購物子項目系列
-    if (categoryName === '蝦皮購物') iconName = 'shopping-bag';
-    if (categoryName === 'momo購物') iconName = 'shopping-bag';
-    if (categoryName === '市場') iconName = 'shopping-cart';
-    if (categoryName === '衣物') iconName = 'shirt';
-    if (categoryName === '鞋子') iconName = 'sport-shoe';
-    if (categoryName === '配件') iconName = 'glasses';
-    if (categoryName === '包包') iconName = 'handbag';
-    if (categoryName === '美妝保養') iconName = 'mirror-round';
-    if (categoryName === '精品') iconName = 'gem';
-    if (categoryName === '禮物') iconName = 'gift';
-    if (categoryName === '電子產品') iconName = 'laptop';
-    if (categoryName === '應用軟體') iconName = 'app-window';
-    if (categoryName === 'UNIQLO') iconName = 'shirt';
-    if (categoryName === 'NET') iconName = 'shirt';
+        // 交通子分類
+        '加油費': 'fuel',
+        '停車費': 'square-parking',
+        '火車': 'train-front',
+        '公車': 'bus-front',
+        '捷運': 'train-front-tunnel',
+        '悠遊卡': 'credit-card',
+        '汽車': 'car-front',
+        '計程車': 'car-taxi-front',
+        '摩托車': 'motorbike',
+        '單車': 'bike',
+        '機票': 'plane',
+        '船票': 'ship',
 
-    // 支出 - 個人子項目系列
-    if (categoryName === '社交') iconName = 'handshake';
-    if (categoryName === '電信費') iconName = 'phone';
-    if (categoryName === '借款') iconName = 'coins';
-    if (categoryName === '投資') iconName = 'trending-up';
-    if (categoryName === '稅金') iconName = 'circle-dollar-sign';
-    if (categoryName === '保險') iconName = 'shield-check';
-    if (categoryName === '捐款') iconName = 'hand-heart';
-    if (categoryName === '寵物') iconName = 'dog';
-    if (categoryName === '彩券') iconName = 'receipt';
+        // 娛樂子分類
+        '手遊': 'gamepad-2',
+        '音樂': 'music',
+        'Netflix': 'monitor-play',
+        '電影': 'clapperboard',
+        '遊樂園': 'roller-coaster',
+        '展覽': 'landmark',
+        '運動': 'dumbbell',
 
-    // 支出 - 醫療子項目系列
-    if (categoryName === '門診') iconName = 'stethoscope';
-    if (categoryName === '藥品') iconName = 'pill';
-    if (categoryName === '醫療用品') iconName = 'briefcase-medical';
-    if (categoryName === '打針') iconName = 'syringe';
-    if (categoryName === '住院') iconName = 'bed-single';
-    if (categoryName === '手術') iconName = 'slice';
-    if (categoryName === '健康檢查') iconName = 'clipboard-plus';
+        // 購物子分類
+        '蝦皮購物': 'shopping-bag',
+        'momo購物': 'shopping-bag',
+        '市場': 'shopping-cart',
+        '衣物': 'shirt',
+        '鞋子': 'sport-shoe',
+        '配件': 'glasses',
+        '包包': 'handbag',
+        '美妝保養': 'mirror-round',
+        '精品': 'gem',
+        '禮物': 'gift',
+        '電子產品': 'laptop',
+        '應用軟體': 'app-window',
+        'UNIQLO': 'shirt',
+        'NET': 'shirt',
 
-    // 【補齊】支出 - 家居子項目系列
-    if (categoryName === '日常用品') iconName = 'soap-dispenser-droplet';
-    if (categoryName === '水費') iconName = 'droplets';
-    if (categoryName === '電費') iconName = 'zap';
-    if (categoryName === '燃料費') iconName = 'flame';
-    if (categoryName === '電話費') iconName = 'phone-call';
-    if (categoryName === '網路費') iconName = 'house-wifi';
-    if (categoryName === '房租') iconName = 'building';
-    if (categoryName === '洗衣費') iconName = 'washing-machine';
-    if (categoryName === '修繕費') iconName = 'wrench';
-    if (categoryName === '家具') iconName = 'sofa';
-    if (categoryName === '訂閱') iconName = 'newspaper';
-    if (categoryName === '家電') iconName = 'tv';
-    if (categoryName === '全聯') iconName = 'store';
-    if (categoryName === '屈臣氏') iconName = 'store';
-    if (categoryName === '康是美') iconName = 'store';
+        // 個人子分類
+        '社交': 'handshake',
+        '電信費': 'phone',
+        '借款': 'coins',
+        '投資': 'trending-up',
+        '稅金': 'circle-dollar-sign',
+        '保險': 'shield-check',
+        '捐款': 'hand-heart',
+        '寵物': 'dog',
+        '彩券': 'receipt',
 
-    // 支出 - 家庭子項目系列
-    if (categoryName === '生活費') iconName = 'wallet-minimal';
-    if (categoryName === '教育') iconName = 'graduation-cap';
-    if (categoryName === '看護') iconName = 'person-standing';
-    if (categoryName === '玩具') iconName = 'toy-brick';
-    if (categoryName === '才藝') iconName = 'palette';
+        // 醫療子分類
+        '門診': 'stethoscope',
+        '藥品': 'pill',
+        '醫療用品': 'briefcase-medical',
+        '打針': 'syringe',
+        '住院': 'bed-single',
+        '手術': 'slice',
+        '健康檢查': 'clipboard-plus',
 
-    // 支出 - 生活子項目系列
-    if (categoryName === '美容美髮') iconName = 'scissors';
-    if (categoryName === '住宿') iconName = 'hotel';
-    if (categoryName === '旅行') iconName = 'tree-palm';
-    if (categoryName === '派對') iconName = 'wine';
+        // 家居子分類
+        '日常用品': 'soap-dispenser-droplet',
+        '水費': 'droplets',
+        '電費': 'zap',
+        '燃料費': 'flame',
+        '電話費': 'phone-call',
+        '網路費': 'house-wifi',
+        '房租': 'building',
+        '洗衣費': 'washing-machine',
+        '修繕費': 'wrench',
+        '家具': 'sofa',
+        '訂閱': 'newspaper',
+        '家電': 'tv',
+        '全聯': 'store',
+        '屈臣氏': 'store',
+        '康是美': 'store',
 
-    // 支出 - 學習子項目系列
-    if (categoryName === '書籍') iconName = 'book-open-text';
-    if (categoryName === '課程') iconName = 'presentation';
-    if (categoryName === '教材') iconName = 'book-marked';
-    if (categoryName === '讀書') iconName = 'book-user';
-    if (categoryName === '文具') iconName = 'pen-ruler';
-    if (categoryName === '考試') iconName = 'book-open-check';
-    if (categoryName === '金石堂') iconName = 'book-open';
-    if (categoryName === '博客來') iconName = 'book-open';
-    
-    // 收入系列
-    if (categoryName === '薪水') iconName = 'dollar-sign';
-    if (categoryName === '獎金') iconName = 'coins';
-    if (categoryName === '投資') iconName = 'trending-up';
-    if (categoryName === '收款') iconName = 'hand-coins';
-    if (categoryName === '彩券') iconName = 'newspaper';
-    if (categoryName === '利息') iconName = 'landmark';
-    if (categoryName === '消費回饋') iconName = 'credit-card';
-    if (categoryName === '零用錢') iconName = 'circle-dollar-sign';
-    if (categoryName === '發票') iconName = 'receipt';
-    if (categoryName === '補助') iconName = 'building-2';
+        // 家庭子分類
+        '生活費': 'wallet-minimal',
+        '教育': 'graduation-cap',
+        '看護': 'person-standing',
+        '玩具': 'toy-brick',
+        '才藝': 'palette',
 
+        // 生活子分類
+        '美容美髮': 'scissors',
+        '住宿': 'hotel',
+        '旅行': 'tree-palm',
+        '派對': 'wine',
+
+        // 學習子分類
+        '書籍': 'book-open-text',
+        '課程': 'presentation',
+        '教材': 'book-marked',
+        '證書': 'book-user',
+        '探索': 'compass',
+        '文具': 'pen-ruler',
+        '考試': 'book-open-check',
+        '金石堂': 'book-open',
+        '博客來': 'book-open'
+    };
+
+    // 2. 收入分類圖標字典
+    const incomeIconMap = {
+        '薪水': 'dollar-sign',
+        '獎金': 'coins',
+        '投資': 'trending-up',
+        '收款': 'hand-coins',
+        '彩券': 'newspaper',
+        '利息': 'landmark',
+        '消費回饋': 'credit-card',
+        '零用錢': 'circle-dollar-sign',
+        '發票': 'receipt',
+        '補助': 'building-2'
+    };
+
+    // 3. 判定當前分類對應的 Lucide 圖標名稱
+    let iconName = 'utensils'; // 預設防呆圖標
+    if (parentType === 'income') {
+        iconName = incomeIconMap[categoryName] || 'dollar-sign';
+    } else {
+        iconName = expenseIconMap[categoryName] || 'utensils';
+    }
+
+    // 4. 更新前端動態卡片節點
     const cardName = document.getElementById('selected-card-name');
     const cardIcon = document.getElementById('selected-card-icon');
     const cardAmountSub = document.getElementById('selected-card-amount-sub');
     const cardIconWrapper = document.getElementById('selected-card-icon-wrapper');
-    
+
     if (cardName) cardName.innerText = categoryName;
     if (cardIcon) {
         cardIcon.setAttribute('data-lucide', iconName);
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    // 連動卡片樣式：根據不同子分類群組決定大圓圈背景色
+    // 5. 連動卡片漸層色外框
     if (cardAmountSub) {
         if (parentType === 'income') {
             cardAmountSub.innerText = '+$0';
@@ -389,55 +408,50 @@ function selectCategory(categoryName, parentType) {
         } else {
             cardAmountSub.innerText = '$0';
             cardAmountSub.className = 'text-red';
-            
-            // 檢查分類所屬，動態更換外框漸層
-            const isTransportItem = ['加油費','停車費','火車','公車','捷運','悠遊卡','汽車','計程車','摩托車','單車','機票','船票'].includes(categoryName);
-            const isEntertainmentItem = ['手遊','音樂','Netflix','電影','遊樂園','展覽','運動'].includes(categoryName);
-            const isShoppingItem = ['蝦皮購物','momo購物','市場','衣物','鞋子','配件','包包','美妝保養','精品','禮物','電子產品','應用軟體','UNIQLO','NET'].includes(categoryName);
-            const isPersonalItem = ['社交','電信費','借款','投資','稅金','保險','捐款','寵物','彩券'].includes(categoryName);
-            const isMedicalItem = ['門診','藥品','醫療用品','打針','住院','手術','健康檢查'].includes(categoryName);
-            const isHomeItem = ['日常用品','水費','電費','燃料費','電話費','網路費','房租','洗衣費','修繕費','家具','訂閱','家電','全聯','屈臣氏','康是美'].includes(categoryName);
-            const isFamilyItem = ['生活費','教育','看護','玩具','才藝'].includes(categoryName);
-            const isLifeItem = ['美容美髮','住宿','旅行','派對'].includes(categoryName);
-            const isLearnItem = ['書籍','課程','教材','讀書','文具','考試','金石堂','博客來'].includes(categoryName);
-            
+
+            // 依家族判斷，動態套用專屬漸層 CSS 類別
+            const isTransport = ['加油費','停車費','火車','公車','捷運','悠遊卡','汽車','計程車','摩托車','單車','機票','船票'].includes(categoryName);
+            const isEntertainment = ['手遊','彩券/刮刮樂','音樂','Spotify','Netflix','電影','遊樂園','展覽','運動'].includes(categoryName);
+            const isShopping = ['蝦皮購物','momo購物','市場','衣物','鞋子','配件','包包','美妝保養','精品','禮物','電子產品','應用軟體','UNIQLO','NET'].includes(categoryName);
+            const isPersonal = ['社交','電信費','借款','投資','稅金','保險','捐款','寵物','彩券'].includes(categoryName);
+            const isMedical = ['門診','藥品','醫療用品','打針','住院','手術','健康檢查'].includes(categoryName);
+            const isHome = ['日常用品','水費','電費','燃料費','電話費','網路費','房租','洗衣費','修繕費','家具','訂閱','家電','全聯','屈臣氏',,'康是美'].includes(categoryName);
+            const isFamily = ['生活費','教育','看護','玩具','才藝'].includes(categoryName);
+            const isLife = ['美容美髮','住宿','旅行','派對'].includes(categoryName);
+            const isLearn = ['書籍','課程','教材','證書','文具','考試','金石堂','博客來'].includes(categoryName);
+
             if (cardIconWrapper) {
-                if (isTransportItem) {
-                    cardIconWrapper.className = 'cate-icon-wrapper i-transport';
-                } else if (isEntertainmentItem) {
-                    cardIconWrapper.className = 'cate-icon-wrapper i-entertainment';
-                } else if (isShoppingItem) {
-                    cardIconWrapper.className = 'cate-icon-wrapper i-shopping';
-                } else if (isPersonalItem) {
-                    cardIconWrapper.className = 'cate-icon-wrapper i-personal';
-                } else if (isMedicalItem) {
-                    cardIconWrapper.className = 'cate-icon-wrapper i-medical';
-                } else if (isHomeItem) {
-                    cardIconWrapper.className = 'cate-icon-wrapper i-home';
-                } else if (isFamilyItem) {
-                    cardIconWrapper.className = 'cate-icon-wrapper i-family';
-                } else if (isLifeItem) {
-                    cardIconWrapper.className = 'cate-icon-wrapper i-life';
-                } else if (isLearnItem) {
-                    cardIconWrapper.className = 'cate-icon-wrapper i-learn';
-                } else {
-                    cardIconWrapper.className = 'cate-icon-wrapper i-income-gold';
-                }
+                if (isTransport) cardIconWrapper.className = 'cate-icon-wrapper i-transport';
+                else if (isEntertainment) cardIconWrapper.className = 'cate-icon-wrapper i-entertainment';
+                else if (isShopping) cardIconWrapper.className = 'cate-icon-wrapper i-shopping';
+                else if (isPersonal) cardIconWrapper.className = 'cate-icon-wrapper i-personal';
+                else if (isMedical) cardIconWrapper.className = 'cate-icon-wrapper i-medical';
+                else if (isHome) cardIconWrapper.className = 'cate-icon-wrapper i-home';
+                else if (isFamily) cardIconWrapper.className = 'cate-icon-wrapper i-family';
+                else if (isLife) cardIconWrapper.className = 'cate-icon-wrapper i-life';
+                else if (isLearn) cardIconWrapper.className = 'cate-icon-wrapper i-learn';
+                else cardIconWrapper.className = 'cate-icon-wrapper i-income-gold';
             }
         }
     }
 
-    // 收合目前畫面上所有的分類網格
-    const gridIds = ['grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable', 'grid-expense-eat', 'grid-expense-transport', 'grid-expense-entertainment', 'grid-expense-shopping', 'grid-expense-personal', 'grid-expense-medical', 'grid-expense-home', 'grid-expense-family', 'grid-expense-life', 'grid-expense-learn'];
+    // 6. 清空隱藏所有分類網格視圖
+    const gridIds = [
+        'grid-expense', 'grid-income', 'grid-transfer', 'grid-receivable', 'grid-payable',
+        'grid-expense-eat', 'grid-expense-transport', 'grid-expense-entertainment',
+        'grid-expense-shopping', 'grid-expense-personal', 'grid-expense-medical',
+        'grid-expense-home', 'grid-expense-family', 'grid-expense-life', 'grid-expense-learn'
+    ];
     gridIds.forEach(id => {
         const g = document.getElementById(id);
         if (g) g.classList.remove('active');
     });
 
+    // 7. 展開單個卡片與計算機
     const cardZone = document.getElementById('selected-category-card-zone');
     if (cardZone) cardZone.classList.add('show-card');
-    
-    toggleCalculator(true); 
+
+    toggleCalculator(true);
 }
 /**
  * 優化計算機即時同步，支援收入的正號 (+) 顯示
