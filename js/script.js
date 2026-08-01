@@ -240,18 +240,8 @@ function selectCategory(categoryName, parentType) {
     }
 
     // 核心圖標映射字典
-    let iconName = 'croissant';
     let iconName = 'utensils';
-    let iconName = 'soup';
-    let iconName = 'cookie';
-    let iconName = 'cup-soda';
-    let iconName = 'beer';
-    let iconName = 'grape';
-    let iconName = 'pizza';
-    let iconName = 'glass-water';
-    let iconName = 'car';
-    let iconName = 'party-popper';
-    let iconName = 'shopping-bag';
+    
     // 支出 - 主系列與飲食系列
     if (categoryName === '早餐') iconName = 'croissant';
     if (categoryName === '午餐') iconName = 'utensils';
