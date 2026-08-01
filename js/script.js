@@ -379,14 +379,51 @@ function selectCategory(categoryName, parentType) {
         '補助': 'building-2'
     };
 
-    // 3. 判定當前分類對應的 Lucide 圖標名稱
-    let iconName = 'utensils'; // 預設防呆圖標
+    // ==========================================
+    // 全分類圖標映射字典 (轉帳 / 應收 / 應付)
+    // ==========================================
+    const transferIconMap = {
+        '轉帳': 'arrow-left-right',
+        '提款': 'credit-card',
+        '存款': 'banknote',
+        '還款': 'undo-2'
+    };
+
+    const receivableIconMap = {
+        '借出': 'hand-coins',
+        '代付': 'handshake',
+        '報帳': 'briefcase-business'
+    };
+
+    const payableIconMap = {
+        '借入': 'hand-coins',
+        '信貸': 'credit-card',
+        '車貸': 'car',
+        '房貸': 'house'
+    };
+
+    // 3. 判定當前分類對應的 Lucide 圖標名稱（精準檢索所有子分類圖標）
+    let iconName = null;
+
     if (parentType === 'income') {
-        iconName = incomeIconMap[categoryName] || 'dollar-sign';
-    } else {
-        iconName = expenseIconMap[categoryName] || 'utensils';
+        // 若明確指定為收入，優先查收入字典
+        iconName = incomeIconMap[categoryName];
+    } else if (parentType === 'expense') {
+        // 若明確指定為支出，優先查支出字典
+        iconName = expenseIconMap[categoryName];
     }
 
+    // 若未傳入 parentType 或上方未查到，啟動全子分類字典無縫檢索
+    if (!iconName) {
+        iconName = expenseIconMap[categoryName] || 
+                   incomeIconMap[categoryName] || 
+                   otherIconMap[categoryName];
+    }
+
+    // 若真的遇到使用者自訂且未定義的新分類，才給予基礎圖標
+    if (!iconName) {
+        iconName = (parentType === 'income') ? 'dollar-sign' : 'utensils';
+    }
     // 4. 更新前端動態卡片節點
     const cardName = document.getElementById('selected-card-name');
     const cardIcon = document.getElementById('selected-card-icon');
