@@ -174,6 +174,64 @@
             <div class="content-scroll no-scrollbar" id="projects-list-container"></div>
         </section>
 
+        <!-- ==================== 專案明細頁 ==================== -->
+<section id="page-project-detail" class="page">
+    <header class="nav-header">
+        <i data-lucide="chevron-left" class="s-icon" onclick="showPage('page-projects')"></i>
+        <h1 class="page-title" id="proj-detail-title">生活開銷</h1>
+        <div style="display: flex; gap: 15px;">
+            <i data-lucide="settings" class="s-icon"></i>
+            <i data-lucide="menu" class="s-icon"></i>
+        </div>
+    </header>
+
+    <div class="content-scroll no-scrollbar" style="padding: 15px;">
+        <!-- 月份選擇器 -->
+        <div style="display: flex; justify-content: space-between; align-items: center; background: #1c1c28; padding: 10px 16px; border-radius: 12px; margin-bottom: 15px; font-size: 14px; font-weight: 600;">
+            <i data-lucide="chevron-left" style="cursor: pointer; width: 18px;" onclick="changeProjectDetailMonth(-1)"></i>
+            <span id="proj-detail-date-range">2026/08/01 － 2026/08/31</span>
+            <i data-lucide="chevron-right" style="cursor: pointer; width: 18px;" onclick="changeProjectDetailMonth(1)"></i>
+        </div>
+
+        <!-- 統計卡片 (出帳、入帳、總計) -->
+        <div class="form-group" style="background: #1c1c28; border-radius: 16px; padding: 12px 16px; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
+                <span style="color: #8e8e93;">出帳 <span id="proj-detail-out-count" style="background: rgba(251,113,133,0.2); color: #fb7185; padding: 1px 6px; border-radius: 10px; font-size: 11px;">2</span></span>
+                <span style="color: #fb7185; font-weight: 700;" id="proj-detail-out-total">-$475</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
+                <span style="color: #8e8e93;">入帳 <span id="proj-detail-in-count" style="background: rgba(74,222,128,0.2); color: #4ade80; padding: 1px 6px; border-radius: 10px; font-size: 11px;">0</span></span>
+                <span style="color: #4ade80; font-weight: 700;" id="proj-detail-in-total">$0</span>
+            </div>
+            <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; display: flex; justify-content: space-between; font-size: 14px;">
+                <span style="color: #8e8e93;">總計 <span id="proj-detail-total-count" style="background: rgba(167,139,250,0.2); color: #a78bfa; padding: 1px 6px; border-radius: 10px; font-size: 11px;">2</span></span>
+                <span style="color: #a78bfa; font-weight: 700;" id="proj-detail-net-total">-$475</span>
+            </div>
+        </div>
+
+        <!-- 專案預算 Header -->
+        <div style="color: #a78bfa; font-size: 13px; font-weight: 700; margin-bottom: 8px; padding-left: 4px;">專案預算</div>
+        <div class="form-group" style="background: #1c1c28; border-radius: 16px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="cate-icon-wrapper i-home" style="width: 40px; height: 40px; margin: 0;">
+                    <i data-lucide="piggy-bank"></i>
+                </div>
+                <div>
+                    <div style="font-size: 15px; font-weight: 600; color: #fff;" id="proj-detail-budget-name">生活開銷</div>
+                    <div style="font-size: 11px; color: #8e8e93;" id="proj-detail-budget-sub"><span id="proj-detail-budget-count">2</span> 筆記錄</div>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div style="color: #fb7185; font-size: 16px; font-weight: 700;" id="proj-detail-budget-amount">$475</div>
+                <div style="font-size: 10px; color: #8e8e93;">未分配</div>
+            </div>
+        </div>
+
+        <!-- 動態分類列表 (未分配預算、未設定預算) -->
+        <div id="proj-detail-categories-container"></div>
+    </div>
+</section>
+
         <!-- ==================== 5. 新增專案頁 ==================== -->
         <section id="page-add-project" class="page">
             <header class="nav-header">
