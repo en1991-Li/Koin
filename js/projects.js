@@ -205,8 +205,24 @@ function renderProjectDetailView() {
     if (document.getElementById('proj-detail-budget-count')) document.getElementById('proj-detail-budget-count').innerText = projRecords.length;
     if (document.getElementById('proj-detail-budget-amount')) document.getElementById('proj-detail-budget-amount').innerText = `$${outTotal.toLocaleString()}`;
 
-    // 分組分類：未分配預算（有交易） vs 未設定預算（無交易）
-    const allCategories = ['飲食', '生活', '交通', '娛樂', '購物', '個人', '醫療', '家居', '家庭', '學習', '其他'];
+    // ==========================================
+    // 10 大主分類圖標與顏色映射表
+    // ==========================================
+    const categoryConfig = {
+        '飲食': { icon: 'utensils', bg: 'i-income-gold' },
+        '交通': { icon: 'car', bg: 'i-transport' },
+        '娛樂': { icon: 'party-popper', bg: 'i-entertainment' },
+        '購物': { icon: 'shopping-bag', bg: 'i-shopping' },
+        '個人': { icon: 'user', bg: 'i-personal' },
+        '醫療': { icon: 'stethoscope', bg: 'i-medical' },
+        '家居': { icon: 'home', bg: 'i-home' },
+        '家庭': { icon: 'users', bg: 'i-family' },
+        '生活': { icon: 'coffee', bg: 'i-life' },
+        '學習': { icon: 'book', bg: 'i-learn' },
+        '其他': { icon: 'tag', bg: 'i-income-gold' }
+    };
+
+    const allCategories = ['飲食', '交通', '娛樂', '購物', '個人', '醫療', '家居', '家庭', '生活', '學習', '其他'];
     const categoryStats = {};
 
     allCategories.forEach(cat => {
@@ -234,7 +250,7 @@ function renderProjectDetailView() {
     // 建構列表 HTML
     let listHTML = '';
 
-    // 1. 未分配預算
+    // 1. 未分配預算 (有交易紀錄的分類)
     if (activeCategories.length > 0) {
         listHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; color: #8e8e93; font-size: 13px; font-weight: 700; margin-bottom: 8px; padding: 0 4px;">
@@ -246,11 +262,13 @@ function renderProjectDetailView() {
 
         activeCategories.forEach((cat, idx) => {
             const isLast = (idx === activeCategories.length - 1);
+            const config = categoryConfig[cat.name] || { icon: 'tag', bg: 'i-income-gold' };
+
             listHTML += `
                 <div class="form-row" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: ${isLast ? 'none' : '1px solid rgba(255,255,255,0.05)'};">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <div class="cate-icon-wrapper i-income-gold" style="width: 38px; height: 38px; margin: 0;">
-                            <i data-lucide="utensils"></i>
+                        <div class="cate-icon-wrapper ${config.bg}" style="width: 38px; height: 38px; margin: 0;">
+                            <i data-lucide="${config.icon}"></i>
                         </div>
                         <div>
                             <div style="font-size: 15px; font-weight: 600; color: #fff;">${cat.name}</div>
@@ -268,7 +286,7 @@ function renderProjectDetailView() {
         listHTML += `</div>`;
     }
 
-    // 2. 未設定預算
+    // 2. 未設定預算 (無交易紀錄的分類，使用對應主分類圖標與漸層)
     if (inactiveCategories.length > 0) {
         listHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; color: #8e8e93; font-size: 13px; font-weight: 700; margin-bottom: 8px; padding: 0 4px;">
@@ -280,11 +298,13 @@ function renderProjectDetailView() {
 
         inactiveCategories.forEach((cat, idx) => {
             const isLast = (idx === inactiveCategories.length - 1);
+            const config = categoryConfig[cat.name] || { icon: 'tag', bg: 'i-income-gold' };
+
             listHTML += `
                 <div class="form-row" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: ${isLast ? 'none' : '1px solid rgba(255,255,255,0.05)'};">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <div class="cate-icon-wrapper i-transport" style="width: 38px; height: 38px; margin: 0;">
-                            <i data-lucide="car"></i>
+                        <div class="cate-icon-wrapper ${config.bg}" style="width: 38px; height: 38px; margin: 0;">
+                            <i data-lucide="${config.icon}"></i>
                         </div>
                         <div>
                             <div style="font-size: 15px; font-weight: 600; color: #fff;">${cat.name}</div>
@@ -305,3 +325,5 @@ function renderProjectDetailView() {
     container.innerHTML = listHTML;
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
+
+   
