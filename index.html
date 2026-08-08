@@ -180,10 +180,84 @@
         <i data-lucide="chevron-left" class="s-icon" onclick="showPage('page-projects')"></i>
         <h1 class="page-title" id="proj-detail-title">生活開銷</h1>
         <div style="display: flex; gap: 15px;">
-            <i data-lucide="settings" class="s-icon"></i>
+            <i data-lucide="settings" class="s-icon" onclick="openEditProjectPage()" style="cursor: pointer;"></i>
             <i data-lucide="menu" class="s-icon" onclick="openModal('proj-detail-more-modal')" style="cursor: pointer;"></i>
         </div>
     </header>
+
+    <!-- ==================== 編輯專案頁 ==================== -->
+<section id="page-edit-project" class="page">
+    <header class="nav-header">
+        <i data-lucide="x" class="s-icon" onclick="closeEditProjectPage()"></i>
+        <h1 class="page-title">編輯專案</h1>
+        <i data-lucide="check" class="s-icon" onclick="saveEditedProject()"></i>
+    </header>
+
+    <div class="content-scroll no-scrollbar">
+        <!-- 頂部圖示 -->
+        <div class="add-acc-hero">
+            <div class="icon-box" style="background: #2c2c3e; width: 80px; height: 80px; border-radius: 50%;">
+                <i data-lucide="wine" style="width: 40px; height: 40px; color: #fff;"></i>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="form-row">
+                <label>名稱</label>
+                <input type="text" id="edit-proj-name" class="text-right" value="生活開銷">
+            </div>
+            <div class="form-row" onclick="openModal('proj-currency-modal')">
+                <label>主幣種</label>
+                <span id="edit-proj-currency" class="clickable-val">TWD <i data-lucide="chevron-right" class="s-icon"></i></span>
+            </div>
+            <div class="form-row" onclick="openModal('proj-type-modal')">
+                <label>週期類型</label>
+                <span id="edit-proj-type" class="clickable-val">重複循環 <i data-lucide="chevron-right" class="s-icon"></i></span>
+            </div>
+            <div class="form-row" onclick="openModal('proj-period-modal')">
+                <label>結算週期</label>
+                <span id="edit-proj-period" class="clickable-val">每月 <i data-lucide="chevron-right" class="s-icon"></i></span>
+            </div>
+            <div class="form-row" onclick="openProjDatePicker()">
+                <label>起始日期</label>
+                <span id="edit-proj-date" class="clickable-val">第 1 天 <i data-lucide="chevron-right" class="s-icon"></i></span>
+            </div>
+            <div class="form-row">
+                <label>自動沿用上期預算</label>
+                <label class="switch">
+                    <input type="checkbox" id="edit-proj-auto-budget" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="form-row">
+                <label>顯示統計在首頁</label>
+                <label class="switch">
+                    <input type="checkbox" id="edit-proj-show-home" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="form-row">
+                <label>統計專案</label>
+                <label class="switch">
+                    <input type="checkbox" id="edit-proj-is-stat">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="form-row">
+                <label>封存專案</label>
+                <label class="switch">
+                    <input type="checkbox" id="edit-proj-is-archive">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div style="padding: 15px;">
+                <textarea id="edit-proj-note" placeholder="備註" 
+                    style="width: 100%; background: #2c2c3e; border: none; border-radius: 12px; color: white; padding: 15px; min-height: 100px; outline: none; resize: none;"></textarea>
+            </div>
+        </div>
+    </div>
+</section>
 
     <div class="content-scroll no-scrollbar" style="padding: 15px;">
         <!-- 月份選擇器 -->
