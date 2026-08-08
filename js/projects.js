@@ -375,4 +375,96 @@ function deleteProjectAction() {
     }
 }
 
+/**
+ * 打開「編輯專案」頁面，自動載入當前專案資料
+ */
+function openEditProjectPage() {
+    const nameInput = document.getElementById('edit-proj-name');
+    const noteInput = document.getElementById('edit-proj-note');
+    const autoBudgetCk = document.getElementById('edit-proj-auto-budget');
+    const showHomeCk = document.getElementById('edit-proj-show-home');
+    const archiveCk = document.getElementById('edit-proj-is-archive');
+
+    if (nameInput) nameInput.value = currentDetailProjectName;
+
+    // 撈出 LocalStorage 專案詳細資訊反填
+    const projects = JSON.parse(localStorage.getItem('koin_projects') || '[]');
+    const targetProj = projects.find(p => p.name === currentDetailProjectName);
+
+    if (targetProj) {
+        if (noteInput) noteInput.value = targetProj.note || '';
+        if (autoBudgetCk) autoBudgetCk.checked = targetProj.autoBudget !== false;
+        if (showHomeCk) showHomeCk.checked = targetProj.showHome !== false;
+        if (archiveCk) archiveCk.checked = targetProj.isArchive === true;
+    }
+
+    showPage('page-edit-project');
+}
+
+/**
+ * 關閉「編輯專案」頁面，回到專案明細
+ */
+function closeEditProjectPage() {
+    showPage('page-project-detail');
+}
+
+/**
+ * 點擊右上角「✓」儲存編輯後的專案
+ */
+function saveEditedProject() {
+    const newName = document.getElementById('edit-proj-name').value.trim();
+    const newNote = document.getElementById('edit-proj-note').value.trim();
+    const autoBudget = document.getElementById('edit-proj-auto-budget').checked;
+    const showHome = document.getElementById('edit-proj-show-home').checked;
+    const isArchive = document.getElementById('edit-proj-is-archive').checked;
+
+    if (!newName) {
+        alert("專案名稱不可為空！");
+        return;
+    }
+
+    let projects = JSON.parse(localStorage.getItem('koin_projects') || '[]');
+
+    // 如果是修改現有專案
+    const projIndex = projects.findIndex(p => p.name === currentDetailProjectName);
+    if (projIndex !== -1) {
+        projects[projIndex].name = newName;
+        projects[projIndex].note = newNote;
+        projects[projIndex].autoBudget = autoBudget;
+        projects[projIndex].showHome = showHome;
+        projects[projIndex].isArchive = isArchive;
+    } else if (currentDetailProjectName === '生活開銷') {
+        // 若為預設專案，新建屬性覆蓋
+        projects.push({
+            id: Date.now(),
+            name: newName,
+            note: newNote,
+            autoBudget,
+            showHome,
+            isArchive
+        });
+    }
+
+    // 若名稱有修改，同步連動交易紀錄中的 project 欄位名稱
+    if (currentDetailProjectName !== newName) {
+        let records = JSON.parse(localStorage.getItem('koin_records') || '[]');
+        records.forEach(r => {
+            if (r.project === currentDetailProjectName) {
+                r.project = newName;
+            }
+        });
+        localStorage.setItem('koin_records', JSON.stringify(records));
+        currentDetailProjectName = newName;
+    }
+
+    localStorage.setItem('koin_projects', JSON.stringify(projects));
+
+    // 重新渲染專案頁面與明細
+    if (typeof renderProjectsPage === 'function') renderProjectsPage();
+    renderProjectDetailView();
+
+    // 關閉編輯頁面
+    closeEditProjectPage();
+}
+
    
