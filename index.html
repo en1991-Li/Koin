@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* 僅保留頁面專屬的微調，其餘皆已移至 style.css */
         .clickable-val {
             color: #ffffff;
             cursor: pointer;
@@ -163,7 +162,7 @@
                 </div>
             </div>
         </section>
- 
+
         <!-- ==================== 4. 專案總覽頁 ==================== -->
         <section id="page-projects" class="page">
             <header class="nav-header">
@@ -175,136 +174,136 @@
         </section>
 
         <!-- ==================== 專案明細頁 ==================== -->
-<section id="page-project-detail" class="page">
-    <header class="nav-header">
-        <i data-lucide="chevron-left" class="s-icon" onclick="showPage('page-projects')"></i>
-        <h1 class="page-title" id="proj-detail-title">生活開銷</h1>
-        <div style="display: flex; gap: 15px;">
-            <i data-lucide="settings" class="s-icon" onclick="openEditProjectPage()" style="cursor: pointer;"></i>
-            <i data-lucide="menu" class="s-icon" onclick="openModal('proj-detail-more-modal')" style="cursor: pointer;"></i>
-        </div>
-    </header>
-
-    <!-- ==================== 編輯專案頁 ==================== -->
-<section id="page-edit-project" class="page">
-    <header class="nav-header">
-        <i data-lucide="x" class="s-icon" onclick="closeEditProjectPage()"></i>
-        <h1 class="page-title">編輯專案</h1>
-        <i data-lucide="check" class="s-icon" onclick="saveEditedProject()"></i>
-    </header>
-
-    <div class="content-scroll no-scrollbar">
-        <!-- 頂部圖示 -->
-        <div class="add-acc-hero">
-            <div class="icon-box" style="background: #2c2c3e; width: 80px; height: 80px; border-radius: 50%;">
-                <i data-lucide="wine" style="width: 40px; height: 40px; color: #fff;"></i>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <div class="form-row">
-                <label>名稱</label>
-                <input type="text" id="edit-proj-name" class="text-right" value="生活開銷">
-            </div>
-            <div class="form-row" onclick="openModal('proj-currency-modal')">
-                <label>主幣種</label>
-                <span id="edit-proj-currency" class="clickable-val">TWD <i data-lucide="chevron-right" class="s-icon"></i></span>
-            </div>
-            <div class="form-row" onclick="openModal('proj-type-modal')">
-                <label>週期類型</label>
-                <span id="edit-proj-type" class="clickable-val">重複循環 <i data-lucide="chevron-right" class="s-icon"></i></span>
-            </div>
-            <div class="form-row" onclick="openModal('proj-period-modal')">
-                <label>結算週期</label>
-                <span id="edit-proj-period" class="clickable-val">每月 <i data-lucide="chevron-right" class="s-icon"></i></span>
-            </div>
-            <div class="form-row" onclick="openProjDatePicker()">
-                <label>起始日期</label>
-                <span id="edit-proj-date" class="clickable-val">第 1 天 <i data-lucide="chevron-right" class="s-icon"></i></span>
-            </div>
-            <div class="form-row">
-                <label>自動沿用上期預算</label>
-                <label class="switch">
-                    <input type="checkbox" id="edit-proj-auto-budget" checked>
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <div class="form-row">
-                <label>顯示統計在首頁</label>
-                <label class="switch">
-                    <input type="checkbox" id="edit-proj-show-home" checked>
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <div class="form-row">
-                <label>統計專案</label>
-                <label class="switch">
-                    <input type="checkbox" id="edit-proj-is-stat">
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <div class="form-row">
-                <label>封存專案</label>
-                <label class="switch">
-                    <input type="checkbox" id="edit-proj-is-archive">
-                    <span class="slider"></span>
-                </label>
-            </div>
-            
-            <div style="padding: 15px;">
-                <textarea id="edit-proj-note" placeholder="備註" 
-                    style="width: 100%; background: #2c2c3e; border: none; border-radius: 12px; color: white; padding: 15px; min-height: 100px; outline: none; resize: none;"></textarea>
-            </div>
-        </div>
-    </div>
-</section>
-
-    <div class="content-scroll no-scrollbar" style="padding: 15px;">
-        <!-- 月份選擇器 -->
-        <div style="display: flex; justify-content: space-between; align-items: center; background: #1c1c28; padding: 10px 16px; border-radius: 12px; margin-bottom: 15px; font-size: 14px; font-weight: 600;">
-            <i data-lucide="chevron-left" style="cursor: pointer; width: 18px;" onclick="changeProjectDetailMonth(-1)"></i>
-            <span id="proj-detail-date-range">2026/08/01 － 2026/08/31</span>
-            <i data-lucide="chevron-right" style="cursor: pointer; width: 18px;" onclick="changeProjectDetailMonth(1)"></i>
-        </div>
-
-        <!-- 統計卡片 (出帳、入帳、總計) -->
-        <div class="form-group" style="background: #1c1c28; border-radius: 16px; padding: 12px 16px; margin-bottom: 20px;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
-                <span style="color: #8e8e93;">出帳 <span id="proj-detail-out-count" style="background: rgba(251,113,133,0.2); color: #fb7185; padding: 1px 6px; border-radius: 10px; font-size: 11px;">2</span></span>
-                <span style="color: #fb7185; font-weight: 700;" id="proj-detail-out-total">-$475</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
-                <span style="color: #8e8e93;">入帳 <span id="proj-detail-in-count" style="background: rgba(74,222,128,0.2); color: #4ade80; padding: 1px 6px; border-radius: 10px; font-size: 11px;">0</span></span>
-                <span style="color: #4ade80; font-weight: 700;" id="proj-detail-in-total">$0</span>
-            </div>
-            <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; display: flex; justify-content: space-between; font-size: 14px;">
-                <span style="color: #8e8e93;">總計 <span id="proj-detail-total-count" style="background: rgba(167,139,250,0.2); color: #a78bfa; padding: 1px 6px; border-radius: 10px; font-size: 11px;">2</span></span>
-                <span style="color: #a78bfa; font-weight: 700;" id="proj-detail-net-total">-$475</span>
-            </div>
-        </div>
-
-        <!-- 專案預算 Header -->
-        <div style="color: #a78bfa; font-size: 13px; font-weight: 700; margin-bottom: 8px; padding-left: 4px;">專案預算</div>
-        <div class="form-group" style="background: #1c1c28; border-radius: 16px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <div class="cate-icon-wrapper i-home" style="width: 40px; height: 40px; margin: 0;">
-                    <i data-lucide="piggy-bank"></i>
+        <section id="page-project-detail" class="page">
+            <header class="nav-header">
+                <i data-lucide="chevron-left" class="s-icon" onclick="showPage('page-projects')"></i>
+                <h1 class="page-title" id="proj-detail-title">生活開銷</h1>
+                <div style="display: flex; gap: 15px;">
+                    <i data-lucide="settings" class="s-icon" onclick="openEditProjectPage()" style="cursor: pointer;"></i>
+                    <i data-lucide="menu" class="s-icon" onclick="openModal('proj-detail-more-modal')" style="cursor: pointer;"></i>
                 </div>
-                <div>
-                    <div style="font-size: 15px; font-weight: 600; color: #fff;" id="proj-detail-budget-name">生活開銷</div>
-                    <div style="font-size: 11px; color: #8e8e93;" id="proj-detail-budget-sub"><span id="proj-detail-budget-count">2</span> 筆記錄</div>
+            </header>
+
+            <div class="content-scroll no-scrollbar" style="padding: 15px;">
+                <!-- 月份選擇器 -->
+                <div style="display: flex; justify-content: space-between; align-items: center; background: #1c1c28; padding: 10px 16px; border-radius: 12px; margin-bottom: 15px; font-size: 14px; font-weight: 600;">
+                    <i data-lucide="chevron-left" style="cursor: pointer; width: 18px;" onclick="changeProjectDetailMonth(-1)"></i>
+                    <span id="proj-detail-date-range">2026/08/01 － 2026/08/31</span>
+                    <i data-lucide="chevron-right" style="cursor: pointer; width: 18px;" onclick="changeProjectDetailMonth(1)"></i>
+                </div>
+
+                <!-- 統計卡片 (出帳、入帳、總計) -->
+                <div class="form-group" style="background: #1c1c28; border-radius: 16px; padding: 12px 16px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
+                        <span style="color: #8e8e93;">出帳 <span id="proj-detail-out-count" style="background: rgba(251,113,133,0.2); color: #fb7185; padding: 1px 6px; border-radius: 10px; font-size: 11px;">0</span></span>
+                        <span style="color: #fb7185; font-weight: 700;" id="proj-detail-out-total">-$0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
+                        <span style="color: #8e8e93;">入帳 <span id="proj-detail-in-count" style="background: rgba(74,222,128,0.2); color: #4ade80; padding: 1px 6px; border-radius: 10px; font-size: 11px;">0</span></span>
+                        <span style="color: #4ade80; font-weight: 700;" id="proj-detail-in-total">$0</span>
+                    </div>
+                    <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; display: flex; justify-content: space-between; font-size: 14px;">
+                        <span style="color: #8e8e93;">總計 <span id="proj-detail-total-count" style="background: rgba(167,139,250,0.2); color: #a78bfa; padding: 1px 6px; border-radius: 10px; font-size: 11px;">0</span></span>
+                        <span style="color: #a78bfa; font-weight: 700;" id="proj-detail-net-total">-$0</span>
+                    </div>
+                </div>
+
+                <!-- 專案預算 Header -->
+                <div style="color: #a78bfa; font-size: 13px; font-weight: 700; margin-bottom: 8px; padding-left: 4px;">專案預算</div>
+                <div class="form-group" style="background: #1c1c28; border-radius: 16px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="cate-icon-wrapper i-home" style="width: 40px; height: 40px; margin: 0;">
+                            <i data-lucide="piggy-bank"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 15px; font-weight: 600; color: #fff;" id="proj-detail-budget-name">生活開銷</div>
+                            <div style="font-size: 11px; color: #8e8e93;" id="proj-detail-budget-sub"><span id="proj-detail-budget-count">0</span> 筆記錄</div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="color: #fb7185; font-size: 16px; font-weight: 700;" id="proj-detail-budget-amount">$0</div>
+                        <div style="font-size: 10px; color: #8e8e93;">未分配</div>
+                    </div>
+                </div>
+
+                <!-- 動態分類列表 (未分配預算、未設定預算) -->
+                <div id="proj-detail-categories-container"></div>
+            </div>
+        </section>
+
+        <!-- ==================== 編輯專案頁 ==================== -->
+        <section id="page-edit-project" class="page">
+            <header class="nav-header">
+                <i data-lucide="x" class="s-icon" onclick="closeEditProjectPage()"></i>
+                <h1 class="page-title">編輯專案</h1>
+                <i data-lucide="check" class="s-icon" onclick="saveEditedProject()"></i>
+            </header>
+
+            <div class="content-scroll no-scrollbar">
+                <!-- 頂部圖示 -->
+                <div class="add-acc-hero">
+                    <div class="icon-box" style="background: #2c2c3e; width: 80px; height: 80px; border-radius: 50%;">
+                        <i data-lucide="wine" style="width: 40px; height: 40px; color: #fff;"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-row">
+                        <label>名稱</label>
+                        <input type="text" id="edit-proj-name" class="text-right" value="生活開銷">
+                    </div>
+                    <div class="form-row" onclick="openModal('proj-currency-modal')">
+                        <label>主幣種</label>
+                        <span id="edit-proj-currency" class="clickable-val">TWD <i data-lucide="chevron-right" class="s-icon"></i></span>
+                    </div>
+                    <div class="form-row" onclick="openModal('proj-type-modal')">
+                        <label>週期類型</label>
+                        <span id="edit-proj-type" class="clickable-val">重複循環 <i data-lucide="chevron-right" class="s-icon"></i></span>
+                    </div>
+                    <div class="form-row" onclick="openModal('proj-period-modal')">
+                        <label>結算週期</label>
+                        <span id="edit-proj-period" class="clickable-val">每月 <i data-lucide="chevron-right" class="s-icon"></i></span>
+                    </div>
+                    <div class="form-row" onclick="openProjDatePicker()">
+                        <label>起始日期</label>
+                        <span id="edit-proj-date" class="clickable-val">第 1 天 <i data-lucide="chevron-right" class="s-icon"></i></span>
+                    </div>
+                    <div class="form-row">
+                        <label>自動沿用上期預算</label>
+                        <label class="switch">
+                            <input type="checkbox" id="edit-proj-auto-budget" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="form-row">
+                        <label>顯示統計在首頁</label>
+                        <label class="switch">
+                            <input type="checkbox" id="edit-proj-show-home" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="form-row">
+                        <label>統計專案</label>
+                        <label class="switch">
+                            <input type="checkbox" id="edit-proj-is-stat">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="form-row">
+                        <label>封存專案</label>
+                        <label class="switch">
+                            <input type="checkbox" id="edit-proj-is-archive">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div style="padding: 15px;">
+                        <textarea id="edit-proj-note" placeholder="備註" 
+                            style="width: 100%; background: #2c2c3e; border: none; border-radius: 12px; color: white; padding: 15px; min-height: 100px; outline: none; resize: none;"></textarea>
+                    </div>
                 </div>
             </div>
-            <div style="text-align: right;">
-                <div style="color: #fb7185; font-size: 16px; font-weight: 700;" id="proj-detail-budget-amount">$475</div>
-                <div style="font-size: 10px; color: #8e8e93;">未分配</div>
-            </div>
-        </div>
-
-        <!-- 動態分類列表 (未分配預算、未設定預算) -->
-        <div id="proj-detail-categories-container"></div>
-    </div>
-</section>
+        </section>
 
         <!-- ==================== 5. 新增專案頁 ==================== -->
         <section id="page-add-project" class="page">
@@ -567,442 +566,442 @@
                         <p>礦泉水</p>
                     </div>
                     <div class="category-item">
-                  <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
-                 <p>新增</p>
-               </div>
-        </div>
+                        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
+                        <p>新增</p>
+                    </div>
+                </div>
 
-<!-- 交通子分類網格 -->
-<div class="category-grid" id="grid-expense-transport">
-    <div class="category-item" onclick="changeSubGrid('main-expense')">
-        <div class="cate-icon-wrapper i-transport"><i data-lucide="undo-2"></i></div>
-        <p>返回</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('加油費')">
-        <div class="cate-icon-wrapper i-transport"><i data-lucide="fuel"></i></div>
-        <p>加油費</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('停車費')">
-        <div class="cate-icon-wrapper i-transport"><i data-lucide="square-parking"></i></div>
-        <p>停車費</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('火車')">
-        <div class="cate-icon-wrapper i-transport"><i data-lucide="train-front"></i></div>
-        <p>火車</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('公車')">
-        <div class="cate-icon-wrapper i-transport"><i data-lucide="bus-front"></i></div>
-        <p>公車</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('捷運')">
-        <div class="cate-icon-wrapper i-transport"><i data-lucide="train-front-tunnel"></i></div>
-        <p>捷運</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('悠遊卡')">
-        <div class="cate-icon-wrapper i-transport"><i data-lucide="credit-card"></i></div>
-        <p>悠遊卡</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('汽車')">
-        <div class="cate-icon-wrapper i-transport"><i data-lucide="car-front"></i></div>
-        <p>汽車</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('計程車')">
-        <div class="cate-icon-wrapper i-transport"><i data-lucide="car-taxi-front"></i></div>
-        <p>計程車</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('摩托車')">
-        <div class="cate-icon-wrapper i-transport"><i data-lucide="motorbike"></i></div>
-        <p>摩托車</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('單車')">
-        <div class="cate-icon-wrapper i-transport"><i data-lucide="bike"></i></div>
-        <p>單車</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('機票')">
-        <div class="cate-icon-wrapper i-transport"><i data-lucide="plane"></i></div>
-        <p>機票</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('船票')">
-        <div class="cate-icon-wrapper i-transport"><i data-lucide="ship"></i></div>
-        <p>船票</p>
-    </div>
-    <div class="category-item">
-        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
-        <p>新增</p>
-    </div>
-</div>
+                <!-- 交通子分類網格 -->
+                <div class="category-grid" id="grid-expense-transport">
+                    <div class="category-item" onclick="changeSubGrid('main-expense')">
+                        <div class="cate-icon-wrapper i-transport"><i data-lucide="undo-2"></i></div>
+                        <p>返回</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('加油費')">
+                        <div class="cate-icon-wrapper i-transport"><i data-lucide="fuel"></i></div>
+                        <p>加油費</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('停車費')">
+                        <div class="cate-icon-wrapper i-transport"><i data-lucide="square-parking"></i></div>
+                        <p>停車費</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('火車')">
+                        <div class="cate-icon-wrapper i-transport"><i data-lucide="train-front"></i></div>
+                        <p>火車</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('公車')">
+                        <div class="cate-icon-wrapper i-transport"><i data-lucide="bus-front"></i></div>
+                        <p>公車</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('捷運')">
+                        <div class="cate-icon-wrapper i-transport"><i data-lucide="train-front-tunnel"></i></div>
+                        <p>捷運</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('悠遊卡')">
+                        <div class="cate-icon-wrapper i-transport"><i data-lucide="credit-card"></i></div>
+                        <p>悠遊卡</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('汽車')">
+                        <div class="cate-icon-wrapper i-transport"><i data-lucide="car-front"></i></div>
+                        <p>汽車</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('計程車')">
+                        <div class="cate-icon-wrapper i-transport"><i data-lucide="car-taxi-front"></i></div>
+                        <p>計程車</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('摩托車')">
+                        <div class="cate-icon-wrapper i-transport"><i data-lucide="motorbike"></i></div>
+                        <p>摩托車</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('單車')">
+                        <div class="cate-icon-wrapper i-transport"><i data-lucide="bike"></i></div>
+                        <p>單車</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('機票')">
+                        <div class="cate-icon-wrapper i-transport"><i data-lucide="plane"></i></div>
+                        <p>機票</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('船票')">
+                        <div class="cate-icon-wrapper i-transport"><i data-lucide="ship"></i></div>
+                        <p>船票</p>
+                    </div>
+                    <div class="category-item">
+                        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
+                        <p>新增</p>
+                    </div>
+                </div>
 
-<!-- 娛樂子分類網格 -->                
-<div class="category-grid" id="grid-expense-entertainment">
-    <div class="category-item" onclick="changeSubGrid('main-expense')">
-        <div class="cate-icon-wrapper i-entertainment"><i data-lucide="undo-2"></i></div>
-        <p>返回</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('手遊')">
-        <div class="cate-icon-wrapper i-entertainment"><i data-lucide="gamepad-2"></i></div>
-        <p>手遊</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('音樂')">
-        <div class="cate-icon-wrapper i-entertainment"><i data-lucide="music"></i></div>
-        <p>音樂</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('Netflix')">
-        <div class="cate-icon-wrapper i-entertainment"><i data-lucide="monitor-play"></i></div>
-        <p>Netflix</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('電影')">
-        <div class="cate-icon-wrapper i-entertainment"><i data-lucide="clapperboard"></i></div>
-        <p>電影</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('遊樂園')">
-        <div class="cate-icon-wrapper i-entertainment"><i data-lucide="roller-coaster"></i></div>
-        <p>遊樂園</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('展覽')">
-        <div class="cate-icon-wrapper i-entertainment"><i data-lucide="landmark"></i></div>
-        <p>展覽</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('運動')">
-        <div class="cate-icon-wrapper i-entertainment"><i data-lucide="dumbbell"></i></div>
-        <p>運動</p>
-    </div>
-    <div class="category-item">
-        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
-        <p>新增</p>
-    </div>
-</div>
+                <!-- 娛樂子分類網格 -->                
+                <div class="category-grid" id="grid-expense-entertainment">
+                    <div class="category-item" onclick="changeSubGrid('main-expense')">
+                        <div class="cate-icon-wrapper i-entertainment"><i data-lucide="undo-2"></i></div>
+                        <p>返回</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('手遊')">
+                        <div class="cate-icon-wrapper i-entertainment"><i data-lucide="gamepad-2"></i></div>
+                        <p>手遊</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('音樂')">
+                        <div class="cate-icon-wrapper i-entertainment"><i data-lucide="music"></i></div>
+                        <p>音樂</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('Netflix')">
+                        <div class="cate-icon-wrapper i-entertainment"><i data-lucide="monitor-play"></i></div>
+                        <p>Netflix</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('電影')">
+                        <div class="cate-icon-wrapper i-entertainment"><i data-lucide="clapperboard"></i></div>
+                        <p>電影</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('遊樂園')">
+                        <div class="cate-icon-wrapper i-entertainment"><i data-lucide="roller-coaster"></i></div>
+                        <p>遊樂園</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('展覽')">
+                        <div class="cate-icon-wrapper i-entertainment"><i data-lucide="landmark"></i></div>
+                        <p>展覽</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('運動')">
+                        <div class="cate-icon-wrapper i-entertainment"><i data-lucide="dumbbell"></i></div>
+                        <p>運動</p>
+                    </div>
+                    <div class="category-item">
+                        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
+                        <p>新增</p>
+                    </div>
+                </div>
 
-<!-- 購物子分類網格 -->   
-<div class="category-grid" id="grid-expense-shopping">
-    <div class="category-item" onclick="changeSubGrid('main-expense')">
-        <div class="cate-icon-wrapper i-shopping"><i data-lucide="undo-2"></i></div>
-        <p>返回</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('蝦皮購物')">
-        <div class="cate-icon-wrapper i-shopping"><i data-lucide="shopping-bag"></i></div>
-        <p>蝦皮購物</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('momo購物')">
-        <div class="cate-icon-wrapper i-shopping"><i data-lucide="shopping-bag"></i></div>
-        <p>momo購物</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('市場')">
-        <div class="cate-icon-wrapper i-shopping"><i data-lucide="shopping-cart"></i></div>
-        <p>市場</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('衣物')">
-        <div class="cate-icon-wrapper i-shopping"><i data-lucide="shirt"></i></div>
-        <p>衣物</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('鞋子')">
-        <div class="cate-icon-wrapper i-shopping"><i data-lucide="sport-shoe"></i></div>
-        <p>鞋子</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('配件')">
-        <div class="cate-icon-wrapper i-shopping"><i data-lucide="glasses"></i></div>
-        <p>配件</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('包包')">
-        <div class="cate-icon-wrapper i-shopping"><i data-lucide="handbag"></i></div>
-        <p>包包</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('美妝保養')">
-        <div class="cate-icon-wrapper i-shopping"><i data-lucide="mirror-round"></i></div>
-        <p>美妝保養</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('精品')">
-        <div class="cate-icon-wrapper i-shopping"><i data-lucide="gem"></i></div>
-        <p>精品</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('禮物')">
-        <div class="cate-icon-wrapper i-shopping"><i data-lucide="gift"></i></div>
-        <p>禮物</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('電子產品')">
-        <div class="cate-icon-wrapper i-shopping"><i data-lucide="laptop"></i></div>
-        <p>電子產品</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('應用軟體')">
-        <div class="cate-icon-wrapper i-shopping"><i data-lucide="app-window"></i></div>
-        <p>應用軟體</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('UNIQLO')">
-        <div class="cate-icon-wrapper i-shopping"><i data-lucide="shirt"></i></div>
-        <p>UNIQLO</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('NET')">
-        <div class="cate-icon-wrapper i-shopping"><i data-lucide="shirt"></i></div>
-        <p>NET</p>
-    </div>
-    <div class="category-item">
-        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
-        <p>新增</p>
-    </div>
-</div>
+                <!-- 購物子分類網格 -->   
+                <div class="category-grid" id="grid-expense-shopping">
+                    <div class="category-item" onclick="changeSubGrid('main-expense')">
+                        <div class="cate-icon-wrapper i-shopping"><i data-lucide="undo-2"></i></div>
+                        <p>返回</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('蝦皮購物')">
+                        <div class="cate-icon-wrapper i-shopping"><i data-lucide="shopping-bag"></i></div>
+                        <p>蝦皮購物</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('momo購物')">
+                        <div class="cate-icon-wrapper i-shopping"><i data-lucide="shopping-bag"></i></div>
+                        <p>momo購物</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('市場')">
+                        <div class="cate-icon-wrapper i-shopping"><i data-lucide="shopping-cart"></i></div>
+                        <p>市場</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('衣物')">
+                        <div class="cate-icon-wrapper i-shopping"><i data-lucide="shirt"></i></div>
+                        <p>衣物</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('鞋子')">
+                        <div class="cate-icon-wrapper i-shopping"><i data-lucide="sport-shoe"></i></div>
+                        <p>鞋子</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('配件')">
+                        <div class="cate-icon-wrapper i-shopping"><i data-lucide="glasses"></i></div>
+                        <p>配件</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('包包')">
+                        <div class="cate-icon-wrapper i-shopping"><i data-lucide="handbag"></i></div>
+                        <p>包包</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('美妝保養')">
+                        <div class="cate-icon-wrapper i-shopping"><i data-lucide="mirror-round"></i></div>
+                        <p>美妝保養</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('精品')">
+                        <div class="cate-icon-wrapper i-shopping"><i data-lucide="gem"></i></div>
+                        <p>精品</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('禮物')">
+                        <div class="cate-icon-wrapper i-shopping"><i data-lucide="gift"></i></div>
+                        <p>禮物</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('電子產品')">
+                        <div class="cate-icon-wrapper i-shopping"><i data-lucide="laptop"></i></div>
+                        <p>電子產品</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('應用軟體')">
+                        <div class="cate-icon-wrapper i-shopping"><i data-lucide="app-window"></i></div>
+                        <p>應用軟體</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('UNIQLO')">
+                        <div class="cate-icon-wrapper i-shopping"><i data-lucide="shirt"></i></div>
+                        <p>UNIQLO</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('NET')">
+                        <div class="cate-icon-wrapper i-shopping"><i data-lucide="shirt"></i></div>
+                        <p>NET</p>
+                    </div>
+                    <div class="category-item">
+                        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
+                        <p>新增</p>
+                    </div>
+                </div>
 
-<!-- 個人子分類網格 --> 
-<div class="category-grid" id="grid-expense-personal">
-    <div class="category-item" onclick="changeSubGrid('main-expense')">
-        <div class="cate-icon-wrapper i-personal"><i data-lucide="undo-2"></i></div>
-        <p>返回</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('社交')">
-        <div class="cate-icon-wrapper i-personal"><i data-lucide="handshake"></i></div>
-        <p>社交</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('電信費')">
-        <div class="cate-icon-wrapper i-personal"><i data-lucide="phone"></i></div>
-        <p>電信費</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('借款')">
-        <div class="cate-icon-wrapper i-personal"><i data-lucide="coins"></i></div>
-        <p>借款</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('投資')">
-        <div class="cate-icon-wrapper i-personal"><i data-lucide="trending-up"></i></div>
-        <p>投資</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('稅金')">
-        <div class="cate-icon-wrapper i-personal"><i data-lucide="circle-dollar-sign"></i></div>
-        <p>稅金</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('保險')">
-        <div class="cate-icon-wrapper i-personal"><i data-lucide="shield-check"></i></div>
-        <p>保險</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('捐款')">
-        <div class="cate-icon-wrapper i-personal"><i data-lucide="hand-heart"></i></div>
-        <p>捐款</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('寵物')">
-        <div class="cate-icon-wrapper i-personal"><i data-lucide="dog"></i></div>
-        <p>寵物</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('彩券')">
-        <div class="cate-icon-wrapper i-personal"><i data-lucide="receipt"></i></div>
-        <p>彩券</p>
-    </div>
-    <div class="category-item">
-        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
-        <p>新增</p>
-    </div>
-</div>
+                <!-- 個人子分類網格 --> 
+                <div class="category-grid" id="grid-expense-personal">
+                    <div class="category-item" onclick="changeSubGrid('main-expense')">
+                        <div class="cate-icon-wrapper i-personal"><i data-lucide="undo-2"></i></div>
+                        <p>返回</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('社交')">
+                        <div class="cate-icon-wrapper i-personal"><i data-lucide="handshake"></i></div>
+                        <p>社交</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('電信費')">
+                        <div class="cate-icon-wrapper i-personal"><i data-lucide="phone"></i></div>
+                        <p>電信費</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('借款')">
+                        <div class="cate-icon-wrapper i-personal"><i data-lucide="coins"></i></div>
+                        <p>借款</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('投資')">
+                        <div class="cate-icon-wrapper i-personal"><i data-lucide="trending-up"></i></div>
+                        <p>投資</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('稅金')">
+                        <div class="cate-icon-wrapper i-personal"><i data-lucide="circle-dollar-sign"></i></div>
+                        <p>稅金</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('保險')">
+                        <div class="cate-icon-wrapper i-personal"><i data-lucide="shield-check"></i></div>
+                        <p>保險</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('捐款')">
+                        <div class="cate-icon-wrapper i-personal"><i data-lucide="hand-heart"></i></div>
+                        <p>捐款</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('寵物')">
+                        <div class="cate-icon-wrapper i-personal"><i data-lucide="dog"></i></div>
+                        <p>寵物</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('彩券')">
+                        <div class="cate-icon-wrapper i-personal"><i data-lucide="receipt"></i></div>
+                        <p>彩券</p>
+                    </div>
+                    <div class="category-item">
+                        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
+                        <p>新增</p>
+                    </div>
+                </div>
 
-<!-- 醫療子分類網格 -->           
-<div class="category-grid" id="grid-expense-medical">
-    <div class="category-item" onclick="changeSubGrid('main-expense')">
-        <div class="cate-icon-wrapper i-medical"><i data-lucide="undo-2"></i></div>
-        <p>返回</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('門診')">
-        <div class="cate-icon-wrapper i-medical"><i data-lucide="stethoscope"></i></div>
-        <p>門診</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('藥品')">
-        <div class="cate-icon-wrapper i-medical"><i data-lucide="pill"></i></div>
-        <p>藥品</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('醫療用品')">
-        <div class="cate-icon-wrapper i-medical"><i data-lucide="briefcase-medical"></i></div>
-        <p>醫療用品</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('打針')">
-        <div class="cate-icon-wrapper i-medical"><i data-lucide="syringe"></i></div>
-        <p>打針</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('住院')">
-        <div class="cate-icon-wrapper i-medical"><i data-lucide="bed-single"></i></div>
-        <p>住院</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('手術')">
-        <div class="cate-icon-wrapper i-medical"><i data-lucide="slice"></i></div>
-        <p>手術</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('健康檢查')">
-        <div class="cate-icon-wrapper i-medical"><i data-lucide="clipboard-plus"></i></div>
-        <p>健康檢查</p>
-    </div>
-    <div class="category-item">
-        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
-        <p>新增</p>
-    </div>
-</div>
+                <!-- 醫療子分類網格 -->            
+                <div class="category-grid" id="grid-expense-medical">
+                    <div class="category-item" onclick="changeSubGrid('main-expense')">
+                        <div class="cate-icon-wrapper i-medical"><i data-lucide="undo-2"></i></div>
+                        <p>返回</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('門診')">
+                        <div class="cate-icon-wrapper i-medical"><i data-lucide="stethoscope"></i></div>
+                        <p>門診</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('藥品')">
+                        <div class="cate-icon-wrapper i-medical"><i data-lucide="pill"></i></div>
+                        <p>藥品</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('醫療用品')">
+                        <div class="cate-icon-wrapper i-medical"><i data-lucide="briefcase-medical"></i></div>
+                        <p>醫療用品</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('打針')">
+                        <div class="cate-icon-wrapper i-medical"><i data-lucide="syringe"></i></div>
+                        <p>打針</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('住院')">
+                        <div class="cate-icon-wrapper i-medical"><i data-lucide="bed-single"></i></div>
+                        <p>住院</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('手術')">
+                        <div class="cate-icon-wrapper i-medical"><i data-lucide="slice"></i></div>
+                        <p>手術</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('健康檢查')">
+                        <div class="cate-icon-wrapper i-medical"><i data-lucide="clipboard-plus"></i></div>
+                        <p>健康檢查</p>
+                    </div>
+                    <div class="category-item">
+                        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
+                        <p>新增</p>
+                    </div>
+                </div>
 
-<!-- 家居子分類網格 -->                   
-<div class="category-grid" id="grid-expense-home">
-    <div class="category-item" onclick="changeSubGrid('main-expense')">
-        <div class="cate-icon-wrapper i-home"><i data-lucide="undo-2"></i></div>
-        <p>返回</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('日常用品')">
-        <div class="cate-icon-wrapper i-home"><i data-lucide="soap-dispenser-droplet"></i></div>
-        <p>日常用品</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('水費')">
-        <div class="cate-icon-wrapper i-home"><i data-lucide="droplets"></i></div>
-        <p>水費</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('電費')">
-        <div class="cate-icon-wrapper i-home"><i data-lucide="zap"></i></div>
-        <p>電費</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('燃料費')">
-        <div class="cate-icon-wrapper i-home"><i data-lucide="flame"></i></div>
-        <p>燃料費</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('電話費')">
-        <div class="cate-icon-wrapper i-home"><i data-lucide="phone-call"></i></div>
-        <p>電話費</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('網路費')">
-        <div class="cate-icon-wrapper i-home"><i data-lucide="house-wifi"></i></div>
-        <p>網路費</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('房租')">
-        <div class="cate-icon-wrapper i-home"><i data-lucide="building"></i></div>
-        <p>房租</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('洗衣費')">
-        <div class="cate-icon-wrapper i-home"><i data-lucide="washing-machine"></i></div>
-        <p>洗衣費</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('修繕費')">
-        <div class="cate-icon-wrapper i-home"><i data-lucide="wrench"></i></div>
-        <p>修繕費</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('家具')">
-        <div class="cate-icon-wrapper i-home"><i data-lucide="sofa"></i></div>
-        <p>家具</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('訂閱')">
-        <div class="cate-icon-wrapper i-home"><i data-lucide="newspaper"></i></div>
-        <p>訂閱</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('家電')">
-        <div class="cate-icon-wrapper i-home"><i data-lucide="tv"></i></div>
-        <p>家電</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('全聯')">
-        <div class="cate-icon-wrapper i-home"><i data-lucide="store"></i></div>
-        <p>全聯</p>
-    </div>
-     <div class="category-item" onclick="selectCategory('屈臣氏')">
-        <div class="cate-icon-wrapper i-home"><i data-lucide="store"></i></div>
-        <p>屈臣氏</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('康是美')">
-        <div class="cate-icon-wrapper i-home"><i data-lucide="store"></i></div>
-        <p>康是美</p>
-    </div>
-    <div class="category-item">
-        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
-        <p>新增</p>
-    </div>
-</div>
+                <!-- 家居子分類網格 -->                    
+                <div class="category-grid" id="grid-expense-home">
+                    <div class="category-item" onclick="changeSubGrid('main-expense')">
+                        <div class="cate-icon-wrapper i-home"><i data-lucide="undo-2"></i></div>
+                        <p>返回</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('日常用品')">
+                        <div class="cate-icon-wrapper i-home"><i data-lucide="soap-dispenser-droplet"></i></div>
+                        <p>日常用品</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('水費')">
+                        <div class="cate-icon-wrapper i-home"><i data-lucide="droplets"></i></div>
+                        <p>水費</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('電費')">
+                        <div class="cate-icon-wrapper i-home"><i data-lucide="zap"></i></div>
+                        <p>電費</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('燃料費')">
+                        <div class="cate-icon-wrapper i-home"><i data-lucide="flame"></i></div>
+                        <p>燃料費</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('電話費')">
+                        <div class="cate-icon-wrapper i-home"><i data-lucide="phone-call"></i></div>
+                        <p>電話費</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('網路費')">
+                        <div class="cate-icon-wrapper i-home"><i data-lucide="house-wifi"></i></div>
+                        <p>網路費</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('房租')">
+                        <div class="cate-icon-wrapper i-home"><i data-lucide="building"></i></div>
+                        <p>房租</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('洗衣費')">
+                        <div class="cate-icon-wrapper i-home"><i data-lucide="washing-machine"></i></div>
+                        <p>洗衣費</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('修繕費')">
+                        <div class="cate-icon-wrapper i-home"><i data-lucide="wrench"></i></div>
+                        <p>修繕費</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('家具')">
+                        <div class="cate-icon-wrapper i-home"><i data-lucide="sofa"></i></div>
+                        <p>家具</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('訂閱')">
+                        <div class="cate-icon-wrapper i-home"><i data-lucide="newspaper"></i></div>
+                        <p>訂閱</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('家電')">
+                        <div class="cate-icon-wrapper i-home"><i data-lucide="tv"></i></div>
+                        <p>家電</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('全聯')">
+                        <div class="cate-icon-wrapper i-home"><i data-lucide="store"></i></div>
+                        <p>全聯</p>
+                    </div>
+                     <div class="category-item" onclick="selectCategory('屈臣氏')">
+                        <div class="cate-icon-wrapper i-home"><i data-lucide="store"></i></div>
+                        <p>屈臣氏</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('康是美')">
+                        <div class="cate-icon-wrapper i-home"><i data-lucide="store"></i></div>
+                        <p>康是美</p>
+                    </div>
+                    <div class="category-item">
+                        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
+                        <p>新增</p>
+                    </div>
+                </div>
 
-<!-- 家庭子分類網格 -->                
-<div class="category-grid" id="grid-expense-family">
-    <div class="category-item" onclick="changeSubGrid('main-expense')">
-        <div class="cate-icon-wrapper i-family"><i data-lucide="undo-2"></i></div>
-        <p>返回</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('生活費')">
-        <div class="cate-icon-wrapper i-family"><i data-lucide="wallet-minimal"></i></div>
-        <p>生活費</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('教育')">
-        <div class="cate-icon-wrapper i-family"><i data-lucide="graduation-cap"></i></div>
-        <p>教育</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('看護')">
-        <div class="cate-icon-wrapper i-family"><i data-lucide="person-standing"></i></div>
-        <p>看護</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('玩具')">
-        <div class="cate-icon-wrapper i-family"><i data-lucide="toy-brick"></i></div>
-        <p>玩具</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('才藝')">
-        <div class="cate-icon-wrapper i-family"><i data-lucide="palette"></i></div>
-        <p>才藝</p>
-    </div>
-    <div class="category-item">
-        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
-        <p>新增</p>
-    </div>
-</div>
+                <!-- 家庭子分類網格 -->                
+                <div class="category-grid" id="grid-expense-family">
+                    <div class="category-item" onclick="changeSubGrid('main-expense')">
+                        <div class="cate-icon-wrapper i-family"><i data-lucide="undo-2"></i></div>
+                        <p>返回</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('生活費')">
+                        <div class="cate-icon-wrapper i-family"><i data-lucide="wallet-minimal"></i></div>
+                        <p>生活費</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('教育')">
+                        <div class="cate-icon-wrapper i-family"><i data-lucide="graduation-cap"></i></div>
+                        <p>教育</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('看護')">
+                        <div class="cate-icon-wrapper i-family"><i data-lucide="person-standing"></i></div>
+                        <p>看護</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('玩具')">
+                        <div class="cate-icon-wrapper i-family"><i data-lucide="toy-brick"></i></div>
+                        <p>玩具</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('才藝')">
+                        <div class="cate-icon-wrapper i-family"><i data-lucide="palette"></i></div>
+                        <p>才藝</p>
+                    </div>
+                    <div class="category-item">
+                        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
+                        <p>新增</p>
+                    </div>
+                </div>
 
-<!-- 生活子分類網格 -->               
-<div class="category-grid" id="grid-expense-life">
-    <div class="category-item" onclick="changeSubGrid('main-expense')">
-        <div class="cate-icon-wrapper i-life"><i data-lucide="undo-2"></i></div>
-        <p>返回</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('美容美髮')">
-        <div class="cate-icon-wrapper i-life"><i data-lucide="scissors"></i></div>
-        <p>美容美髮</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('住宿')">
-        <div class="cate-icon-wrapper i-life"><i data-lucide="hotel"></i></div>
-        <p>住宿</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('旅行')">
-        <div class="cate-icon-wrapper i-life"><i data-lucide="tree-palm"></i></div>
-        <p>旅行</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('派對')">
-        <div class="cate-icon-wrapper i-life"><i data-lucide="wine"></i></div>
-        <p>派對</p>
-    </div>
-    <div class="category-item">
-        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
-        <p>新增</p>
-    </div>
-</div>
+                <!-- 生活子分類網格 -->                
+                <div class="category-grid" id="grid-expense-life">
+                    <div class="category-item" onclick="changeSubGrid('main-expense')">
+                        <div class="cate-icon-wrapper i-life"><i data-lucide="undo-2"></i></div>
+                        <p>返回</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('美容美髮')">
+                        <div class="cate-icon-wrapper i-life"><i data-lucide="scissors"></i></div>
+                        <p>美容美髮</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('住宿')">
+                        <div class="cate-icon-wrapper i-life"><i data-lucide="hotel"></i></div>
+                        <p>住宿</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('旅行')">
+                        <div class="cate-icon-wrapper i-life"><i data-lucide="tree-palm"></i></div>
+                        <p>旅行</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('派對')">
+                        <div class="cate-icon-wrapper i-life"><i data-lucide="wine"></i></div>
+                        <p>派對</p>
+                    </div>
+                    <div class="category-item">
+                        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
+                        <p>新增</p>
+                    </div>
+                </div>
 
-<!-- 學習子分類網格 --> 
-<div class="category-grid" id="grid-expense-learn">
-    <div class="category-item" onclick="changeSubGrid('main-expense')">
-        <div class="cate-icon-wrapper i-learn"><i data-lucide="undo-2"></i></div>
-        <p>返回</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('書籍')">
-        <div class="cate-icon-wrapper i-learn"><i data-lucide="book-open-text"></i></div>
-        <p>書籍</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('課程')">
-        <div class="cate-icon-wrapper i-learn"><i data-lucide="presentation"></i></div>
-        <p>課程</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('教材')">
-        <div class="cate-icon-wrapper i-learn"><i data-lucide="book-marked"></i></div>
-        <p>教材</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('證書')">
-        <div class="cate-icon-wrapper i-learn"><i data-lucide="book-user"></i></div>
-        <p>證書</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('文具')">
-        <div class="cate-icon-wrapper i-learn"><i data-lucide="pencil-ruler"></i></div>
-        <p>文具</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('考試')">
-        <div class="cate-icon-wrapper i-learn"><i data-lucide="book-open-check"></i></div>
-        <p>考試</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('金石堂')">
-        <div class="cate-icon-wrapper i-learn"><i data-lucide="book-open"></i></div>
-        <p>金石堂</p>
-    </div>
-    <div class="category-item" onclick="selectCategory('博客來')">
-        <div class="cate-icon-wrapper i-learn"><i data-lucide="book-open"></i></div>
-        <p>博客來</p>
-    </div>
-    <div class="category-item">
-        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
-        <p>新增</p>
-    </div>
-</div>
+                <!-- 學習子分類網格 --> 
+                <div class="category-grid" id="grid-expense-learn">
+                    <div class="category-item" onclick="changeSubGrid('main-expense')">
+                        <div class="cate-icon-wrapper i-learn"><i data-lucide="undo-2"></i></div>
+                        <p>返回</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('書籍')">
+                        <div class="cate-icon-wrapper i-learn"><i data-lucide="book-open-text"></i></div>
+                        <p>書籍</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('課程')">
+                        <div class="cate-icon-wrapper i-learn"><i data-lucide="presentation"></i></div>
+                        <p>課程</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('教材')">
+                        <div class="cate-icon-wrapper i-learn"><i data-lucide="book-marked"></i></div>
+                        <p>教材</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('證書')">
+                        <div class="cate-icon-wrapper i-learn"><i data-lucide="book-user"></i></div>
+                        <p>證書</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('文具')">
+                        <div class="cate-icon-wrapper i-learn"><i data-lucide="pencil-ruler"></i></div>
+                        <p>文具</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('考試')">
+                        <div class="cate-icon-wrapper i-learn"><i data-lucide="book-open-check"></i></div>
+                        <p>考試</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('金石堂')">
+                        <div class="cate-icon-wrapper i-learn"><i data-lucide="book-open"></i></div>
+                        <p>金石堂</p>
+                    </div>
+                    <div class="category-item" onclick="selectCategory('博客來')">
+                        <div class="cate-icon-wrapper i-learn"><i data-lucide="book-open"></i></div>
+                        <p>博客來</p>
+                    </div>
+                    <div class="category-item">
+                        <div class="cate-icon-wrapper" style="background: #2c2c3e;"><i data-lucide="plus"></i></div>
+                        <p>新增</p>
+                    </div>
+                </div>
 
                 <!-- 收入分類網格 -->
                 <div class="category-grid" id="grid-income">
@@ -1161,23 +1160,23 @@
 
         <!-- ==================== 模組彈窗群組 (Modals) ==================== -->
 
-    <!--==================== 專案明細更多功能彈窗 ====================-->
-    <div id="proj-detail-more-modal" class="modal-overlay" style="display: none;" onclick="closeModal('proj-detail-more-modal')">
-    <div class="more-menu-content" onclick="event.stopPropagation()">
-        <div class="menu-header-icon">
-            <i data-lucide="menu"></i>
+        <!-- 專案明細更多功能彈窗 -->
+        <div id="proj-detail-more-modal" class="modal-overlay" style="display: none;" onclick="closeModal('proj-detail-more-modal')">
+            <div class="more-menu-content" onclick="event.stopPropagation()">
+                <div class="menu-header-icon">
+                    <i data-lucide="menu"></i>
+                </div>
+                <h3 class="menu-title">更多功能</h3>
+                <div class="menu-list">
+                    <button class="menu-btn" onclick="handleProjDetailMenuAction('沿用上期預算')">沿用上期預算</button>
+                    <button class="menu-btn" onclick="handleProjDetailMenuAction('清除所有預算')">清除所有預算</button>
+                    <button class="menu-btn" onclick="handleProjDetailMenuAction('清除未分配預算')">清除未分配預算</button>
+                    <button class="menu-btn" onclick="handleProjDetailMenuAction('清除這期所有預算')">清除這期所有預算</button>
+                    <button class="menu-btn" onclick="handleProjDetailMenuAction('匯出專案')">匯出專案</button>
+                    <button class="menu-btn text-red" onclick="deleteProjectAction()">刪除此專案</button>
+                </div>
+            </div>
         </div>
-        <h3 class="menu-title">更多功能</h3>
-        <div class="menu-list">
-            <button class="menu-btn" onclick="handleProjDetailMenuAction('沿用上期預算')">沿用上期預算</button>
-            <button class="menu-btn" onclick="handleProjDetailMenuAction('清除所有預算')">清除所有預算</button>
-            <button class="menu-btn" onclick="handleProjDetailMenuAction('清除未分配預算')">清除未分配預算</button>
-            <button class="menu-btn" onclick="handleProjDetailMenuAction('清除這期所有預算')">清除這期所有預算</button>
-            <button class="menu-btn" onclick="handleProjDetailMenuAction('匯出專案')">匯出專案</button>
-            <button class="menu-btn text-red" onclick="deleteProjectAction()">刪除此專案</button>
-        </div>
-    </div>
-</div>
 
         <div id="record-account-modal" class="modal-overlay" style="display: none;" onclick="closeModal('record-account-modal')">
             <div class="modal-content" onclick="event.stopPropagation()">
@@ -1382,7 +1381,7 @@
             <div class="tab-fab" id="main-fab" onclick="handleFabClick(this)"> 
                 <div class="fab-inner"><i data-lucide="layers" id="fab-icon"></i></div>
             </div>
-             
+              
             <div class="tab-item" onclick="showPage('page-trends', this)"><i data-lucide="line-chart"></i></div>
             <div class="tab-item" onclick="showPage('page-settings', this)"><i data-lucide="sliders-horizontal"></i></div>
         </nav>
