@@ -326,4 +326,53 @@ function renderProjectDetailView() {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
+/**
+ * 處理專案明細更多功能選單觸發動作
+ */
+function handleProjDetailMenuAction(action) {
+    console.log(`[專案動作] 執行：${action} (${currentDetailProjectName})`);
+    
+    if (action === '沿用上期預算') {
+        alert(`已成功為「${currentDetailProjectName}」沿用上期預算設定！`);
+    } else if (action === '清除所有預算') {
+        if (confirm(`確定要清除「${currentDetailProjectName}」的所有預算設定嗎？`)) {
+            alert('已清除所有預算！');
+            renderProjectDetailView();
+        }
+    } else if (action === '清除未分配預算') {
+        alert('已成功清除未分配預算！');
+        renderProjectDetailView();
+    } else if (action === '清除這期所有預算') {
+        alert('已清除本期所有預算！');
+        renderProjectDetailView();
+    } else if (action === '匯出專案') {
+        alert(`「${currentDetailProjectName}」的專案報表已成功匯出至下載資料夾！`);
+    }
+    
+    closeModal('proj-detail-more-modal');
+}
+
+/**
+ * 執行刪除專案動作
+ */
+function deleteProjectAction() {
+    if (currentDetailProjectName === '生活開銷') {
+        alert('「生活開銷」為系統預設核心專案，無法刪除！');
+        closeModal('proj-detail-more-modal');
+        return;
+    }
+
+    if (confirm(`確定要刪除專案「${currentDetailProjectName}」嗎？刪除後無法復原。`)) {
+        let projects = JSON.parse(localStorage.getItem('koin_projects') || '[]');
+        projects = projects.filter(p => p.name !== currentDetailProjectName);
+        localStorage.setItem('koin_projects', JSON.stringify(projects));
+
+        closeModal('proj-detail-more-modal');
+        
+        // 刷新專案列表並退回專案總覽頁
+        if (typeof renderProjectsPage === 'function') renderProjectsPage();
+        showPage('page-projects');
+    }
+}
+
    
