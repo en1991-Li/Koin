@@ -228,7 +228,7 @@ function selectCategory(categoryName, parentType) {
     };
 
     const incomeIconMap = {
-        '薪水': 'dollar-sign', '獎金': 'coins', '投資': 'trending-up', '收款': 'hand-coins', '彩券': 'newspaper', '利息': 'landmark', '消費回饋': 'credit-card', '零用錢': 'circle-dollar-sign', '發票': 'receipt', '補助': 'building-2'
+        '薪水': 'dollar-sign', '獎金': 'circle-dollar-sign', '投資': 'trending-up', '收款': 'hand-coins', '彩券': 'newspaper', '利息': 'landmark', '消費回饋': 'credit-card', '零用錢': 'circle-dollar-sign', '發票': 'receipt', '補助': 'building-2'
     };
 
     const otherIconMap = {
