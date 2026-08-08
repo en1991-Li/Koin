@@ -181,7 +181,7 @@
         <h1 class="page-title" id="proj-detail-title">生活開銷</h1>
         <div style="display: flex; gap: 15px;">
             <i data-lucide="settings" class="s-icon"></i>
-            <i data-lucide="menu" class="s-icon"></i>
+            <i data-lucide="menu" class="s-icon" onclick="openModal('proj-detail-more-modal')" style="cursor: pointer;"></i>
         </div>
     </header>
 
@@ -1086,7 +1086,25 @@
         </section>
 
         <!-- ==================== 模組彈窗群組 (Modals) ==================== -->
-        
+
+    <!--==================== 專案明細更多功能彈窗 ====================-->
+    <div id="proj-detail-more-modal" class="modal-overlay" style="display: none;" onclick="closeModal('proj-detail-more-modal')">
+    <div class="more-menu-content" onclick="event.stopPropagation()">
+        <div class="menu-header-icon">
+            <i data-lucide="menu"></i>
+        </div>
+        <h3 class="menu-title">更多功能</h3>
+        <div class="menu-list">
+            <button class="menu-btn" onclick="handleProjDetailMenuAction('沿用上期預算')">沿用上期預算</button>
+            <button class="menu-btn" onclick="handleProjDetailMenuAction('清除所有預算')">清除所有預算</button>
+            <button class="menu-btn" onclick="handleProjDetailMenuAction('清除未分配預算')">清除未分配預算</button>
+            <button class="menu-btn" onclick="handleProjDetailMenuAction('清除這期所有預算')">清除這期所有預算</button>
+            <button class="menu-btn" onclick="handleProjDetailMenuAction('匯出專案')">匯出專案</button>
+            <button class="menu-btn text-red" onclick="deleteProjectAction()">刪除此專案</button>
+        </div>
+    </div>
+</div>
+
         <div id="record-account-modal" class="modal-overlay" style="display: none;" onclick="closeModal('record-account-modal')">
             <div class="modal-content" onclick="event.stopPropagation()">
                 <div class="modal-header">選擇收付款帳戶</div>
