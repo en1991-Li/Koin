@@ -326,6 +326,130 @@ function renderProjectDetailView() {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
+// 當前專案明細頁籤狀態 ('budget' 或 'transactions')
+let currentProjectDetailTab = 'budget';
+
+/**
+ * 切換專案明細頁籤
+ */
+function switchProjectDetailTab(tabType) {
+    currentProjectDetailTab = tabType;
+    
+    const tabBudget = document.getElementById('tab-proj-budget');
+    const tabTrans = document.getElementById('tab-proj-trans');
+    const viewBudget = document.getElementById('proj-view-budget');
+    const viewTrans = document.getElementById('proj-view-transactions');
+
+    if (tabType === 'transactions') {
+        if (tabBudget) tabBudget.classList.remove('active');
+        if (tabTrans) tabTrans.classList.add('active');
+        if (viewBudget) viewBudget.style.display = 'none';
+        if (viewTrans) viewTrans.style.display = 'block';
+        
+        renderProjectTransactionsList(); // 渲染按日期分組的記帳列表
+    } else {
+        if (tabTrans) tabTrans.classList.remove('active');
+        if (tabBudget) tabBudget.classList.add('active');
+        if (viewTrans) viewTrans.style.display = 'none';
+        if (viewBudget) viewBudget.style.display = 'block';
+    }
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+/**
+ * 依日期分組動態渲染交易明細列表
+ */
+function renderProjectTransactionsList() {
+    const container = document.getElementById('proj-detail-transactions-container');
+    if (!container) return;
+
+    const records = JSON.parse(localStorage.getItem('koin_records') || '[]');
+    // 過濾出屬於當前專案的交易
+    const projRecords = records.filter(r => (r.project || '生活開銷') === currentDetailProjectName);
+
+    if (projRecords.length === 0) {
+        container.innerHTML = `<p style="color: #8a8a8e; text-align: center; margin-top: 40px; font-size: 14px;">此專案尚無交易明細</p>`;
+        return;
+    }
+
+    // 依日期進行 Group By 歸類
+    const groupedRecords = {};
+    projRecords.forEach(r => {
+        const dateStr = r.date || '未知日期';
+        if (!groupedRecords[dateStr]) {
+            groupedRecords[dateStr] = { records: [], dailyTotal: 0 };
+        }
+        groupedRecords[dateStr].records.push(r);
+        
+        const amt = parseFloat(r.amount) || 0;
+        if (r.type === '支出' || r.type === '應付款項') {
+            groupedRecords[dateStr].dailyTotal -= amt;
+        } else {
+            groupedRecords[dateStr].dailyTotal += amt;
+        }
+    });
+
+    // 繪製日期分組標頭與卡片
+    let html = '';
+    const expenseIconMap = {
+        '飲食': 'utensils', '交通': 'car', '娛樂': 'party-popper', '購物': 'shopping-bag', '個人': 'user', '醫療': 'stethoscope', '家居': 'home', '家庭': 'users', '生活': 'coffee', '學習': 'book',
+        '早餐': 'croissant', '午餐': 'utensils', '晚餐': 'soup', '點心': 'cookie', '飲料': 'cup-soda', '酒類': 'beer', '水果': 'grape', '宵夜': 'pizza', '礦泉水': 'glass-water',
+        '加油費': 'fuel', '停車費': 'square-parking', '火車': 'train-front', '公車': 'bus-front', '捷運': 'train-front-tunnel', '悠遊卡': 'credit-card', '汽車': 'car-front', '計程車': 'car-taxi-front', '摩托車': 'motorbike', '單車': 'bike', '機票': 'plane', '船票': 'ship',
+        '手遊': 'gamepad-2', '音樂': 'music', 'Netflix': 'monitor-play', '電影': 'clapperboard', '遊樂園': 'roller-coaster', '展覽': 'landmark', '運動': 'dumbbell',
+        '蝦皮購物': 'shopping-bag', 'momo購物': 'shopping-bag', 'PChome24h': 'shopping-bag', '市場': 'shopping-cart', '衣物': 'shirt', '鞋子': 'sport-shoe', '配件': 'glasses', '包包': 'handbag', '美妝保養': 'mirror-round', '精品': 'gem', '禮物': 'gift', '電子產品': 'laptop', '應用軟體': 'app-window', 'UNIQLO': 'shirt', 'NET': 'shirt',
+        '社交': 'handshake', '電信費': 'phone', '借款': 'coins', '投資': 'trending-up', '稅金': 'circle-dollar-sign', '保險': 'shield-check', '捐款': 'hand-heart', '寵物': 'dog', '彩券': 'receipt',
+        '門診': 'stethoscope', '藥品': 'pill', '醫療用品': 'briefcase-medical', '打針': 'syringe', '住院': 'bed-single', '手術': 'slice', '健康檢查': 'clipboard-plus',
+        '日常用品': 'soap-dispenser-droplet', '水費': 'droplets', '電費': 'zap', '燃料費': 'flame', '電話費': 'phone-call', '網路費': 'house-wifi', '房租': 'building', '洗衣費': 'washing-machine', '修繕費': 'wrench', '家具': 'sofa', '訂閱': 'newspaper', '家電': 'tv', '全聯': 'store', '屈臣氏': 'store', '康是美': 'store',
+        '生活費': 'wallet-minimal', '教育': 'graduation-cap', '看護': 'person-standing', '玩具': 'toy-brick', '才藝': 'palette',
+        '美容美髮': 'scissors', '住宿': 'hotel', '旅行': 'tree-palm', '派對': 'wine',
+        '書籍': 'book-open-text', '課程': 'presentation', '教材': 'book-marked', '證書': 'book-user', '探索': 'compass', '文具': 'pen-ruler', '考試': 'book-open-check', '金石堂': 'book-open', '博客來': 'book-open'
+    };
+
+    Object.keys(groupedRecords).forEach(date => {
+        const group = groupedRecords[date];
+        const totalText = group.dailyTotal < 0 ? `-${Math.abs(group.dailyTotal).toLocaleString()}` : `+${group.dailyTotal.toLocaleString()}`;
+        const totalColor = group.dailyTotal < 0 ? '#8e8e93' : '#4ade80';
+
+        html += `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 4px 6px 4px; color: #ffffff; font-size: 13px; font-weight: 700;">
+                <span>${date}</span>
+                <span style="color: ${totalColor};">${totalText}</span>
+            </div>
+            <div class="form-group" style="background: #1c1c28; border-radius: 16px; padding: 0 16px; margin-bottom: 15px;">
+        `;
+
+        group.records.forEach((r, idx) => {
+            const isLast = (idx === group.records.length - 1);
+            const isExpense = (r.type === '支出' || r.type === '應付款項');
+            const amtColor = isExpense ? '#fb7185' : '#4ade80';
+            const iconName = expenseIconMap[r.category] || 'tag';
+
+            html += `
+                <div class="form-row" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: ${isLast ? 'none' : '1px solid rgba(255,255,255,0.05)'};">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="cate-icon-wrapper i-income-gold" style="width: 40px; height: 40px; margin: 0;">
+                            <i data-lucide="${iconName}"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 15px; font-weight: 600; color: #fff;">${r.category}</div>
+                            <div style="font-size: 11px; color: #8e8e93;">${r.note || r.account || '錢包'}</div>
+                        </div>
+                    </div>
+                    <span style="color: ${amtColor}; font-size: 16px; font-weight: 700;">
+                        ${isExpense ? '' : '+'}$${parseFloat(r.amount).toLocaleString()}
+                    </span>
+                </div>
+            `;
+        });
+
+        html += `</div>`;
+    });
+
+    container.innerHTML = html;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
 /**
  * 處理專案明細更多功能選單觸發動作
  */
