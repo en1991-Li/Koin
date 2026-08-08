@@ -173,82 +173,71 @@
             <div class="content-scroll no-scrollbar" id="projects-list-container"></div>
         </section>
 
-       <!-- ==================== 專案明細頁 ==================== -->
-<section id="page-project-detail" class="page">
-    <header class="nav-header">
-        <i data-lucide="chevron-left" class="s-icon" onclick="showPage('page-projects')"></i>
-        <h1 class="page-title" id="proj-detail-title">生活開銷</h1>
-        <div style="display: flex; gap: 15px;">
-            <i data-lucide="settings" class="s-icon" onclick="openEditProjectPage()" style="cursor: pointer;"></i>
-            <i data-lucide="menu" class="s-icon" onclick="openModal('proj-detail-more-modal')" style="cursor: pointer;"></i>
-        </div>
-    </header>
+        <!-- ==================== 專案明細頁 ==================== -->
+        <section id="page-project-detail" class="page">
+            <header class="nav-header">
+                <i data-lucide="chevron-left" class="s-icon" onclick="showPage('page-projects')"></i>
+                <h1 class="page-title" id="proj-detail-title">生活開銷</h1>
+                <div style="display: flex; gap: 15px;">
+                    <i data-lucide="settings" class="s-icon" onclick="openEditProjectPage()" style="cursor: pointer;"></i>
+                    <i data-lucide="menu" class="s-icon" onclick="openModal('proj-detail-more-modal')" style="cursor: pointer;"></i>
+                </div>
+            </header>
 
-    <!-- 頁籤切換：交易明細 vs 預算設定 -->
-    <div class="detail-tabs">
-        <div class="detail-tab" id="tab-proj-trans" onclick="switchProjectDetailTab('transactions')">交易明細</div>
-        <div class="detail-tab active" id="tab-proj-budget" onclick="switchProjectDetailTab('budget')">預算設定</div>
-    </div>
-
-    <div class="content-scroll no-scrollbar" style="padding: 15px;">
-        
-        <!-- 視圖 A：預算設定 (原統計卡片與分類列表) -->
-        <div id="proj-view-budget">
-            <!-- 月份選擇器 -->
-            <div style="display: flex; justify-content: space-between; align-items: center; background: #1c1c28; padding: 10px 16px; border-radius: 12px; margin-bottom: 15px; font-size: 14px; font-weight: 600;">
-                <i data-lucide="chevron-left" style="cursor: pointer; width: 18px;" onclick="changeProjectDetailMonth(-1)"></i>
-                <span id="proj-detail-date-range">2026/08/01 － 2026/08/31</span>
-                <i data-lucide="chevron-right" style="cursor: pointer; width: 18px;" onclick="changeProjectDetailMonth(1)"></i>
+            <!-- 頁籤切換：交易明細 vs 預算設定 -->
+            <div class="detail-tabs">
+                <div class="detail-tab" id="tab-proj-trans" onclick="switchProjectDetailTab('transactions')">交易明細</div>
+                <div class="detail-tab active" id="tab-proj-budget" onclick="switchProjectDetailTab('budget')">預算設定</div>
             </div>
 
-            <!-- 統計卡片 -->
-            <div class="form-group" style="background: #1c1c28; border-radius: 16px; padding: 12px 16px; margin-bottom: 20px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
-                    <span style="color: #8e8e93;">出帳 <span id="proj-detail-out-count" style="background: rgba(251,113,133,0.2); color: #fb7185; padding: 1px 6px; border-radius: 10px; font-size: 11px;">0</span></span>
-                    <span style="color: #fb7185; font-weight: 700;" id="proj-detail-out-total">-$0</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
-                    <span style="color: #8e8e93;">入帳 <span id="proj-detail-in-count" style="background: rgba(74,222,128,0.2); color: #4ade80; padding: 1px 6px; border-radius: 10px; font-size: 11px;">0</span></span>
-                    <span style="color: #4ade80; font-weight: 700;" id="proj-detail-in-total">$0</span>
-                </div>
-                <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; display: flex; justify-content: space-between; font-size: 14px;">
-                    <span style="color: #8e8e93;">總計 <span id="proj-detail-total-count" style="background: rgba(167,139,250,0.2); color: #a78bfa; padding: 1px 6px; border-radius: 10px; font-size: 11px;">0</span></span>
-                    <span style="color: #a78bfa; font-weight: 700;" id="proj-detail-net-total">-$0</span>
-                </div>
-            </div>
-
-            <!-- 專案預算 Header (點擊切換至交易明細) -->
-            <div style="color: #a78bfa; font-size: 13px; font-weight: 700; margin-bottom: 8px; padding-left: 4px;">專案預算</div>
-            <div class="form-group" style="background: #1c1c28; border-radius: 16px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="switchProjectDetailTab('transactions')">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <div class="cate-icon-wrapper i-home" style="width: 40px; height: 40px; margin: 0;">
-                        <i data-lucide="piggy-bank"></i>
+            <div class="content-scroll no-scrollbar" style="padding: 15px;">
+                <!-- 視圖 A：預算設定 -->
+                <div id="proj-view-budget">
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: #1c1c28; padding: 10px 16px; border-radius: 12px; margin-bottom: 15px; font-size: 14px; font-weight: 600;">
+                        <i data-lucide="chevron-left" style="cursor: pointer; width: 18px;" onclick="changeProjectDetailMonth(-1)"></i>
+                        <span id="proj-detail-date-range">2026/08/01 － 2026/08/31</span>
+                        <i data-lucide="chevron-right" style="cursor: pointer; width: 18px;" onclick="changeProjectDetailMonth(1)"></i>
                     </div>
-                    <div>
-                        <div style="font-size: 15px; font-weight: 600; color: #fff;" id="proj-detail-budget-name">生活開銷</div>
-                        <div style="font-size: 11px; color: #8e8e93;" id="proj-detail-budget-sub"><span id="proj-detail-budget-count">0</span> 筆記錄</div>
+
+                    <div class="form-group" style="background: #1c1c28; border-radius: 16px; padding: 12px 16px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
+                            <span style="color: #8e8e93;">出帳 <span id="proj-detail-out-count" style="background: rgba(251,113,133,0.2); color: #fb7185; padding: 1px 6px; border-radius: 10px; font-size: 11px;">0</span></span>
+                            <span style="color: #fb7185; font-weight: 700;" id="proj-detail-out-total">-$0</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
+                            <span style="color: #8e8e93;">入帳 <span id="proj-detail-in-count" style="background: rgba(74,222,128,0.2); color: #4ade80; padding: 1px 6px; border-radius: 10px; font-size: 11px;">0</span></span>
+                            <span style="color: #4ade80; font-weight: 700;" id="proj-detail-in-total">$0</span>
+                        </div>
+                        <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; display: flex; justify-content: space-between; font-size: 14px;">
+                            <span style="color: #8e8e93;">總計 <span id="proj-detail-total-count" style="background: rgba(167,139,250,0.2); color: #a78bfa; padding: 1px 6px; border-radius: 10px; font-size: 11px;">0</span></span>
+                            <span style="color: #a78bfa; font-weight: 700;" id="proj-detail-net-total">-$0</span>
+                        </div>
                     </div>
+
+                    <div style="color: #a78bfa; font-size: 13px; font-weight: 700; margin-bottom: 8px; padding-left: 4px;">專案預算</div>
+                    <div class="form-group" style="background: #1c1c28; border-radius: 16px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="switchProjectDetailTab('transactions')">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div class="cate-icon-wrapper i-home" style="width: 40px; height: 40px; margin: 0;">
+                                <i data-lucide="piggy-bank"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 15px; font-weight: 600; color: #fff;" id="proj-detail-budget-name">生活開銷</div>
+                                <div style="font-size: 11px; color: #8e8e93;" id="proj-detail-budget-sub"><span id="proj-detail-budget-count">0</span> 筆記錄</div>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="color: #fb7185; font-size: 16px; font-weight: 700;" id="proj-detail-budget-amount">$0</div>
+                            <div style="font-size: 10px; color: #8e8e93;">未分配</div>
+                        </div>
+                    </div>
+
+                    <div id="proj-detail-categories-container"></div>
                 </div>
-                <div style="text-align: right;">
-                    <div style="color: #fb7185; font-size: 16px; font-weight: 700;" id="proj-detail-budget-amount">$0</div>
-                    <div style="font-size: 10px; color: #8e8e93;">未分配</div>
+
+                <!-- 視圖 B：交易明細列表 -->
+                <div id="proj-view-transactions" style="display: none;">
+                    <div id="proj-detail-transactions-container"></div>
                 </div>
-            </div>
-
-            <!-- 動態分類列表 -->
-            <div id="proj-detail-categories-container"></div>
-        </div>
-
-        <!-- 視圖 B：交易明細列表 -->
-        <div id="proj-view-transactions" style="display: none;">
-            <div id="proj-detail-transactions-container"></div>
-        </div>
-
-    </div>
-</section>
-
-                <!-- 動態分類列表 (未分配預算、未設定預算) -->
-                <div id="proj-detail-categories-container"></div>
             </div>
         </section>
 
@@ -261,7 +250,6 @@
             </header>
 
             <div class="content-scroll no-scrollbar">
-                <!-- 頂部圖示 -->
                 <div class="add-acc-hero">
                     <div class="icon-box" style="background: #2c2c3e; width: 80px; height: 80px; border-radius: 50%;">
                         <i data-lucide="wine" style="width: 40px; height: 40px; color: #fff;"></i>
@@ -477,7 +465,6 @@
             </header>
 
             <div class="content-scroll no-scrollbar" style="padding-bottom: 280px;">
-                <!-- 記帳類別切換頁籤 -->
                 <div class="record-tabs" id="record-type-tabs" style="display: flex; overflow-x: auto; padding: 15px; gap: 20px; color: #8a8a8e;">
                     <span class="active text-blue" onclick="setRecordType('支出', this)">支出</span>
                     <span onclick="setRecordType('收入', this)">收入</span>
@@ -486,7 +473,6 @@
                     <span onclick="setRecordType('應付款項', this)">應付款項</span>
                 </div>
 
-                <!-- 已選分類動態展示卡片 -->
                 <div id="selected-category-card-zone" style="display: none; padding: 10px 20px; align-items: center; gap: 15px;">
                     <div style="display: flex; flex-direction: column; align-items: center; background: #2c2c3e; padding: 12px 16px; border-radius: 16px; min-width: 70px;">
                         <div id="selected-card-icon-wrapper" class="cate-icon-wrapper i-income-gold" style="margin-bottom: 6px;">
@@ -500,7 +486,6 @@
                     </div>
                 </div>
 
-                <!-- 支出分類網格 -->
                 <div class="category-grid active" id="grid-expense">
                     <div class="category-item" onclick="changeSubGrid('eat')">
                         <div class="cate-icon-wrapper i-eat"><i data-lucide="utensils"></i></div>
@@ -544,7 +529,6 @@
                     </div>
                 </div>
 
-                <!-- 飲食子分類網格 -->
                 <div class="category-grid" id="grid-expense-eat">
                     <div class="category-item" onclick="changeSubGrid('main-expense')">
                         <div class="cate-icon-wrapper i-income-gold"><i data-lucide="undo-2"></i></div>
@@ -592,7 +576,6 @@
                     </div>
                 </div>
 
-                <!-- 交通子分類網格 -->
                 <div class="category-grid" id="grid-expense-transport">
                     <div class="category-item" onclick="changeSubGrid('main-expense')">
                         <div class="cate-icon-wrapper i-transport"><i data-lucide="undo-2"></i></div>
@@ -652,7 +635,6 @@
                     </div>
                 </div>
 
-                <!-- 娛樂子分類網格 -->                
                 <div class="category-grid" id="grid-expense-entertainment">
                     <div class="category-item" onclick="changeSubGrid('main-expense')">
                         <div class="cate-icon-wrapper i-entertainment"><i data-lucide="undo-2"></i></div>
@@ -692,7 +674,6 @@
                     </div>
                 </div>
 
-                <!-- 購物子分類網格 -->   
                 <div class="category-grid" id="grid-expense-shopping">
                     <div class="category-item" onclick="changeSubGrid('main-expense')">
                         <div class="cate-icon-wrapper i-shopping"><i data-lucide="undo-2"></i></div>
@@ -764,7 +745,6 @@
                     </div>
                 </div>
 
-                <!-- 個人子分類網格 --> 
                 <div class="category-grid" id="grid-expense-personal">
                     <div class="category-item" onclick="changeSubGrid('main-expense')">
                         <div class="cate-icon-wrapper i-personal"><i data-lucide="undo-2"></i></div>
@@ -812,7 +792,6 @@
                     </div>
                 </div>
 
-                <!-- 醫療子分類網格 -->            
                 <div class="category-grid" id="grid-expense-medical">
                     <div class="category-item" onclick="changeSubGrid('main-expense')">
                         <div class="cate-icon-wrapper i-medical"><i data-lucide="undo-2"></i></div>
@@ -852,7 +831,6 @@
                     </div>
                 </div>
 
-                <!-- 家居子分類網格 -->                    
                 <div class="category-grid" id="grid-expense-home">
                     <div class="category-item" onclick="changeSubGrid('main-expense')">
                         <div class="cate-icon-wrapper i-home"><i data-lucide="undo-2"></i></div>
@@ -924,7 +902,6 @@
                     </div>
                 </div>
 
-                <!-- 家庭子分類網格 -->                
                 <div class="category-grid" id="grid-expense-family">
                     <div class="category-item" onclick="changeSubGrid('main-expense')">
                         <div class="cate-icon-wrapper i-family"><i data-lucide="undo-2"></i></div>
@@ -956,7 +933,6 @@
                     </div>
                 </div>
 
-                <!-- 生活子分類網格 -->                
                 <div class="category-grid" id="grid-expense-life">
                     <div class="category-item" onclick="changeSubGrid('main-expense')">
                         <div class="cate-icon-wrapper i-life"><i data-lucide="undo-2"></i></div>
@@ -984,7 +960,6 @@
                     </div>
                 </div>
 
-                <!-- 學習子分類網格 --> 
                 <div class="category-grid" id="grid-expense-learn">
                     <div class="category-item" onclick="changeSubGrid('main-expense')">
                         <div class="cate-icon-wrapper i-learn"><i data-lucide="undo-2"></i></div>
@@ -1028,7 +1003,6 @@
                     </div>
                 </div>
 
-                <!-- 收入分類網格 -->
                 <div class="category-grid" id="grid-income">
                     <div class="category-item" onclick="selectCategory('薪水', 'income')">
                         <div class="cate-icon-wrapper i-income-gold"><i data-lucide="dollar-sign"></i></div>
@@ -1072,7 +1046,6 @@
                     </div>
                 </div>
 
-                <!-- 轉帳分類網格 -->                
                 <div class="category-grid" id="grid-transfer">
                     <div class="category-item" onclick="selectCategory('轉帳')">
                         <div class="cate-icon-wrapper i-transfer-orange"><i data-lucide="arrow-left-right"></i></div>
@@ -1092,7 +1065,6 @@
                     </div>
                 </div>
 
-                <!-- 應收款項分類網格 -->                     
                 <div class="category-grid" id="grid-receivable">
                     <div class="category-item" onclick="selectCategory('借出')">
                         <div class="cate-icon-wrapper i-receivable-gold"><i data-lucide="hand-coins"></i></div>
@@ -1108,7 +1080,6 @@
                     </div>
                 </div>
 
-                <!-- 應付款項分類網格 -->
                 <div class="category-grid" id="grid-payable">
                     <div class="category-item" onclick="selectCategory('借入')">
                         <div class="cate-icon-wrapper i-payable-red"><i data-lucide="hand-coins"></i></div>
