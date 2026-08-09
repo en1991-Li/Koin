@@ -191,54 +191,13 @@
             </div>
 
             <div class="content-scroll no-scrollbar" style="padding: 15px;">
-                <!-- 視圖 A：預算設定 -->
-                <div id="proj-view-budget">
-                    <div style="display: flex; justify-content: space-between; align-items: center; background: #1c1c28; padding: 10px 16px; border-radius: 12px; margin-bottom: 15px; font-size: 14px; font-weight: 600;">
-                        <i data-lucide="chevron-left" style="cursor: pointer; width: 18px;" onclick="changeProjectDetailMonth(-1)"></i>
-                        <span id="proj-detail-date-range">2026/08/01 － 2026/08/31</span>
-                        <i data-lucide="chevron-right" style="cursor: pointer; width: 18px;" onclick="changeProjectDetailMonth(1)"></i>
-                    </div>
-
-                    <div class="form-group" style="background: #1c1c28; border-radius: 16px; padding: 12px 16px; margin-bottom: 20px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
-                            <span style="color: #8e8e93;">出帳 <span id="proj-detail-out-count" style="background: rgba(251,113,133,0.2); color: #fb7185; padding: 1px 6px; border-radius: 10px; font-size: 11px;">0</span></span>
-                            <span style="color: #fb7185; font-weight: 700;" id="proj-detail-out-total">-$0</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
-                            <span style="color: #8e8e93;">入帳 <span id="proj-detail-in-count" style="background: rgba(74,222,128,0.2); color: #4ade80; padding: 1px 6px; border-radius: 10px; font-size: 11px;">0</span></span>
-                            <span style="color: #4ade80; font-weight: 700;" id="proj-detail-in-total">$0</span>
-                        </div>
-                        <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; display: flex; justify-content: space-between; font-size: 14px;">
-                            <span style="color: #8e8e93;">總計 <span id="proj-detail-total-count" style="background: rgba(167,139,250,0.2); color: #a78bfa; padding: 1px 6px; border-radius: 10px; font-size: 11px;">0</span></span>
-                            <span style="color: #a78bfa; font-weight: 700;" id="proj-detail-net-total">-$0</span>
-                        </div>
-                    </div>
-
-                    <div style="color: #a78bfa; font-size: 13px; font-weight: 700; margin-bottom: 8px; padding-left: 4px;">專案預算</div>
-                    <div class="form-group" style="background: #1c1c28; border-radius: 16px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="switchProjectDetailTab('transactions')">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div class="cate-icon-wrapper i-home" style="width: 40px; height: 40px; margin: 0;">
-                                <i data-lucide="piggy-bank"></i>
-                            </div>
-                            <div>
-                                <div style="font-size: 15px; font-weight: 600; color: #fff;" id="proj-detail-budget-name">生活開銷</div>
-                                <div style="font-size: 11px; color: #8e8e93;" id="proj-detail-budget-sub"><span id="proj-detail-budget-count">0</span> 筆記錄</div>
-                            </div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div style="color: #fb7185; font-size: 16px; font-weight: 700;" id="proj-detail-budget-amount">$0</div>
-                            <div style="font-size: 10px; color: #8e8e93;">未分配</div>
-                        </div>
-                    </div>
-
-                    <div id="proj-detail-categories-container"></div>
-                </div>
-                  <!-- 視圖 B：交易明細列表 -->
+                
+<!-- 視圖 A：交易明細列表 -->
 <div id="proj-view-transactions" style="display: none;">
     <div id="proj-detail-transactions-container"></div>
 </div>
 
-<!-- 視圖 C：預算設定表單 (點擊預算設定時展開) -->
+<!-- 視圖B：預算設定表單 (點擊預算設定時展開) -->
 <div id="proj-view-budget-config" style="display: none;"></div>
         </section>
 
