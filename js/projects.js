@@ -326,33 +326,129 @@ function renderProjectDetailView() {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// 當前專案明細頁籤狀態 ('budget' 或 'transactions')
-let currentProjectDetailTab = 'budget';
+// 全域狀態：目前專案頁籤 ('budget' | 'transactions' | 'budget-config')
+let currentProjectDetailTab = 'transactions';
 
 /**
- * 切換專案明細頁籤
+ * 切換專案明細頁籤（交易明細 vs 預算設定）
  */
 function switchProjectDetailTab(tabType) {
     currentProjectDetailTab = tabType;
     
-    const tabBudget = document.getElementById('tab-proj-budget');
     const tabTrans = document.getElementById('tab-proj-trans');
+    const tabBudget = document.getElementById('tab-proj-budget');
+    
     const viewBudget = document.getElementById('proj-view-budget');
     const viewTrans = document.getElementById('proj-view-transactions');
+    const viewConfig = document.getElementById('proj-view-budget-config');
+
+    // 清除頁籤高亮
+    if (tabTrans) tabTrans.classList.remove('active');
+    if (tabBudget) tabBudget.classList.remove('active');
+
+    // 隱藏所有視圖
+    if (viewBudget) viewBudget.style.display = 'none';
+    if (viewTrans) viewTrans.style.display = 'none';
+    if (viewConfig) viewConfig.style.display = 'none';
 
     if (tabType === 'transactions') {
-        if (tabBudget) tabBudget.classList.remove('active');
         if (tabTrans) tabTrans.classList.add('active');
-        if (viewBudget) viewBudget.style.display = 'none';
         if (viewTrans) viewTrans.style.display = 'block';
-        
-        renderProjectTransactionsList(); // 渲染按日期分組的記帳列表
-    } else {
-        if (tabTrans) tabTrans.classList.remove('active');
+        renderProjectTransactionsList(); // 渲染專案記帳項目明細
+    } else if (tabType === 'budget-config') {
         if (tabBudget) tabBudget.classList.add('active');
-        if (viewTrans) viewTrans.style.display = 'none';
+        if (viewConfig) viewConfig.style.display = 'block';
+        renderProjectBudgetConfigView(); // 渲染預算詳細設定表單
+    } else {
+        if (tabBudget) tabBudget.classList.add('active');
         if (viewBudget) viewBudget.style.display = 'block';
     }
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+/**
+ * 預算設定（表單設定）畫面動態渲染
+ */
+function renderProjectBudgetConfigView() {
+    const configContainer = document.getElementById('proj-view-budget-config');
+    if (!configContainer) return;
+
+    const projects = JSON.parse(localStorage.getItem('koin_projects') || '[]');
+    const proj = projects.find(p => p.name === currentDetailProjectName) || {
+        name: currentDetailProjectName,
+        currency: 'TWD',
+        budget: 0
+    };
+
+    configContainer.innerHTML = `
+        <div class="add-acc-hero" style="padding: 20px 0 10px;">
+            <div class="icon-box" style="background: #2c2c3e; width: 70px; height: 70px; border-radius: 50%; margin-bottom: 0;">
+                <i data-lucide="wine" style="width: 36px; height: 36px; color: #fff;"></i>
+            </div>
+        </div>
+
+        <div class="form-group" style="background: #1c1c28; border-radius: 20px; padding: 0 16px; margin-top: 15px;">
+            <div class="form-row">
+                <label style="color: #8e8e93; font-size: 14px;">預算類型</label>
+                <span style="color: #8e8e93; font-size: 14px;">專案</span>
+            </div>
+            <div class="form-row">
+                <label style="font-size: 15px;">預算名稱</label>
+                <span style="font-size: 15px; color: #fff;">${proj.name}</span>
+            </div>
+            <div class="form-row">
+                <label style="font-size: 15px;">主幣種</label>
+                <span style="font-size: 15px; color: #8e8e93;">${proj.currency || 'TWD'}</span>
+            </div>
+            <div class="form-row">
+                <label style="font-size: 15px;">預算編列</label>
+                <span style="font-size: 15px; color: #f59e0b; font-weight: 700;">$${(proj.budget || 0).toLocaleString()}</span>
+            </div>
+            <div class="form-row">
+                <label style="font-size: 15px;">預算提醒</label>
+                <span style="font-size: 14px; color: #8e8e93;">小於 30%</span>
+            </div>
+            <div class="form-row">
+                <label style="font-size: 15px;">專案流入併入預算</label>
+                <label class="switch">
+                    <input type="checkbox" id="cfg-proj-in-flow">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="form-row">
+                <label style="font-size: 15px;">累積上期剩餘預算</label>
+                <label class="switch">
+                    <input type="checkbox" id="cfg-proj-rollover">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="form-row">
+                <label style="font-size: 15px;">每日預算</label>
+                <label class="switch">
+                    <input type="checkbox" id="cfg-proj-daily">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div style="padding: 15px 0;">
+                <textarea placeholder="備註" style="width: 100%; background: #2c2c3e; border: none; border-radius: 12px; color: white; padding: 12px; min-height: 80px; outline: none; resize: none; font-size: 14px;"></textarea>
+            </div>
+        </div>
+
+        <div style="background: #1c1c28; border-radius: 16px; padding: 12px 16px; margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="cate-icon-wrapper i-home" style="width: 36px; height: 36px; margin: 0;">
+                    <i data-lucide="piggy-bank"></i>
+                </div>
+                <div>
+                    <div style="font-size: 14px; font-weight: 600; color: #fff;">${proj.name}</div>
+                    <div style="font-size: 11px; color: #8e8e93;">36 筆記錄</div>
+                </div>
+            </div>
+            <span style="color: #fb7185; font-weight: 700; font-size: 15px;">$4,750</span>
+        </div>
+    `;
 
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
