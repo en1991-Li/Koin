@@ -326,42 +326,94 @@ function renderProjectDetailView() {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// 全域狀態：目前專案頁籤 ('budget' | 'transactions' | 'budget-config')
-let currentProjectDetailTab = 'transactions';
+// 全域層級與頁籤狀態 ('main' | 'transactions' | 'budget-config')
+let currentProjectViewLevel = 'main';
 
 /**
- * 切換專案明細頁籤（交易明細 vs 預算設定）
+ * 開啟專案明細頁 (第一層：預設開啟主預算列表)
+ */
+function openProjectDetail(projectName) {
+    currentDetailProjectName = projectName;
+    currentProjectViewLevel = 'main';
+    
+    // 隱藏第二層頁籤
+    const subTabs = document.getElementById('proj-detail-sub-tabs');
+    if (subTabs) subTabs.style.display = 'none';
+
+    // 顯隱對應視圖
+    document.getElementById('proj-view-main-budget').style.display = 'block';
+    document.getElementById('proj-view-transactions').style.display = 'none';
+    document.getElementById('proj-view-budget-config').style.display = 'none';
+
+    renderProjectDetailView(); // 繪製主列表
+    showPage('page-project-detail');
+}
+
+/**
+ * 進入第二層：交易明細 / 預算設定畫面
+ */
+function enterProjectSubLevel(targetTab) {
+    currentProjectViewLevel = targetTab;
+
+    // 顯示第二層頁籤
+    const subTabs = document.getElementById('proj-detail-sub-tabs');
+    if (subTabs) subTabs.style.display = 'flex';
+
+    // 隱藏第一層主列表
+    document.getElementById('proj-view-main-budget').style.display = 'none';
+
+    switchProjectDetailTab(targetTab);
+}
+
+/**
+ * 處理專案明細頁頂部返回 `<` 點擊動作
+ */
+function handleProjectDetailBack() {
+    if (currentProjectViewLevel === 'main') {
+        // 如果在第一層，返回專案總覽頁
+        showPage('page-projects');
+    } else {
+        // 如果在第二層，返回第一層主預算列表
+        enterProjectSubLevelMain();
+    }
+}
+
+function enterProjectSubLevelMain() {
+    currentProjectViewLevel = 'main';
+    const subTabs = document.getElementById('proj-detail-sub-tabs');
+    if (subTabs) subTabs.style.display = 'none';
+
+    document.getElementById('proj-view-main-budget').style.display = 'block';
+    document.getElementById('proj-view-transactions').style.display = 'none';
+    document.getElementById('proj-view-budget-config').style.display = 'none';
+}
+
+/**
+ * 第二層頁籤切換：交易明細 vs 預算設定
  */
 function switchProjectDetailTab(tabType) {
-    currentProjectDetailTab = tabType;
-    
+    currentProjectViewLevel = tabType;
+
     const tabTrans = document.getElementById('tab-proj-trans');
-    const tabBudget = document.getElementById('tab-proj-budget');
-    
-    const viewBudget = document.getElementById('proj-view-budget');
+    const tabBudgetCfg = document.getElementById('tab-proj-budget-cfg');
+
     const viewTrans = document.getElementById('proj-view-transactions');
-    const viewConfig = document.getElementById('proj-view-budget-config');
+    const viewCfg = document.getElementById('proj-view-budget-config');
 
-    // 清除頁籤高亮
     if (tabTrans) tabTrans.classList.remove('active');
-    if (tabBudget) tabBudget.classList.remove('active');
+    if (tabBudgetCfg) tabBudgetCfg.classList.remove('active');
 
-    // 隱藏所有視圖
-    if (viewBudget) viewBudget.style.display = 'none';
     if (viewTrans) viewTrans.style.display = 'none';
-    if (viewConfig) viewConfig.style.display = 'none';
+    if (viewCfg) viewCfg.style.display = 'none';
 
     if (tabType === 'transactions') {
         if (tabTrans) tabTrans.classList.add('active');
         if (viewTrans) viewTrans.style.display = 'block';
-        renderProjectTransactionsList(); // 渲染專案記帳項目明細
+        renderProjectTransactionsList(); // 渲染按日期歸類的交易項目
     } else if (tabType === 'budget-config') {
-        if (tabBudget) tabBudget.classList.add('active');
-        if (viewConfig) viewConfig.style.display = 'block';
-        renderProjectBudgetConfigView(); // 渲染預算詳細設定表單
-    } else {
-        if (tabBudget) tabBudget.classList.add('active');
-        if (viewBudget) viewBudget.style.display = 'block';
+        if (tabBudgetCfg) tabBudgetCfg.classList.add('active');
+        if (viewCfg) viewCfg.style.display = 'block';
+        renderProjectBudgetConfigView(); // 渲染預算參數設定表單
     }
 
     if (typeof lucide !== 'undefined') lucide.createIcons();
