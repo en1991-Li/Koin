@@ -270,15 +270,23 @@ input:checked + .slider:before { transform: translateX(20px); }
 /* =========================================
    6. 彈窗與選擇面板樣式 (Modals)
    ========================================= */
+/* 確保彈窗遮罩預設完全隱藏，避免覆蓋在專案總覽畫面上 */
 .modal-overlay {
-    position: absolute; 
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    display: flex; 
-    align-items: center; 
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: none; /* 預設完全不顯示 */
+    align-items: flex-end;
     justify-content: center;
-    z-index: 200;
-    backdrop-filter: blur(4px);
+    z-index: 9999;
+}
+
+/* 當加上 active 時才以 Flex 展現 */
+.modal-overlay.active {
+    display: flex !important;
 }
 
 .modal-content {
