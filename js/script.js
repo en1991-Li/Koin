@@ -25,11 +25,18 @@ document.addEventListener('DOMContentLoaded', () => {
 function showPage(pageId, element) {
     const target = document.getElementById(pageId);
     if (!target) return;
+
+    // 1. 切換頁面時，強制關閉畫面上殘留的所有彈窗 Modal
+    document.querySelectorAll('.modal-overlay').forEach(m => {
+        m.style.display = 'none';
+        m.classList.remove('active');
+    });
     
+    // 2. 切換 Page 顯示
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     target.classList.add('active');
 
-    // 處理導覽列 active 狀態
+    // 3. 處理導覽列 active 狀態
     document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
     
     const fabElement = document.getElementById('main-fab');
@@ -43,13 +50,14 @@ function showPage(pageId, element) {
         if (autoTab) autoTab.classList.add('active');
     }
 
-    // 更新 FAB 圖示
+    // 4. 更新 FAB 圖示
     const fabIcon = document.getElementById('fab-icon');
     if (fabIcon) {
         const iconName = (pageId === 'page-calendar' || pageId === 'page-add-record') ? 'plus' : 'layers';
         fabIcon.setAttribute('data-lucide', iconName);
     }
 
+    // 5. 重新渲染 Lucide 向量圖標
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
