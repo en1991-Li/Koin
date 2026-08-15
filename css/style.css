@@ -287,7 +287,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 #proj-period-modal.modal-overlay,
 #proj-date-modal.modal-overlay {
     display: none;
-    position: absolute !important;
+    position: fixed !important;
     top: 0;
     left: 0;
     right: 0;
