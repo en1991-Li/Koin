@@ -15,14 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // 確保一開 App 進入首頁或行事曆時，當天的明細預先載入
     renderDailyDetailsList();
     
-    // 4. 預設首頁狀態
+    // 4. 預設首頁狀態與表單初始化
     showPage('page-overview');
-
     resetRecordFormButtons();
 });
 
 /**
- * 核心頁面切換
+ * 核心頁面切換（加入自動清理彈窗機制）
  */
 function showPage(pageId, element) {
     const target = document.getElementById(pageId);
@@ -30,7 +29,7 @@ function showPage(pageId, element) {
 
     // 1. 切換頁面時，強制關閉畫面上殘留的所有彈窗 Modal
     document.querySelectorAll('.modal-overlay').forEach(m => {
-        m.style.display = 'none';
+        m.style.setProperty('display', 'none', 'important');
         m.classList.remove('active');
     });
     
@@ -63,9 +62,22 @@ function showPage(pageId, element) {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-// 全域變數
+// 全域狀態變數
 let currentActiveAccountIndex = null;
 let isAmountHidden = false; 
+
+let recordState = {
+    type: '支出',
+    currentInput: '0',    
+    prevInput: '0',       
+    operator: null,       
+    isCalculated: false,  
+    account: '錢包',
+    project: '生活開銷',
+    date: '2026/08/15',
+    time: '12:00',
+    advType: 'single'     
+};
 
 /**
  * 帳戶總覽列表排版
@@ -74,7 +86,9 @@ function renderAccountOverview() {
     const listContainer = document.getElementById('account-list');
     if (!listContainer) return;
 
-    const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
+    const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [
+        { name: '錢包', amount: 0, group: '現金', isCredit: false, id: 1 }
+    ];
     listContainer.innerHTML = ''; 
 
     let totalBalance = 0;
@@ -214,7 +228,7 @@ function changeSubGrid(target) {
 }
 
 /**
- * 點擊分類圖標後，隱藏網格並展示單個圖標卡片畫面（完美連動）
+ * 點擊分類圖標後，隱藏網格並展示單個圖標卡片畫面
  */
 function selectCategory(categoryName, parentType) {
     if (typeof recordState !== 'undefined') {
@@ -321,19 +335,65 @@ function selectCategory(categoryName, parentType) {
 /**
  * 優化計算機即時同步，支援收入的正號 (+) 顯示
  */
-const originalPressCalc = pressCalc; 
-pressCalc = function(val) {
-    originalPressCalc(val); 
-    
+function toggleCalculator(show) {
+    const calc = document.getElementById('inline-calculator');
+    if (calc) calc.style.display = show ? 'block' : 'none';
+}
+
+function pressCalc(val) {
     const display = document.getElementById('record-amount-display');
-    const currentAmt = display ? display.innerText : '0';
-    const cardAmountSub = document.getElementById('selected-card-amount-sub');
+    const indicator = document.getElementById('calc-operator-indicator');
+    if (!display) return;
+
+    if (val === 'C') {
+        recordState.currentInput = '0';
+        recordState.prevInput = '0';
+        recordState.operator = null;
+        if (indicator) indicator.innerText = '';
+    } else if (val === 'backspace') {
+        if (recordState.currentInput.length > 1) {
+            recordState.currentInput = recordState.currentInput.slice(0, -1);
+        } else {
+            recordState.currentInput = '0';
+        }
+    } else if (['+', '-', '×', '÷'].includes(val)) {
+        recordState.prevInput = recordState.currentInput;
+        recordState.operator = val;
+        if (indicator) indicator.innerText = val;
+        recordState.currentInput = '0';
+    } else if (val === 'done') {
+        if (recordState.operator && recordState.prevInput !== '0') {
+            let num1 = parseFloat(recordState.prevInput);
+            let num2 = parseFloat(recordState.currentInput);
+            let res = 0;
+            if (recordState.operator === '+') res = num1 + num2;
+            if (recordState.operator === '-') res = num1 - num2;
+            if (recordState.operator === '×') res = num1 * num2;
+            if (recordState.operator === '÷') res = num2 !== 0 ? num1 / num2 : 0;
+            
+            recordState.currentInput = String(Math.max(0, Math.round(res)));
+            recordState.operator = null;
+            if (indicator) indicator.innerText = '';
+        }
+        toggleCalculator(false);
+    } else {
+        if (recordState.currentInput === '0' || recordState.isCalculated) {
+            recordState.currentInput = val;
+            recordState.isCalculated = false;
+        } else {
+            recordState.currentInput += val;
+        }
+    }
     
+    display.innerText = parseFloat(recordState.currentInput).toLocaleString();
+
+    // 同步更新卡片金額展示
+    const cardAmountSub = document.getElementById('selected-card-amount-sub');
     if (cardAmountSub) {
         const isIncome = (recordState.type === '收入');
-        cardAmountSub.innerText = `${isIncome ? '+' : ''}$${currentAmt}`;
+        cardAmountSub.innerText = `${isIncome ? '+' : ''}$${display.innerText}`;
     }
-};
+}
 
 /**
  * 重置分類選擇狀態
@@ -368,7 +428,9 @@ function saveRecord() {
     const currentRecordType = recordState.type || '支出';
     const currentCategory = recordState.category || '未分類';
 
-    let localAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
+    let localAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [
+        { name: '錢包', amount: 0, group: '現金', isCredit: false, id: 1 }
+    ];
     let targetAccount = localAccounts.find(acc => acc.name === currentAccountName);
     
     if (targetAccount) {
@@ -385,6 +447,7 @@ function saveRecord() {
         type: currentRecordType,                             
         category: currentCategory,                            
         account: currentAccountName,                         
+        project: recordState.project || '生活開銷',
         amount: amount,                                      
         date: recordState.date || new Date().toLocaleDateString(), 
         time: recordState.time || '12:00',                   
@@ -463,7 +526,7 @@ function openAccountDetail(index) {
 }
 
 function switchDetailTab(tabIndex) {
-    const tabs = document.querySelectorAll('.detail-tab');
+    const tabs = document.querySelectorAll('#page-account-detail .detail-tab');
     const transContent = document.getElementById('tab-content-transactions');
     const infoContent = document.getElementById('tab-content-info');
 
@@ -472,11 +535,11 @@ function switchDetailTab(tabIndex) {
     });
 
     if (tabIndex === 0) {
-        transContent.style.display = 'block';
-        infoContent.style.display = 'none';
+        if (transContent) transContent.style.display = 'block';
+        if (infoContent) infoContent.style.display = 'none';
     } else {
-        transContent.style.display = 'none';
-        infoContent.style.display = 'block';
+        if (transContent) transContent.style.display = 'none';
+        if (infoContent) infoContent.style.display = 'block';
     }
 }
 
@@ -516,282 +579,6 @@ function selectGroup(name) {
         display.innerHTML = `${name} <i data-lucide="chevron-right" class="s-icon"></i>`;
     }
     closeModal('group-picker-modal');
-}
-
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('detail-tab')) {
-        document.querySelectorAll('.detail-tab').forEach(tab => tab.classList.remove('active'));
-        e.target.classList.add('active');
-    }
-});
-
-let recordState = {
-    type: '支出',
-    currentInput: '0',    
-    prevInput: '0',       
-    operator: null,       
-    isCalculated: false,  
-    account: '錢包',
-    project: '生活開銷',
-    date: '2026/06/20',
-    time: '13:57',
-    advType: 'single'     
-};
-
-function toggleCalculator(show) {
-    const calc = document.getElementById('inline-calculator');
-    if (calc) calc.style.display = show ? 'block' : 'none';
-}
-
-function pressCalc(val) {
-    const display = document.getElementById('record-amount-display');
-    const indicator = document.getElementById('calc-operator-indicator');
-    if (!display) return;
-
-    if (val === 'C') {
-        recordState.currentInput = '0';
-        recordState.prevInput = '0';
-        recordState.operator = null;
-        if (indicator) indicator.innerText = '';
-    } else if (val === 'backspace') {
-        if (recordState.currentInput.length > 1) {
-            recordState.currentInput = recordState.currentInput.slice(0, -1);
-        } else {
-            recordState.currentInput = '0';
-        }
-    } else if (['+', '-', '×', '÷'].includes(val)) {
-        recordState.prevInput = recordState.currentInput;
-        recordState.operator = val;
-        if (indicator) indicator.innerText = val;
-        recordState.currentInput = '0';
-    } else if (val === 'done') {
-        if (recordState.operator && recordState.prevInput !== '0') {
-            let num1 = parseFloat(recordState.prevInput);
-            let num2 = parseFloat(recordState.currentInput);
-            let res = 0;
-            if (recordState.operator === '+') res = num1 + num2;
-            if (recordState.operator === '-') res = num1 - num2;
-            if (recordState.operator === '×') res = num1 * num2;
-            if (recordState.operator === '÷') res = num2 !== 0 ? num1 / num2 : 0;
-            
-            recordState.currentInput = String(Math.max(0, Math.round(res)));
-            recordState.operator = null;
-            if (indicator) indicator.innerText = '';
-        }
-        toggleCalculator(false);
-    } else {
-        if (recordState.currentInput === '0' || recordState.isCalculated) {
-            recordState.currentInput = val;
-            recordState.isCalculated = false;
-        } else {
-            recordState.currentInput += val;
-        }
-    }
-    display.innerText = parseFloat(recordState.currentInput).toLocaleString();
-}
-
-function openRecordAccountPicker() {
-    filterRecordAccounts('');
-    openModal('record-account-modal');
-}
-
-function filterRecordAccounts(keyword) {
-    const container = document.getElementById('record-account-options');
-    if (!container) return;
-    container.innerHTML = '';
-
-    const accounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
-    const filtered = accounts.filter(acc => acc.name.toLowerCase().includes(keyword.toLowerCase()));
-
-    if (filtered.length === 0) {
-        container.innerHTML = '<div class="option-item" style="color:#8a8a8e; text-align:center;">找不到相符帳戶</div>';
-        return;
-    }
-
-    filtered.forEach(acc => {
-        container.insertAdjacentHTML('beforeend', `
-            <div class="option-item" onclick="selectRecordAccount('${acc.name}')">
-                <span>${acc.name} <small style="color:#8a8a8e; margin-left:5px;">(${acc.group})</small></span>
-            </div>
-        `);
-    });
-}
-
-function selectRecordAccount(name) {
-    recordState.account = name;
-    document.getElementById('btn-select-account').innerText = name;
-    closeModal('record-account-modal');
-}
-
-function openRecordProjectPicker() {
-    filterRecordProjects('');
-    openModal('record-project-modal');
-}
-
-function filterRecordProjects(keyword) {
-    const container = document.getElementById('record-project-options');
-    if (!container) return;
-    container.innerHTML = '';
-
-    const projects = JSON.parse(localStorage.getItem('koin_projects')) || [];
-    
-    if ('生活開銷'.includes(keyword)) {
-        container.insertAdjacentHTML('beforeend', `<div class="option-item" onclick="selectRecordProject('生活開銷')">生活開銷</div>`);
-    }
-
-    const filtered = projects.filter(proj => proj.name.toLowerCase().includes(keyword.toLowerCase()));
-    filtered.forEach(proj => {
-        container.insertAdjacentHTML('beforeend', `
-            <div class="option-item" onclick="selectRecordProject('${proj.name}')">${proj.name}</div>
-        `);
-    });
-}
-
-function selectRecordProject(name) {
-    recordState.project = name;
-    document.getElementById('btn-select-project').innerText = name;
-    closeModal('record-project-modal');
-}
-
-/**
- * 進階多頁籤切換
- */
-function switchAdvancedTab(tabType) {
-    recordState.advType = tabType;
-    document.querySelectorAll('#record-advanced-modal .detail-tab').forEach(t => t.classList.remove('active'));
-    
-    document.getElementById(`adv-pane-single`).style.display = 'none';
-    document.getElementById(`adv-pane-cycle`).style.display = 'none';
-    document.getElementById(`adv-pane-install`).style.display = 'none';
-
-    if (tabType === 'single') {
-        document.getElementById('adv-tab-single').classList.add('active');
-        document.getElementById('adv-pane-single').style.display = 'block';
-    } else if (tabType === 'cycle') {
-        document.getElementById('adv-tab-cycle').classList.add('active');
-        document.getElementById('adv-pane-cycle').style.display = 'block';
-    } else if (tabType === 'install') {
-        document.getElementById('adv-tab-install').classList.add('active');
-        document.getElementById('adv-pane-install').style.display = 'block';
-    }
-}
-
-// 宣告日曆當前展示的年月變數
-let calendarDisplayDate = new Date();
-
-/**
- * 1. 點擊「今天」按鈕時觸發：打開並初始化日曆
- */
-function openRecordCalendar() {
-    calendarDisplayDate = new Date(); // 每次打開預設回到系統當前月份
-    renderDynamicRecordCalendar();
-    openModal('record-calendar-modal');
-}
-
-/**
- * 2. 切換上個月/下個月
- */
-function changeRecordMonth(direction) {
-    calendarDisplayDate.setMonth(calendarDisplayDate.getMonth() + direction);
-    renderDynamicRecordCalendar();
-}
-
-/**
- * 3. 動態核心演算法：渲染月曆格子
- */
-function renderDynamicRecordCalendar() {
-    const year = calendarDisplayDate.getFullYear();
-    const month = calendarDisplayDate.getMonth(); // 0 ~ 11
-
-    // 更新網頁彈窗上的年月標題
-    const titleTitle = document.getElementById('calendar-month-year-title');
-    if (titleTitle) {
-        titleTitle.innerText = `${year} 年 ${String(month + 1).padStart(2, '0')} 月`;
-    }
-
-    const gridContainer = document.getElementById('record-calendar-grid');
-    if (!gridContainer) return;
-    gridContainer.innerHTML = ''; // 清空舊格子
-
-    // 取得這個月的第一天是星期幾 (0 = 週日, 1 = 週一...)
-    const firstDayIndex = new Date(year, month, 1).getDay();
-    // 取得這個月總共有幾天
-    const totalDays = new Date(year, month + 1, 0).getDate();
-
-    // A. 渲染開頭的空白格子 (填補第一天之前的星期空隙)
-    for (let i = 0; i < firstDayIndex; i++) {
-        gridContainer.insertAdjacentHTML('beforeend', `<div style="padding: 8px;"></div>`);
-    }
-
-    // B. 動態渲染 1 號到最後一天的實體格子
-    const today = new Date();
-    for (let day = 1; day <= totalDays; day++) {
-        // 檢查這一格是不是「今天」，是的話加上高亮外圈
-        const isToday = (year === today.getFullYear() && month === today.getMonth() && day === today.getDate());
-        const todayStyle = isToday ? 'border: 2px solid #5d5dff; font-weight: bold; color: #5d5dff;' : '';
-
-        const dateStr = `${year}/${String(month + 1).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
-        
-        const cellHTML = `
-            <div onclick="selectRecordCalendarDate('${dateStr}', '${month + 1}/${day}')" 
-                 style="padding: 8px 0; cursor: pointer; border-radius: 50%; font-size: 14px; transition: background 0.2s; ${todayStyle}"
-                 class="calendar-day-cell">
-                ${day}
-            </div>
-        `;
-        gridContainer.insertAdjacentHTML('beforeend', cellHTML);
-    }
-}
-
-/**
- * 4. 點擊日曆格子：反填資料並關閉彈窗
- */
-function selectRecordCalendarDate(fullDate, displayDate) {
-    recordState.date = fullDate; // 存入全域記帳狀態
-    
-    // 更新新增記錄畫面的按鈕文字
-    const dateBtn = document.getElementById('btn-select-date');
-    if (dateBtn) {
-        dateBtn.innerText = displayDate; 
-    }
-    
-    closeModal('record-calendar-modal');
-}
-
-// 1. 打開時間選擇器，並自動帶入當前時間
-function openRecordTimePicker() {
-    const now = new Date();
-    const hrInput = document.getElementById('input-record-hour');
-    const minInput = document.getElementById('input-record-minute');
-    
-    if (hrInput && minInput) {
-        hrInput.value = now.getHours();
-        minInput.value = now.getMinutes();
-    }
-    
-    openModal('record-time-modal');
-}
-
-// 2. 按下確定，將時間反填回「現在」按鈕上
-function confirmRecordTime() {
-    const hr = document.getElementById('input-record-hour').value;
-    const min = document.getElementById('input-record-minute').value;
-    
-    // 格式化為 HH:MM (例如 09:05)
-    const formattedTime = `${String(hr).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
-    
-    // 存入全域變數
-    if (typeof recordState !== 'undefined') {
-        recordState.time = formattedTime;
-    }
-    
-    // 更新按鈕文字
-    const timeBtn = document.getElementById('btn-select-time');
-    if (timeBtn) {
-        timeBtn.innerText = formattedTime;
-    }
-    
-    closeModal('record-time-modal');
 }
 
 function setRecordType(type, el) {
@@ -836,7 +623,7 @@ function handleFabClick(element) {
             }, 50); 
         }
     } else {
-        resetRecordFormButtons(); // 進入新增頁面時確保內容顯示
+        resetRecordFormButtons();
         showPage('page-add-record', element);
     }
 }
@@ -850,96 +637,24 @@ function updateCalendarHeaderToToday() {
     if (headerTitle) headerTitle.innerText = `${year}/${month}`;
 }
 
-function selectProjCurrency(currency) {
-    const el = document.getElementById('selected-proj-currency');
-    if (el) el.innerHTML = `${currency} <i data-lucide="chevron-right" class="s-icon"></i>`;
-    closeModal('proj-currency-modal');
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-}
-
-function selectProjType(type) {
-    const el = document.getElementById('selected-proj-type');
-    if (el) el.innerHTML = `${type} <i data-lucide="chevron-right" class="s-icon"></i>`;
-    closeModal('proj-type-modal');
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-}
-
-function selectProjPeriod(period) {
-    const el = document.getElementById('selected-proj-period');
-    if (el) el.innerHTML = `${period} <i data-lucide="chevron-right" class="s-icon"></i>`;
-    closeModal('proj-period-modal');
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-}
-
-function openProjDatePicker() {
-    const container = document.getElementById('proj-date-options');
-    if (container) {
-        container.innerHTML = '';
-        for (let i = 1; i <= 30; i++) {
-            container.insertAdjacentHTML('beforeend', `<div class="option-item" onclick="selectProjDate('第 ${i} 天')">第 ${i} 天</div>`);
-        }
-        container.insertAdjacentHTML('beforeend', `<div class="option-item" onclick="selectProjDate('月底')">月底</div>`);
-    }
-    openModal('proj-date-modal');
-}
-
-function selectProjDate(dateText) {
-    const el = document.getElementById('selected-proj-date');
-    if (el) el.innerHTML = `${dateText} <i data-lucide="chevron-right" class="s-icon"></i>`;
-    closeModal('proj-date-modal');
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-}
-
-function saveProject() {
-    const name = document.getElementById('proj-name').value.trim();
-    const note = document.getElementById('proj-note').value.trim();
-    
-    if (!name) return alert("請輸入專案名稱");
-
-    const currency = document.getElementById('selected-proj-currency').textContent.trim();
-    const type = document.getElementById('selected-proj-type').textContent.trim();
-    const period = document.getElementById('selected-proj-period').textContent.trim();
-    const startDate = document.getElementById('selected-proj-date').textContent.trim();
-    
-    const autoBudget = document.getElementById('proj-auto-budget').checked;
-    const showHome = document.getElementById('proj-show-home').checked;
-
-    const newProject = {
-        id: Date.now(),
-        name: name,
-        currency: currency,
-        type: type,
-        period: period,
-        startDate: startDate,
-        autoBudget: autoBudget,
-        showHome: showHome,
-        note: note,
-        icon: "piggy-bank",
-        amount: 0 
-    };
-
-    const projects = JSON.parse(localStorage.getItem('koin_projects') || '[]');
-    projects.push(newProject);
-    localStorage.setItem('koin_projects', JSON.stringify(projects));
-
-    if (typeof renderProjectsPage === 'function') renderProjectsPage();
-    
-    document.getElementById('proj-name').value = '';
-    document.getElementById('proj-note').value = '';
-    showPage('page-projects');
-}
-
+// ==========================================
+// 模組彈窗共用控制
+// ==========================================
 function openModal(id) {
     const modal = document.getElementById(id);
     if (modal) {
-        modal.style.display = 'flex';
+        modal.style.setProperty('display', 'flex', 'important');
+        modal.classList.add('active');
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 }
 
 function closeModal(id) {
     const modal = document.getElementById(id);
-    if (modal) modal.style.display = 'none';
+    if (modal) {
+        modal.style.setProperty('display', 'none', 'important');
+        modal.classList.remove('active');
+    }
 }
 
 function handleMenuAction(action) {
@@ -1054,7 +769,7 @@ function handleSettingsToggleHide(isChecked) {
 }
 
 /**
- * 根據 LocalStorage 內的紀錄，動態渲染日曆頁面下方的每日交易明細（已同步全分類字典）
+ * 根據 LocalStorage 內的紀錄，動態渲染日曆頁面下方的每日交易明細
  */
 function renderDailyDetailsList() {
     const detailContainer = document.getElementById('daily-details-list');
@@ -1074,7 +789,7 @@ function renderDailyDetailsList() {
         '早餐': 'croissant', '午餐': 'utensils', '晚餐': 'soup', '點心': 'cookie', '飲料': 'cup-soda', '酒類': 'beer', '水果': 'grape', '宵夜': 'pizza', '礦泉水': 'glass-water',
         '加油費': 'fuel', '停車費': 'square-parking', '火車': 'train-front', '公車': 'bus-front', '捷運': 'train-front-tunnel', '悠遊卡': 'credit-card', '汽車': 'car-front', '計程車': 'car-taxi-front', '摩托車': 'motorbike', '單車': 'bike', '機票': 'plane', '船票': 'ship',
         '手遊': 'gamepad-2', '音樂': 'music', 'Netflix': 'monitor-play', '電影': 'clapperboard', '遊樂園': 'roller-coaster', '展覽': 'landmark', '運動': 'dumbbell',
-        '蝦皮購物': 'shopping-bag', 'momo購物': 'shopping-bag', '市場': 'shopping-cart', '衣物': 'shirt', '鞋子': 'sport-shoe', '配件': 'glasses', '包包': 'handbag', '美妝保養': 'mirror-round', '精品': 'gem', '禮物': 'gift', '電子產品': 'laptop', '應用軟體': 'app-window', 'UNIQLO': 'shirt', 'NET': 'shirt',
+        '蝦皮購物': 'shopping-bag', 'momo購物': 'shopping-bag', 'PChome24h': 'shopping-bag', '市場': 'shopping-cart', '衣物': 'shirt', '鞋子': 'sport-shoe', '配件': 'glasses', '包包': 'handbag', '美妝保養': 'mirror-round', '精品': 'gem', '禮物': 'gift', '電子產品': 'laptop', '應用軟體': 'app-window', 'UNIQLO': 'shirt', 'NET': 'shirt',
         '社交': 'handshake', '電信費': 'phone', '借款': 'coins', '投資': 'trending-up', '稅金': 'circle-dollar-sign', '保險': 'shield-check', '捐款': 'hand-heart', '寵物': 'dog', '彩券': 'receipt',
         '門診': 'stethoscope', '藥品': 'pill', '醫療用品': 'briefcase-medical', '打針': 'syringe', '住院': 'bed-single', '手術': 'slice', '健康檢查': 'clipboard-plus',
         '日常用品': 'soap-dispenser-droplet', '水費': 'droplets', '電費': 'zap', '燃料費': 'flame', '電話費': 'phone-call', '網路費': 'house-wifi', '房租': 'building', '洗衣費': 'washing-machine', '修繕費': 'wrench', '家具': 'sofa', '訂閱': 'newspaper', '家電': 'tv', '全聯': 'store', '屈臣氏': 'store', '康是美': 'store',
@@ -1153,4 +868,200 @@ function resetRecordFormButtons() {
     if (btnProj) btnProj.innerText = recordState.project || '生活開銷';
     if (btnDate) btnDate.innerText = '今天';
     if (btnTime) btnTime.innerText = '現在';
+}
+
+// ==========================================
+// 4 大選取模組：帳戶 / 專案 / 日期 / 時間
+// ==========================================
+
+// 1. 帳戶選取模組
+function openRecordAccountPicker() {
+    filterRecordAccounts('');
+    openModal('record-account-modal');
+}
+
+function filterRecordAccounts(keyword) {
+    const container = document.getElementById('record-account-options');
+    if (!container) return;
+    container.innerHTML = '';
+
+    let accounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
+    if (accounts.length === 0) {
+        accounts = [{ name: '錢包', group: '現金' }];
+    }
+
+    const filtered = accounts.filter(acc => acc.name.toLowerCase().includes(keyword.toLowerCase()));
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<div class="option-item" style="color:#8a8a8e; text-align:center; padding:15px;">找不到相符帳戶</div>';
+        return;
+    }
+
+    filtered.forEach(acc => {
+        container.insertAdjacentHTML('beforeend', `
+            <div class="option-item" onclick="selectRecordAccount('${acc.name}')" style="padding: 14px 16px; cursor: pointer; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+                <span>${acc.name}</span>
+                <small style="color: #8e8e93;">${acc.group || '現金'}</small>
+            </div>
+        `);
+    });
+}
+
+function selectRecordAccount(name) {
+    if (typeof recordState !== 'undefined') recordState.account = name;
+    const btn = document.getElementById('btn-select-account');
+    if (btn) btn.innerText = name;
+    closeModal('record-account-modal');
+}
+
+// 2. 專案選取模組
+function openRecordProjectPicker() {
+    filterRecordProjects('');
+    openModal('record-project-modal');
+}
+
+function filterRecordProjects(keyword) {
+    const container = document.getElementById('record-project-options');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const projects = JSON.parse(localStorage.getItem('koin_projects')) || [];
+
+    if ('生活開銷'.includes(keyword)) {
+        container.insertAdjacentHTML('beforeend', `
+            <div class="option-item" onclick="selectRecordProject('生活開銷')" style="padding: 14px 16px; cursor: pointer; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                生活開銷
+            </div>
+        `);
+    }
+
+    const filtered = projects.filter(proj => proj.name.toLowerCase().includes(keyword.toLowerCase()));
+    filtered.forEach(proj => {
+        if (proj.name !== '生活開銷') {
+            container.insertAdjacentHTML('beforeend', `
+                <div class="option-item" onclick="selectRecordProject('${proj.name}')" style="padding: 14px 16px; cursor: pointer; color: #ffffff; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    ${proj.name}
+                </div>
+            `);
+        }
+    });
+}
+
+function selectRecordProject(name) {
+    if (typeof recordState !== 'undefined') recordState.project = name;
+    const btn = document.getElementById('btn-select-project');
+    if (btn) btn.innerText = name;
+    closeModal('record-project-modal');
+}
+
+// 3. 動態日曆選取模組
+let calendarDisplayDate = new Date();
+
+function openRecordCalendar() {
+    calendarDisplayDate = new Date();
+    renderDynamicRecordCalendar();
+    openModal('record-calendar-modal');
+}
+
+function changeRecordMonth(direction) {
+    calendarDisplayDate.setMonth(calendarDisplayDate.getMonth() + direction);
+    renderDynamicRecordCalendar();
+}
+
+function renderDynamicRecordCalendar() {
+    const year = calendarDisplayDate.getFullYear();
+    const month = calendarDisplayDate.getMonth();
+
+    const titleEl = document.getElementById('calendar-month-year-title');
+    if (titleEl) {
+        titleEl.innerText = `${year} 年 ${String(month + 1).padStart(2, '0')} 月`;
+    }
+
+    const gridContainer = document.getElementById('record-calendar-grid');
+    if (!gridContainer) return;
+    gridContainer.innerHTML = '';
+
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    const totalDays = new Date(year, month + 1, 0).getDate();
+
+    for (let i = 0; i < firstDayIndex; i++) {
+        gridContainer.insertAdjacentHTML('beforeend', `<div></div>`);
+    }
+
+    const today = new Date();
+    for (let day = 1; day <= totalDays; day++) {
+        const isToday = (year === today.getFullYear() && month === today.getMonth() && day === today.getDate());
+        const todayStyle = isToday ? 'border: 2px solid #5d5dff; font-weight: bold; color: #5d5dff;' : 'color: #ffffff;';
+        const dateStr = `${year}/${String(month + 1).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
+        
+        gridContainer.insertAdjacentHTML('beforeend', `
+            <div onclick="selectRecordCalendarDate('${dateStr}', '${month + 1}/${day}')" 
+                 style="padding: 10px 0; cursor: pointer; border-radius: 50%; font-size: 14px; text-align: center; ${todayStyle}">
+                ${day}
+            </div>
+        `);
+    }
+}
+
+function selectRecordCalendarDate(fullDate, displayDate) {
+    if (typeof recordState !== 'undefined') recordState.date = fullDate;
+    const dateBtn = document.getElementById('btn-select-date');
+    if (dateBtn) dateBtn.innerText = displayDate;
+    closeModal('record-calendar-modal');
+}
+
+// 4. 時間選取模組
+function openRecordTimePicker() {
+    const now = new Date();
+    const hrInput = document.getElementById('input-record-hour');
+    const minInput = document.getElementById('input-record-minute');
+    
+    if (hrInput) hrInput.value = now.getHours();
+    if (minInput) minInput.value = now.getMinutes();
+    
+    openModal('record-time-modal');
+}
+
+function confirmRecordTime() {
+    const hrInput = document.getElementById('input-record-hour');
+    const minInput = document.getElementById('input-record-minute');
+    
+    const hr = hrInput ? hrInput.value : '12';
+    const min = minInput ? minInput.value : '00';
+    const formattedTime = `${String(hr).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+    
+    if (typeof recordState !== 'undefined') recordState.time = formattedTime;
+    
+    const timeBtn = document.getElementById('btn-select-time');
+    if (timeBtn) timeBtn.innerText = formattedTime;
+    
+    closeModal('record-time-modal');
+}
+
+// 5. 進階設定頁籤切換
+function switchAdvancedTab(tabType) {
+    recordState.advType = tabType;
+    document.querySelectorAll('#record-advanced-modal .detail-tab').forEach(t => t.classList.remove('active'));
+    
+    const paneSingle = document.getElementById('adv-pane-single');
+    const paneCycle = document.getElementById('adv-pane-cycle');
+    const paneInstall = document.getElementById('adv-pane-install');
+
+    if (paneSingle) paneSingle.style.display = 'none';
+    if (paneCycle) paneCycle.style.display = 'none';
+    if (paneInstall) paneInstall.style.display = 'none';
+
+    if (tabType === 'single') {
+        const tab = document.getElementById('adv-tab-single');
+        if (tab) tab.classList.add('active');
+        if (paneSingle) paneSingle.style.display = 'block';
+    } else if (tabType === 'cycle') {
+        const tab = document.getElementById('adv-tab-cycle');
+        if (tab) tab.classList.add('active');
+        if (paneCycle) paneCycle.style.display = 'block';
+    } else if (tabType === 'install') {
+        const tab = document.getElementById('adv-tab-install');
+        if (tab) tab.classList.add('active');
+        if (paneInstall) paneInstall.style.display = 'block';
+    }
 }
