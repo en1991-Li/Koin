@@ -71,17 +71,15 @@ function renderProjectsPage() {
 }
 
 /**
- * 開啟專案明細頁 (第一層：預設開啟主預算列表)
+ * 開啟專案明細頁 (第一層：主預算列表)
  */
 function openProjectDetail(projectName) {
     currentDetailProjectName = projectName;
     currentProjectViewLevel = 'main';
     
-    // 隱藏第二層專用頁籤
     const subTabs = document.getElementById('proj-detail-sub-tabs');
     if (subTabs) subTabs.style.display = 'none';
 
-    // 重置並顯示第一層視圖
     const mainView = document.getElementById('proj-view-main-budget');
     const transView = document.getElementById('proj-view-transactions');
     const configView = document.getElementById('proj-view-budget-config');
@@ -90,7 +88,7 @@ function openProjectDetail(projectName) {
     if (transView) transView.style.display = 'none';
     if (configView) configView.style.display = 'none';
 
-    renderProjectDetailView(); // 繪製第一層列表
+    renderProjectDetailView();
     showPage('page-project-detail');
 }
 
@@ -100,11 +98,9 @@ function openProjectDetail(projectName) {
 function enterProjectSubLevel(targetTab) {
     currentProjectViewLevel = targetTab;
 
-    // 顯示第二層標籤列
     const subTabs = document.getElementById('proj-detail-sub-tabs');
     if (subTabs) subTabs.style.display = 'flex';
 
-    // 隱藏第一層列表視圖
     const mainView = document.getElementById('proj-view-main-budget');
     if (mainView) mainView.style.display = 'none';
 
@@ -157,11 +153,11 @@ function switchProjectDetailTab(tabType) {
     if (tabType === 'transactions') {
         if (tabTrans) tabTrans.classList.add('active');
         if (viewTrans) viewTrans.style.display = 'block';
-        renderProjectTransactionsList(); // 渲染按日期歸類的交易項目
+        renderProjectTransactionsList();
     } else if (tabType === 'budget-config') {
         if (tabBudgetCfg) tabBudgetCfg.classList.add('active');
         if (viewCfg) viewCfg.style.display = 'block';
-        renderProjectBudgetConfigView(); // 渲染預算參數設定表單
+        renderProjectBudgetConfigView();
     }
 
     if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -186,7 +182,6 @@ function renderProjectDetailView() {
 
     if (titleEl) titleEl.innerText = currentDetailProjectName;
 
-    // 格式化日期區間
     const year = currentDetailProjectMonth.getFullYear();
     const month = currentDetailProjectMonth.getMonth() + 1;
     const lastDay = new Date(year, month, 0).getDate();
@@ -195,11 +190,9 @@ function renderProjectDetailView() {
         dateRangeEl.innerText = `${year}/${formattedMonth}/01 － ${year}/${formattedMonth}/${lastDay}`;
     }
 
-    // 撈出對應專案的交易紀錄
     const records = JSON.parse(localStorage.getItem('koin_records') || '[]');
     const projRecords = records.filter(r => (r.project || '生活開銷') === currentDetailProjectName);
 
-    // 計算出帳/入帳/總計
     let outTotal = 0, outCount = 0;
     let inTotal = 0, inCount = 0;
 
@@ -216,7 +209,6 @@ function renderProjectDetailView() {
 
     const netTotal = outTotal - inTotal;
 
-    // 更新 Hero 統計卡片
     if (document.getElementById('proj-detail-out-count')) document.getElementById('proj-detail-out-count').innerText = outCount;
     if (document.getElementById('proj-detail-out-total')) document.getElementById('proj-detail-out-total').innerText = `-$${outTotal.toLocaleString()}`;
     if (document.getElementById('proj-detail-in-count')) document.getElementById('proj-detail-in-count').innerText = inCount;
@@ -224,12 +216,10 @@ function renderProjectDetailView() {
     if (document.getElementById('proj-detail-total-count')) document.getElementById('proj-detail-total-count').innerText = projRecords.length;
     if (document.getElementById('proj-detail-net-total')) document.getElementById('proj-detail-net-total').innerText = `-$${netTotal.toLocaleString()}`;
 
-    // 更新專案預算 Hero 區塊
     if (document.getElementById('proj-detail-budget-name')) document.getElementById('proj-detail-budget-name').innerText = currentDetailProjectName;
     if (document.getElementById('proj-detail-budget-count')) document.getElementById('proj-detail-budget-count').innerText = projRecords.length;
     if (document.getElementById('proj-detail-budget-amount')) document.getElementById('proj-detail-budget-amount').innerText = `$${outTotal.toLocaleString()}`;
 
-    // 10 大主分類圖標與顏色映射表
     const categoryConfig = {
         '飲食': { icon: 'utensils', bg: 'i-income-gold' },
         '交通': { icon: 'car', bg: 'i-transport' },
@@ -271,7 +261,6 @@ function renderProjectDetailView() {
 
     let listHTML = '';
 
-    // 1. 未分配預算 (有交易紀錄)
     if (activeCategories.length > 0) {
         listHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; color: #8e8e93; font-size: 13px; font-weight: 700; margin-bottom: 8px; padding: 0 4px;">
@@ -307,7 +296,6 @@ function renderProjectDetailView() {
         listHTML += `</div>`;
     }
 
-    // 2. 未設定預算 (無交易紀錄)
     if (inactiveCategories.length > 0) {
         listHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; color: #8e8e93; font-size: 13px; font-weight: 700; margin-bottom: 8px; padding: 0 4px;">
@@ -653,4 +641,102 @@ function saveEditedProject() {
     renderProjectDetailView();
 
     closeEditProjectPage();
+}
+
+// ==========================================
+// 專案設定選取器與新增專案
+// ==========================================
+
+function selectProjCurrency(currency) {
+    const el = document.getElementById('selected-proj-currency');
+    const editEl = document.getElementById('edit-proj-currency');
+    if (el) el.innerHTML = `${currency} <i data-lucide="chevron-right" class="s-icon"></i>`;
+    if (editEl) editEl.innerHTML = `${currency} <i data-lucide="chevron-right" class="s-icon"></i>`;
+    closeModal('proj-currency-modal');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function selectProjType(type) {
+    const el = document.getElementById('selected-proj-type');
+    const editEl = document.getElementById('edit-proj-type');
+    if (el) el.innerHTML = `${type} <i data-lucide="chevron-right" class="s-icon"></i>`;
+    if (editEl) editEl.innerHTML = `${type} <i data-lucide="chevron-right" class="s-icon"></i>`;
+    closeModal('proj-type-modal');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function selectProjPeriod(period) {
+    const el = document.getElementById('selected-proj-period');
+    const editEl = document.getElementById('edit-proj-period');
+    if (el) el.innerHTML = `${period} <i data-lucide="chevron-right" class="s-icon"></i>`;
+    if (editEl) editEl.innerHTML = `${period} <i data-lucide="chevron-right" class="s-icon"></i>`;
+    closeModal('proj-period-modal');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function openProjDatePicker() {
+    const container = document.getElementById('proj-date-options');
+    if (container) {
+        container.innerHTML = '';
+        for (let i = 1; i <= 30; i++) {
+            container.insertAdjacentHTML('beforeend', `<div class="option-item" onclick="selectProjDate('第 ${i} 天')">第 ${i} 天</div>`);
+        }
+        container.insertAdjacentHTML('beforeend', `<div class="option-item" onclick="selectProjDate('月底')">月底</div>`);
+    }
+    openModal('proj-date-modal');
+}
+
+function selectProjDate(dateText) {
+    const el = document.getElementById('selected-proj-date');
+    const editEl = document.getElementById('edit-proj-date');
+    if (el) el.innerHTML = `${dateText} <i data-lucide="chevron-right" class="s-icon"></i>`;
+    if (editEl) editEl.innerHTML = `${dateText} <i data-lucide="chevron-right" class="s-icon"></i>`;
+    closeModal('proj-date-modal');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function saveProject() {
+    const name = document.getElementById('proj-name').value.trim();
+    const note = document.getElementById('proj-note').value.trim();
+    
+    if (!name) return alert("請輸入專案名稱");
+
+    const currencyEl = document.getElementById('selected-proj-currency');
+    const typeEl = document.getElementById('selected-proj-type');
+    const periodEl = document.getElementById('selected-proj-period');
+    const startDateEl = document.getElementById('selected-proj-date');
+
+    const currency = currencyEl ? currencyEl.textContent.trim() : 'TWD';
+    const type = typeEl ? typeEl.textContent.trim() : '重複循環';
+    const period = periodEl ? periodEl.textContent.trim() : '每月';
+    const startDate = startDateEl ? startDateEl.textContent.trim() : '第 1 天';
+    
+    const autoBudget = document.getElementById('proj-auto-budget').checked;
+    const showHome = document.getElementById('proj-show-home').checked;
+    const isStat = document.getElementById('proj-is-stat').checked;
+
+    const newProject = {
+        id: Date.now(),
+        name: name,
+        currency: currency,
+        type: type,
+        period: period,
+        startDate: startDate,
+        autoBudget: autoBudget,
+        showHome: showHome,
+        isStat: isStat,
+        note: note,
+        icon: "piggy-bank",
+        amount: 0 
+    };
+
+    const projects = JSON.parse(localStorage.getItem('koin_projects') || '[]');
+    projects.push(newProject);
+    localStorage.setItem('koin_projects', JSON.stringify(projects));
+
+    if (typeof renderProjectsPage === 'function') renderProjectsPage();
+    
+    document.getElementById('proj-name').value = '';
+    document.getElementById('proj-note').value = '';
+    showPage('page-projects');
 }
