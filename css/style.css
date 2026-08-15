@@ -271,45 +271,63 @@ input:checked + .slider:before { transform: translateX(20px); }
    6. 彈窗與選擇面板樣式 (Modals)
    ========================================= */
 
-/* 確保彈窗遮罩預設完全隱藏，避免覆蓋在專案總覽畫面上 */
-/* 1. 確保彈窗遮罩改為 Flex 垂直水平雙置中 */
+/* 1. 通用彈窗遮罩：涵蓋所有 6 大 Modal 並強制最高層級置中 */
+.modal-overlay,
 #proj-detail-more-modal.modal-overlay,
-#more-options-modal.modal-overlay {
+#more-options-modal.modal-overlay,
+#record-account-modal.modal-overlay,
+#record-project-modal.modal-overlay,
+#record-calendar-modal.modal-overlay,
+#record-time-modal.modal-overlay,
+#group-picker-modal.modal-overlay,
+#cycle-picker-modal.modal-overlay,
+#due-date-modal.modal-overlay,
+#proj-currency-modal.modal-overlay,
+#proj-type-modal.modal-overlay,
+#proj-period-modal.modal-overlay,
+#proj-date-modal.modal-overlay {
     display: none;
-    position: fixed;
+    position: fixed !important;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px); /* 增加質感模糊背景 */
-    align-items: center !important; /* 強制垂直置中 */
-    justify-content: center !important; /* 強制水平置中 */
-    z-index: 9999;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 99999 !important; /* 確保高於計算機 150 與導覽列 100 */
 }
 
-/* 當加上 active 時才以 Flex 展現 */
+/* 當加上 active 或 display: flex 時展現 */
 .modal-overlay.active {
     display: flex !important;
 }
 
+/* 2. 通用彈窗主體卡片 */
 .modal-content {
-    background: var(--modal-bg); 
-    width: 85%; 
+    background: #252538;
+    width: 85%;
     max-width: 330px;
     border-radius: 24px;
-    overflow: hidden; 
+    overflow: hidden;
     color: #FFFFFF;
     box-shadow: 0 10px 40px rgba(0,0,0,0.6);
     border: 1px solid rgba(255,255,255,0.1);
     animation: zoomIn 0.2s ease-out;
+    position: relative;
+    z-index: 100000 !important;
+    margin: auto;
 }
 
 .modal-header {
-    padding: 18px; 
-    text-align: center; 
+    padding: 18px;
+    text-align: center;
     font-weight: 700;
     border-bottom: 1px solid var(--border);
+    font-size: 16px;
 }
 
 .modal-options {
@@ -318,11 +336,14 @@ input:checked + .slider:before { transform: translateX(20px); }
 }
 
 .option-item {
-    padding: 16px; 
-    text-align: center;
+    padding: 14px 16px;
+    text-align: left;
     border-bottom: 1px solid rgba(255,255,255,0.05);
     cursor: pointer;
     transition: background 0.15s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 .option-item:active { background: rgba(93, 93, 255, 0.2); }
 
@@ -335,7 +356,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 .modal-footer button:active { background: rgba(255,255,255,0.05); }
 .btn-confirm { color: var(--blue) !important; font-weight: 700; border-left: 1px solid var(--border) !important; }
 
-/* 2. 調整彈窗主體卡片，精準置中並限制最大高度與寬度 */
+/* 3. 更多功能圓盤彈窗 */
 .more-menu-content {
     background: #232332;
     width: 85%;
@@ -348,10 +369,10 @@ input:checked + .slider:before { transform: translateX(20px); }
     align-items: center;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     position: relative;
-    margin: auto; /* 確保自動置中 */
+    margin: auto;
+    z-index: 100000 !important;
 }
 
-/* 3. 頂部圖示白圈位置，使其完美融合在卡片上方 */
 .menu-header-icon {
     width: 48px;
     height: 48px;
@@ -361,9 +382,9 @@ input:checked + .slider:before { transform: translateX(20px); }
     align-items: center;
     justify-content: center;
     color: #ffffff;
-    margin-top: -48px; /* 上移卡片頂部邊界 */
+    margin-top: -48px;
     margin-bottom: 12px;
-    border: 3px solid #1c1c28; /* 與深色背景隔離 */
+    border: 3px solid #1c1c28;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
@@ -372,13 +393,49 @@ input:checked + .slider:before { transform: translateX(20px); }
     height: 22px;
 }
 
-/* 4. 彈窗標題樣式 */
 .menu-title {
     color: #ffffff;
     font-size: 17px;
     font-weight: 700;
     margin: 0 0 16px 0;
     text-align: center;
+}
+
+.menu-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.menu-btn {
+    width: 100%;
+    background: #2c2c3e;
+    color: #ffffff;
+    border: none;
+    padding: 13px 0;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, opacity 0.2s;
+    text-align: center;
+}
+
+.menu-btn:active {
+    background: #3a3a50;
+    opacity: 0.8;
+}
+
+.menu-btn.text-red {
+    color: #fb7185;
+}
+
+/* 4. 確保表單按鈕具備最高點擊權限 */
+.form-btn {
+    position: relative;
+    z-index: 20;
+    pointer-events: auto !important;
 }
 
 /* 5. 選單按鈕清單容器 */
