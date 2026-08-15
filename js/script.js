@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 4. 預設首頁狀態
     showPage('page-overview');
+
+    resetRecordFormButtons();
 });
 
 /**
@@ -410,6 +412,7 @@ function saveRecord() {
     renderAccountOverview();
     resetCategorySelection();
     renderDailyDetailsList();
+    resetRecordFormButtons();
 }
 
 /**
@@ -797,6 +800,7 @@ function handleFabClick(element) {
             }, 50); 
         }
     } else {
+        resetRecordFormButtons(); // 進入新增頁面時確保內容顯示
         showPage('page-add-record', element);
     }
 }
@@ -1098,4 +1102,19 @@ function renderDailyDetailsList() {
     });
 
     if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+/**
+ * 重置新增記錄表單四個按鈕的預設顯示內容
+ */
+function resetRecordFormButtons() {
+    const btnAcc = document.getElementById('btn-select-account');
+    const btnProj = document.getElementById('btn-select-project');
+    const btnDate = document.getElementById('btn-select-date');
+    const btnTime = document.getElementById('btn-select-time');
+
+    if (btnAcc) btnAcc.innerText = recordState.account || '錢包';
+    if (btnProj) btnProj.innerText = recordState.project || '生活開銷';
+    if (btnDate) btnDate.innerText = '今天';
+    if (btnTime) btnTime.innerText = '現在';
 }
