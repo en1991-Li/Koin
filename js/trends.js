@@ -1,7 +1,8 @@
-let currentTrendsDate = new Date(2026, 7, 1); // 預設 2026 年 8 月
+// 預設當前系統月份
+let currentTrendsDate = new Date();
 
 /**
- * 切換報表月份
+ * 切換報表月份 (+1 或 -1 個月)
  */
 function changeTrendsMonth(dir) {
     currentTrendsDate.setMonth(currentTrendsDate.getMonth() + dir);
@@ -14,11 +15,10 @@ function changeTrendsMonth(dir) {
 function switchTrendsTab(tabName, el) {
     document.querySelectorAll('.trends-tab').forEach(t => t.classList.remove('active'));
     if (el) el.classList.add('active');
-    // 可依據 tabName 擴充不同視圖
 }
 
 /**
- * 每月報表核心渲染引擎
+ * 每月報表核心渲染引擎 (已加入月份嚴格過濾)
  */
 function renderTrendsPage() {
     const rangeEl = document.getElementById('trends-date-range');
@@ -28,9 +28,20 @@ function renderTrendsPage() {
     const month = currentTrendsDate.getMonth() + 1;
     const lastDay = new Date(year, month, 0).getDate();
     const padMonth = String(month).padStart(2, '0');
+    
+    // 更新頂部日期區間文字
     rangeEl.innerText = `${year}/${padMonth}/01 － ${year}/${padMonth}/${lastDay}`;
 
-    const records = JSON.parse(localStorage.getItem('koin_records') || '[]');
+    // 1. 取得所有紀錄並嚴格過濾出「當前選中月份」的紀錄
+    const allRecords = JSON.parse(localStorage.getItem('koin_records') || '[]');
+    const targetMonthPrefix = `${year}/${padMonth}`;
+    const targetMonthPrefixAlt = `${year}/${month}/`; // 兼容無補零格式
+
+    const records = allRecords.filter(r => {
+        if (!r.date) return false;
+        const normalizedDate = r.date.replace(/-/g, '/');
+        return normalizedDate.startsWith(targetMonthPrefix) || normalizedDate.startsWith(targetMonthPrefixAlt);
+    });
 
     let outTotal = 0, outCount = 0;
     let inTotal = 0, inCount = 0;
@@ -40,6 +51,7 @@ function renderTrendsPage() {
 
     const categoryExpenseMap = {};
 
+    // 2. 統計當月數據
     records.forEach(r => {
         const amt = parseFloat(r.amount) || 0;
         if (r.type === '支出' || r.type === '應付款項') {
@@ -58,7 +70,7 @@ function renderTrendsPage() {
     const netTotal = inTotal - outTotal;
     const maxVal = Math.max(outTotal, inTotal, transferOutTotal, 1);
 
-    // 填寫收支數字
+    // 3. 更新收支數字與進度條
     document.getElementById('trends-out-count').innerText = outCount;
     document.getElementById('trends-out-total').innerText = `-$${outTotal.toLocaleString()}`;
     document.getElementById('trends-out-bar').style.width = `${(outTotal / maxVal) * 100}%`;
@@ -80,13 +92,13 @@ function renderTrendsPage() {
     document.getElementById('trends-total-count').innerText = records.length;
     document.getElementById('trends-net-total').innerText = `${netTotal >= 0 ? '+' : '-'}$${Math.abs(netTotal).toLocaleString()}`;
 
-    // 渲染類別佔比圓環 (前三大)
+    // 4. 渲染當月類別圓環
     const catContainer = document.getElementById('trends-category-circles');
     const sortedCats = Object.entries(categoryExpenseMap).sort((a, b) => b[1] - a[1]);
     
     if (catContainer) {
         if (sortedCats.length === 0) {
-            catContainer.innerHTML = `<span style="color:#8e8e93; font-size:12px; padding:10px;">尚無類別支出資料</span>`;
+            catContainer.innerHTML = `<span style="color:#8e8e93; font-size:12px; padding:10px;">該月份尚無類別支出資料</span>`;
         } else {
             let catHTML = '';
             sortedCats.forEach(([catName, amt]) => {
@@ -105,7 +117,7 @@ function renderTrendsPage() {
         }
     }
 
-    // 渲染 TOP 3 支出排行
+    // 5. 渲染當月 TOP 3 支出排行
     const top3Container = document.getElementById('trends-top3-container');
     const topRecords = records
         .filter(r => r.type === '支出' || r.type === '應付款項')
@@ -114,7 +126,7 @@ function renderTrendsPage() {
 
     if (top3Container) {
         if (topRecords.length === 0) {
-            top3Container.innerHTML = `<p style="color:#8e8e93; text-align:center; font-size:13px; padding:20px 0;">尚無排行紀錄</p>`;
+            top3Container.innerHTML = `<p style="color:#8e8e93; text-align:center; font-size:13px; padding:20px 0;">該月份尚無排行紀錄</p>`;
         } else {
             let topHTML = '';
             topRecords.forEach(r => {
