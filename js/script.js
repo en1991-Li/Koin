@@ -58,6 +58,11 @@ function showPage(pageId, element) {
         fabIcon.setAttribute('data-lucide', iconName);
     }
 
+    // 在 showPage 函式結尾處加入判斷
+if (pageId === 'page-trends') {
+    if (typeof renderTrendsPage === 'function') renderTrendsPage();
+}
+
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
