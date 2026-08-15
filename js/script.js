@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderAccountOverview(); 
     if (typeof renderProjectsPage === 'function') renderProjectsPage();
 
-    // 確保一開 App 進入首頁或行事曆時，當天的明細預先載入
+    // 預先載入當日明細
     renderDailyDetailsList();
     
     // 4. 預設首頁狀態與表單初始化
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * 核心頁面切換（加入自動清理彈窗機制）
+ * 核心頁面切換
  */
 function showPage(pageId, element) {
     const target = document.getElementById(pageId);
@@ -58,7 +58,6 @@ function showPage(pageId, element) {
         fabIcon.setAttribute('data-lucide', iconName);
     }
 
-    // 5. 重新渲染 Lucide 向量圖標
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
@@ -228,7 +227,7 @@ function changeSubGrid(target) {
 }
 
 /**
- * 點擊分類圖標後，隱藏網格並展示單個圖標卡片畫面
+ * 點擊分類圖標後，展示卡片並開啟計算機
  */
 function selectCategory(categoryName, parentType) {
     if (typeof recordState !== 'undefined') {
@@ -333,7 +332,7 @@ function selectCategory(categoryName, parentType) {
 }
 
 /**
- * 優化計算機即時同步，支援收入的正號 (+) 顯示
+ * 計算機引擎
  */
 function toggleCalculator(show) {
     const calc = document.getElementById('inline-calculator');
@@ -387,7 +386,6 @@ function pressCalc(val) {
     
     display.innerText = parseFloat(recordState.currentInput).toLocaleString();
 
-    // 同步更新卡片金額展示
     const cardAmountSub = document.getElementById('selected-card-amount-sub');
     if (cardAmountSub) {
         const isIncome = (recordState.type === '收入');
@@ -395,9 +393,6 @@ function pressCalc(val) {
     }
 }
 
-/**
- * 重置分類選擇狀態
- */
 function resetCategorySelection() {
     const cardZone = document.getElementById('selected-category-card-zone');
     if (cardZone) cardZone.classList.remove('show-card');
@@ -410,7 +405,7 @@ function resetCategorySelection() {
 }
 
 /**
- * 打包當前數據、同步扣減帳戶餘額並存入 LocalStorage
+ * 儲存記帳資料
  */
 function saveRecord() {
     const amountDisplay = document.getElementById('record-amount-display');
@@ -478,9 +473,6 @@ function saveRecord() {
     resetRecordFormButtons();
 }
 
-/**
- * 統一更新帶有 amount-val 類別的金額顯示
- */
 function updateAmountDisplay() {
     const amountElements = document.querySelectorAll('.amount-val');
     
@@ -501,7 +493,7 @@ function updateAmountDisplay() {
 }
 
 /**
- * 開啟帳戶明細
+ * 帳戶明細相關
  */
 function openAccountDetail(index) {
     const savedAccounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
@@ -543,9 +535,6 @@ function switchDetailTab(tabIndex) {
     }
 }
 
-/**
- * 儲存新帳戶
- */
 function saveAccount() {
     const name = document.getElementById('acc-name').value;
     const amountInput = document.getElementById('acc-amount').value;
@@ -769,7 +758,7 @@ function handleSettingsToggleHide(isChecked) {
 }
 
 /**
- * 根據 LocalStorage 內的紀錄，動態渲染日曆頁面下方的每日交易明細
+ * 每日交易明細列表渲染
  */
 function renderDailyDetailsList() {
     const detailContainer = document.getElementById('daily-details-list');
