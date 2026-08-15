@@ -1024,3 +1024,141 @@ input:checked + .slider:before { transform: translateX(20px); }
     gap: 16px 10px;
     padding: 10px 15px 20px 15px;
 }
+
+/* =========================================
+   每月報表 (Trends) 專屬樣式
+   ========================================= */
+.trends-tabs {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding: 6px 4px 10px 4px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.trends-tab {
+    color: #8e8e93;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    position: relative;
+    padding-bottom: 6px;
+}
+
+.trends-tab.active {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.trends-tab.active::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #5d5dff;
+    border-radius: 2px;
+}
+
+.trends-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 14px;
+}
+
+.trends-stat-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.trends-stat-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.trends-bar-track {
+    width: 90px;
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.trends-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s ease;
+}
+
+.fill-red { background: #fb7185; }
+.fill-green { background: #4ade80; }
+.fill-orange { background: #fb923c; }
+.fill-blue { background: #60a5fa; }
+
+/* 膠囊徽章 */
+.badge {
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+}
+.badge-red { background: rgba(251, 113, 133, 0.15); color: #fb7185; }
+.badge-green { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
+.badge-orange { background: rgba(251, 146, 60, 0.15); color: #fb923c; }
+.badge-blue { background: rgba(96, 165, 250, 0.15); color: #60a5fa; }
+.badge-purple { background: rgba(192, 132, 252, 0.15); color: #c084fc; }
+
+.font-bold { font-weight: 700; }
+
+/* 類別圓環橫向列表 */
+.trends-category-row {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+}
+
+.trends-cat-card {
+    background: #1c1c28;
+    border-radius: 18px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 105px;
+    flex-shrink: 0;
+}
+
+.trends-circle-progress {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    position: relative;
+    font-size: 11px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.trends-circle-progress::before {
+    content: "";
+    position: absolute;
+    width: 44px;
+    height: 44px;
+    background: #1c1c28;
+    border-radius: 50%;
+}
+
+.trends-circle-progress span {
+    position: relative;
+    z-index: 1;
+}
