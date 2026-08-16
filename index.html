@@ -1495,6 +1495,92 @@
             </div>
         </div>
 
+        <!-- ==================== 記帳明細摘要彈窗 (Record Detail Modal) ==================== -->
+<div id="record-summary-modal" class="modal-overlay" style="display: none;" onclick="closeModal('record-summary-modal')">
+    <div class="summary-modal-content" onclick="event.stopPropagation()">
+        <!-- 頂部操作列 -->
+        <div class="summary-action-bar">
+            <i data-lucide="x" class="s-icon" onclick="closeModal('record-summary-modal')"></i>
+            <div style="display: flex; gap: 18px;">
+                <i data-lucide="undo-2" class="s-icon" style="color: #8e8e93;"></i>
+                <i data-lucide="trash-2" class="s-icon" onclick="deleteCurrentViewingRecord()" style="cursor: pointer;"></i>
+                <i data-lucide="copy" class="s-icon" style="color: #8e8e93;"></i>
+                <i data-lucide="square-pen" class="s-icon" onclick="openEditRecordPage()" style="cursor: pointer; color: #5d5dff;"></i>
+            </div>
+        </div>
+
+        <!-- 主分類大圓形視覺 -->
+        <div class="summary-hero-circle" id="summary-main-cat-bg">
+            <div class="summary-icon-inner">
+                <i data-lucide="shopping-bag" id="summary-main-cat-icon"></i>
+            </div>
+            <span id="summary-main-cat-name">購物</span>
+        </div>
+
+        <!-- 明細資訊卡片 -->
+        <div class="summary-info-card">
+            <div style="font-size: 12px; color: #8e8e93; margin-bottom: 4px;" id="summary-note-text">Digital storage</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="cate-icon-wrapper i-shopping" style="width: 36px; height: 36px; margin: 0;">
+                        <i data-lucide="app-window" id="summary-sub-cat-icon"></i>
+                    </div>
+                    <span style="font-size: 16px; font-weight: 700; color: #fff;" id="summary-sub-cat-name">應用軟體</span>
+                </div>
+                <span style="font-size: 20px; font-weight: 800; color: #fb7185;" id="summary-amount-text">-$30</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; color: #8e8e93; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 10px;">
+                <div><i data-lucide="credit-card" style="width: 14px; vertical-align: middle;"></i> <span id="summary-account-text">iLEO</span></div>
+                <div><i data-lucide="piggy-bank" style="width: 14px; vertical-align: middle;"></i> <span id="summary-project-text">玩樂</span></div>
+                <div><i data-lucide="calendar" style="width: 14px; vertical-align: middle;"></i> <span id="summary-date-text">2026/08/16</span></div>
+                <div><i data-lucide="clock" style="width: 14px; vertical-align: middle;"></i> <span id="summary-time-text">12:25</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== 編輯記錄頁 (Edit Record Page) ==================== -->
+<section id="page-edit-record" class="page">
+    <header class="nav-header">
+        <i data-lucide="x" class="s-icon" onclick="showPage('page-calendar')"></i>
+        <h1 class="page-title">編輯記錄</h1>
+        <i data-lucide="check" class="s-icon" onclick="saveEditedRecord()"></i>
+    </header>
+
+    <div class="content-scroll no-scrollbar" style="padding: 15px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="cate-icon-wrapper i-shopping" style="width: 50px; height: 50px; margin: 0;">
+                    <i data-lucide="app-window" id="edit-rec-icon"></i>
+                </div>
+                <div>
+                    <div style="font-size: 16px; font-weight: 700; color: #fff;" id="edit-rec-cat-name">應用軟體</div>
+                    <div style="font-size: 12px; color: #fb7185;">$30</div>
+                </div>
+            </div>
+            <div style="background: #2c2c3e; border-radius: 12px; padding: 10px 16px; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 12px; color: #8e8e93;">TWD</span>
+                <input type="number" id="edit-rec-amount" style="background: transparent; border: none; color: #fff; font-size: 20px; font-weight: 700; width: 80px; text-align: right; outline: none;" value="30">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+            <div class="form-btn" id="edit-btn-account" onclick="openEditRecordAccountPicker()">iLEO</div>
+            <div class="form-btn" id="edit-btn-project" onclick="openEditRecordProjectPicker()">玩樂</div>
+            <div class="form-btn" id="edit-btn-date" onclick="openEditRecordCalendar()">2026/08/16</div>
+            <div class="form-btn" id="edit-btn-time" onclick="openEditRecordTimePicker()">12:25</div>
+        </div>
+
+        <textarea id="edit-rec-note" placeholder="備註..." style="width: 100%; background: #1c1c28; border: none; border-radius: 16px; color: #fff; padding: 15px; min-height: 100px; outline: none; resize: none; font-size: 14px;"></textarea>
+    </div>
+</section>
+
+<!-- 成功打勾動畫浮層 -->
+<div id="save-success-toast" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120px; height: 120px; background: #5d5dff; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 100000; box-shadow: 0 10px 30px rgba(93,93,255,0.5);">
+    <i data-lucide="check" style="width: 60px; height: 60px; color: #fff; stroke-width: 3;"></i>
+</div>
+
         <!-- ==================== 底部導覽列 ==================== -->
         <nav class="tab-bar">
             <div class="tab-item active" onclick="showPage('page-overview', this)"><i data-lucide="wallet-cards"></i></div>
