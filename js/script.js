@@ -58,10 +58,9 @@ function showPage(pageId, element) {
         fabIcon.setAttribute('data-lucide', iconName);
     }
 
-    // 在 showPage 函式結尾處加入判斷
-if (pageId === 'page-trends') {
-    if (typeof renderTrendsPage === 'function') renderTrendsPage();
-}
+    if (pageId === 'page-trends') {
+        if (typeof renderTrendsPage === 'function') renderTrendsPage();
+    }
 
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
@@ -69,6 +68,7 @@ if (pageId === 'page-trends') {
 // 全域狀態變數
 let currentActiveAccountIndex = null;
 let isAmountHidden = false; 
+let currentViewingRecordId = null;
 
 let recordState = {
     type: '支出',
@@ -78,9 +78,144 @@ let recordState = {
     isCalculated: false,  
     account: '錢包',
     project: '生活開銷',
-    date: '2026/08/15',
+    date: '2026/08/16',
     time: '12:00',
     advType: 'single'     
+};
+
+// 10 大主分類與所有子分類圖示、主分類名稱、背景漸層對照字典
+const categoryMetaMap = {
+    // 飲食
+    '飲食': { parent: '飲食', icon: 'utensils', bgClass: 'i-eat' },
+    '早餐': { parent: '飲食', icon: 'croissant', bgClass: 'i-eat' },
+    '午餐': { parent: '飲食', icon: 'salad', bgClass: 'i-eat' },
+    '晚餐': { parent: '飲食', icon: 'soup', bgClass: 'i-eat' },
+    '點心': { parent: '飲食', icon: 'cookie', bgClass: 'i-eat' },
+    '飲料': { parent: '飲食', icon: 'cup-soda', bgClass: 'i-eat' },
+    '酒類': { parent: '飲食', icon: 'beer', bgClass: 'i-eat' },
+    '水果': { parent: '飲食', icon: 'grape', bgClass: 'i-eat' },
+    '宵夜': { parent: '飲食', icon: 'pizza', bgClass: 'i-eat' },
+    '礦泉水': { parent: '飲食', icon: 'glass-water', bgClass: 'i-eat' },
+
+    // 交通
+    '交通': { parent: '交通', icon: 'car', bgClass: 'i-transport' },
+    '加油費': { parent: '交通', icon: 'fuel', bgClass: 'i-transport' },
+    '停車費': { parent: '交通', icon: 'square-parking', bgClass: 'i-transport' },
+    '火車': { parent: '交通', icon: 'train-front', bgClass: 'i-transport' },
+    '公車': { parent: '交通', icon: 'bus-front', bgClass: 'i-transport' },
+    '捷運': { parent: '交通', icon: 'train-front-tunnel', bgClass: 'i-transport' },
+    '悠遊卡': { parent: '交通', icon: 'credit-card', bgClass: 'i-transport' },
+    '汽車': { parent: '交通', icon: 'car-front', bgClass: 'i-transport' },
+    '計程車': { parent: '交通', icon: 'car-taxi-front', bgClass: 'i-transport' },
+    '摩托車': { parent: '交通', icon: 'motorbike', bgClass: 'i-transport' },
+    '單車': { parent: '交通', icon: 'bike', bgClass: 'i-transport' },
+    '機票': { parent: '交通', icon: 'plane', bgClass: 'i-transport' },
+    '船票': { parent: '交通', icon: 'ship', bgClass: 'i-transport' },
+
+    // 購物
+    '購物': { parent: '購物', icon: 'shopping-bag', bgClass: 'i-shopping' },
+    '蝦皮購物': { parent: '購物', icon: 'shopping-bag', bgClass: 'i-shopping' },
+    'momo購物': { parent: '購物', icon: 'shopping-bag', bgClass: 'i-shopping' },
+    'PChome24h': { parent: '購物', icon: 'shopping-bag', bgClass: 'i-shopping' },
+    '市場': { parent: '購物', icon: 'shopping-cart', bgClass: 'i-shopping' },
+    '衣物': { parent: '購物', icon: 'shirt', bgClass: 'i-shopping' },
+    '鞋子': { parent: '購物', icon: 'sport-shoe', bgClass: 'i-shopping' },
+    '配件': { parent: '購物', icon: 'glasses', bgClass: 'i-shopping' },
+    '包包': { parent: '購物', icon: 'handbag', bgClass: 'i-shopping' },
+    '美妝保養': { parent: '購物', icon: 'mirror-round', bgClass: 'i-shopping' },
+    '精品': { parent: '購物', icon: 'gem', bgClass: 'i-shopping' },
+    '禮物': { parent: '購物', icon: 'gift', bgClass: 'i-shopping' },
+    '電子產品': { parent: '購物', icon: 'laptop', bgClass: 'i-shopping' },
+    '應用軟體': { parent: '購物', icon: 'app-window', bgClass: 'i-shopping' },
+    'UNIQLO': { parent: '購物', icon: 'shirt', bgClass: 'i-shopping' },
+    'NET': { parent: '購物', icon: 'shirt', bgClass: 'i-shopping' },
+
+    // 娛樂
+    '娛樂': { parent: '娛樂', icon: 'party-popper', bgClass: 'i-entertainment' },
+    '手遊': { parent: '娛樂', icon: 'gamepad-2', bgClass: 'i-entertainment' },
+    '音樂': { parent: '娛樂', icon: 'music', bgClass: 'i-entertainment' },
+    'Netflix': { parent: '娛樂', icon: 'monitor-play', bgClass: 'i-entertainment' },
+    '電影': { parent: '娛樂', icon: 'clapperboard', bgClass: 'i-entertainment' },
+    '遊樂園': { parent: '娛樂', icon: 'roller-coaster', bgClass: 'i-entertainment' },
+    '展覽': { parent: '娛樂', icon: 'landmark', bgClass: 'i-entertainment' },
+    '運動': { parent: '娛樂', icon: 'dumbbell', bgClass: 'i-entertainment' },
+
+    // 個人
+    '個人': { parent: '個人', icon: 'user', bgClass: 'i-personal' },
+    '社交': { parent: '個人', icon: 'handshake', bgClass: 'i-personal' },
+    '電信費': { parent: '個人', icon: 'phone', bgClass: 'i-personal' },
+    '借款': { parent: '個人', icon: 'coins', bgClass: 'i-personal' },
+    '投資': { parent: '個人', icon: 'trending-up', bgClass: 'i-personal' },
+    '稅金': { parent: '個人', icon: 'circle-dollar-sign', bgClass: 'i-personal' },
+    '保險': { parent: '個人', icon: 'shield-check', bgClass: 'i-personal' },
+    '捐款': { parent: '個人', icon: 'hand-heart', bgClass: 'i-personal' },
+    '寵物': { parent: '個人', icon: 'dog', bgClass: 'i-personal' },
+    '彩券': { parent: '個人', icon: 'receipt', bgClass: 'i-personal' },
+
+    // 醫療
+    '醫療': { parent: '醫療', icon: 'stethoscope', bgClass: 'i-medical' },
+    '門診': { parent: '醫療', icon: 'stethoscope', bgClass: 'i-medical' },
+    '藥品': { parent: '醫療', icon: 'pill', bgClass: 'i-medical' },
+    '醫療用品': { parent: '醫療', icon: 'briefcase-medical', bgClass: 'i-medical' },
+    '打針': { parent: '醫療', icon: 'syringe', bgClass: 'i-medical' },
+    '住院': { parent: '醫療', icon: 'bed-single', bgClass: 'i-medical' },
+    '手術': { parent: '醫療', icon: 'slice', bgClass: 'i-medical' },
+    '健康檢查': { parent: '醫療', icon: 'clipboard-plus', bgClass: 'i-medical' },
+
+    // 家居
+    '家居': { parent: '家居', icon: 'home', bgClass: 'i-home' },
+    '日常用品': { parent: '家居', icon: 'soap-dispenser-droplet', bgClass: 'i-home' },
+    '水費': { parent: '家居', icon: 'droplets', bgClass: 'i-home' },
+    '電費': { parent: '家居', icon: 'zap', bgClass: 'i-home' },
+    '燃料費': { parent: '家居', icon: 'flame', bgClass: 'i-home' },
+    '電話費': { parent: '家居', icon: 'phone-call', bgClass: 'i-home' },
+    '網路費': { parent: '家居', icon: 'house-wifi', bgClass: 'i-home' },
+    '房租': { parent: '家居', icon: 'building', bgClass: 'i-home' },
+    '洗衣費': { parent: '家居', icon: 'washing-machine', bgClass: 'i-home' },
+    '修繕費': { parent: '家居', icon: 'wrench', bgClass: 'i-home' },
+    '家具': { parent: '家居', icon: 'sofa', bgClass: 'i-home' },
+    '訂閱': { parent: '家居', icon: 'newspaper', bgClass: 'i-home' },
+    '家電': { parent: '家居', icon: 'tv', bgClass: 'i-home' },
+    '全聯': { parent: '家居', icon: 'store', bgClass: 'i-home' },
+    '屈臣氏': { parent: '家居', icon: 'store', bgClass: 'i-home' },
+    '康是美': { parent: '家居', icon: 'store', bgClass: 'i-home' },
+
+    // 家庭
+    '家庭': { parent: '家庭', icon: 'users', bgClass: 'i-family' },
+    '生活費': { parent: '家庭', icon: 'wallet-minimal', bgClass: 'i-family' },
+    '教育': { parent: '家庭', icon: 'graduation-cap', bgClass: 'i-family' },
+    '看護': { parent: '家庭', icon: 'person-standing', bgClass: 'i-family' },
+    '玩具': { parent: '家庭', icon: 'toy-brick', bgClass: 'i-family' },
+    '才藝': { parent: '家庭', icon: 'palette', bgClass: 'i-family' },
+
+    // 生活
+    '生活': { parent: '生活', icon: 'coffee', bgClass: 'i-life' },
+    '美容美髮': { parent: '生活', icon: 'scissors', bgClass: 'i-life' },
+    '住宿': { parent: '生活', icon: 'hotel', bgClass: 'i-life' },
+    '旅行': { parent: '生活', icon: 'tree-palm', bgClass: 'i-life' },
+    '派對': { parent: '生活', icon: 'wine', bgClass: 'i-life' },
+
+    // 學習
+    '學習': { parent: '學習', icon: 'book', bgClass: 'i-learn' },
+    '書籍': { parent: '學習', icon: 'book-open-text', bgClass: 'i-learn' },
+    '課程': { parent: '學習', icon: 'presentation', bgClass: 'i-learn' },
+    '教材': { parent: '學習', icon: 'book-marked', bgClass: 'i-learn' },
+    '證書': { parent: '學習', icon: 'book-user', bgClass: 'i-learn' },
+    '探索': { parent: '學習', icon: 'compass', bgClass: 'i-learn' },
+    '文具': { parent: '學習', icon: 'pen-ruler', bgClass: 'i-learn' },
+    '考試': { parent: '學習', icon: 'book-open-check', bgClass: 'i-learn' },
+    '金石堂': { parent: '學習', icon: 'book-open', bgClass: 'i-learn' },
+    '博客來': { parent: '學習', icon: 'book-open', bgClass: 'i-learn' },
+
+    // 收入
+    '薪水': { parent: '收入', icon: 'dollar-sign', bgClass: 'i-income-gold' },
+    '獎金': { parent: '收入', icon: 'circle-dollar-sign', bgClass: 'i-income-gold' },
+    '收款': { parent: '收入', icon: 'hand-coins', bgClass: 'i-income-gold' },
+    '利息': { parent: '收入', icon: 'landmark', bgClass: 'i-income-gold' },
+    '消費回饋': { parent: '收入', icon: 'credit-card', bgClass: 'i-income-gold' },
+    '零用錢': { parent: '收入', icon: 'circle-dollar-sign', bgClass: 'i-income-gold' },
+    '發票': { parent: '收入', icon: 'receipt', bgClass: 'i-income-gold' },
+    '補助': { parent: '收入', icon: 'building-2', bgClass: 'i-income-gold' }
 };
 
 /**
@@ -240,40 +375,9 @@ function selectCategory(categoryName, parentType) {
     }
     
     const cleanCategory = String(categoryName || '').trim();
-    
-    const expenseIconMap = {
-        '飲食': 'utensils', '交通': 'car', '娛樂': 'party-popper', '購物': 'shopping-bag', '個人': 'user', '醫療': 'stethoscope', '家居': 'home', '家庭': 'users', '生活': 'coffee', '學習': 'book',
-        '早餐': 'croissant', '午餐': 'utensils', '晚餐': 'soup', '點心': 'cookie', '飲料': 'cup-soda', '酒類': 'beer', '水果': 'grape', '宵夜': 'pizza', '礦泉水': 'glass-water',
-        '加油費': 'fuel', '停車費': 'square-parking', '火車': 'train-front', '公車': 'bus-front', '捷運': 'train-front-tunnel', '悠遊卡': 'credit-card', '汽車': 'car-front', '計程車': 'car-taxi-front', '摩托車': 'motorbike', '單車': 'bike', '機票': 'plane', '船票': 'ship',
-        '手遊': 'gamepad-2', '音樂': 'music', 'Netflix': 'monitor-play', '電影': 'clapperboard', '遊樂園': 'roller-coaster', '展覽': 'landmark', '運動': 'dumbbell',
-        '蝦皮購物': 'shopping-bag', 'momo購物': 'shopping-bag', 'PChome24h': 'shopping-bag','市場': 'shopping-cart', '衣物': 'shirt', '鞋子': 'sport-shoe', '配件': 'glasses', '包包': 'handbag', '美妝保養': 'mirror-round', '精品': 'gem', '禮物': 'gift', '電子產品': 'laptop', '應用軟體': 'app-window', 'UNIQLO': 'shirt', 'NET': 'shirt',
-        '社交': 'handshake', '電信費': 'phone', '借款': 'coins', '投資': 'trending-up', '稅金': 'circle-dollar-sign', '保險': 'shield-check', '捐款': 'hand-heart', '寵物': 'dog', '彩券': 'receipt',
-        '門診': 'stethoscope', '藥品': 'pill', '醫療用品': 'briefcase-medical', '打針': 'syringe', '住院': 'bed-single', '手術': 'slice', '健康檢查': 'clipboard-plus',
-        '日常用品': 'soap-dispenser-droplet', '水費': 'droplets', '電費': 'zap', '燃料費': 'flame', '電話費': 'phone-call', '網路費': 'house-wifi', '房租': 'building', '洗衣費': 'washing-machine', '修繕費': 'wrench', '家具': 'sofa', '訂閱': 'newspaper', '家電': 'tv', '全聯': 'store', '屈臣氏': 'store', '康是美': 'store',
-        '生活費': 'wallet-minimal', '教育': 'graduation-cap', '看護': 'person-standing', '玩具': 'toy-brick', '才藝': 'palette',
-        '美容美髮': 'scissors', '住宿': 'hotel', '旅行': 'tree-palm', '派對': 'wine',
-        '書籍': 'book-open-text', '課程': 'presentation', '教材': 'book-marked', '證書': 'book-user', '文具': 'pen-ruler', '考試': 'book-open-check', '金石堂': 'book-open', '博客來': 'book-open'
-    };
+    const meta = categoryMetaMap[cleanCategory] || { parent: '其他', icon: 'tag', bgClass: 'i-income-gold' };
+    let iconName = meta.icon;
 
-    const incomeIconMap = {
-        '薪水': 'dollar-sign', '獎金': 'circle-dollar-sign', '投資': 'trending-up', '收款': 'hand-coins', '彩券': 'newspaper', '利息': 'landmark', '消費回饋': 'credit-card', '零用錢': 'circle-dollar-sign', '發票': 'receipt', '補助': 'building-2'
-    };
-
-    const otherIconMap = {
-        '轉帳': 'arrow-left-right', '提款': 'credit-card', '存款': 'banknote', '還款': 'undo-2', '借出': 'hand-coins', '代付': 'handshake', '報帳': 'briefcase-business', '借入': 'hand-coins', '信貸': 'credit-card', '車貸': 'car', '房貸': 'house'
-    };
-
-    let iconName = null;
-    if (parentType === 'income') {
-        iconName = incomeIconMap[cleanCategory];
-    }
-    if (!iconName) {
-        iconName = expenseIconMap[cleanCategory] || incomeIconMap[cleanCategory] || otherIconMap[cleanCategory];
-    }
-    if (!iconName) {
-        iconName = (parentType === 'income') ? 'dollar-sign' : 'tag';
-    }
-   
     const cardName = document.getElementById('selected-card-name');
     const cardIcon = document.getElementById('selected-card-icon');
     const cardAmountSub = document.getElementById('selected-card-amount-sub');
@@ -293,29 +397,7 @@ function selectCategory(categoryName, parentType) {
         } else {
             cardAmountSub.innerText = '$0';
             cardAmountSub.className = 'text-red';
-
-            const isTransport = ['加油費','停車費','火車','公車','捷運','悠遊卡','汽車','計程車','摩托車','單車','機票','船票'].includes(cleanCategory);
-            const isEntertainment = ['手遊','彩券/刮刮樂','音樂','Spotify','Netflix','電影','遊樂園','展覽','運動'].includes(cleanCategory);
-            const isShopping = ['蝦皮購物','momo購物','PChome24h','市場','衣物','鞋子','配件','包包','美妝保養','精品','禮物','電子產品','應用軟體','UNIQLO','NET'].includes(cleanCategory);
-            const isPersonal = ['社交','電信費','借款','投資','稅金','保險','捐款','寵物','彩券'].includes(cleanCategory);
-            const isMedical = ['門診','藥品','醫療用品','打針','住院','手術','健康檢查'].includes(cleanCategory);
-            const isHome = ['日常用品','水費','電費','燃料費','電話費','網路費','房租','洗衣費','修繕費','家具','訂閱','家電','全聯','屈臣氏','康是美'].includes(cleanCategory);
-            const isFamily = ['生活費','教育','看護','玩具','才藝'].includes(cleanCategory);
-            const isLife = ['美容美髮','住宿','旅行','派對'].includes(cleanCategory);
-            const isLearn = ['書籍','課程','教材','證書','探索','文具','考試','金石堂','博客來'].includes(cleanCategory);
-
-            if (cardIconWrapper) {
-                if (isTransport) cardIconWrapper.className = 'cate-icon-wrapper i-transport';
-                else if (isEntertainment) cardIconWrapper.className = 'cate-icon-wrapper i-entertainment';
-                else if (isShopping) cardIconWrapper.className = 'cate-icon-wrapper i-shopping';
-                else if (isPersonal) cardIconWrapper.className = 'cate-icon-wrapper i-personal';
-                else if (isMedical) cardIconWrapper.className = 'cate-icon-wrapper i-medical';
-                else if (isHome) cardIconWrapper.className = 'cate-icon-wrapper i-home';
-                else if (isFamily) cardIconWrapper.className = 'cate-icon-wrapper i-family';
-                else if (isLife) cardIconWrapper.className = 'cate-icon-wrapper i-life';
-                else if (isLearn) cardIconWrapper.className = 'cate-icon-wrapper i-learn';
-                else cardIconWrapper.className = 'cate-icon-wrapper i-income-gold';
-            }
+            if (cardIconWrapper) cardIconWrapper.className = `cate-icon-wrapper ${meta.bgClass}`;
         }
     }
 
@@ -658,7 +740,7 @@ function handleMenuAction(action) {
 
 function deleteAccountAction() {
     if (confirm("確定要刪除此帳戶嗎？所有交易紀錄將被移除。")) {
-        let accounts = JSON.parse(localStorage.getItem('koin_accounts') || '[]');
+        let accounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
         if (typeof currentActiveAccountIndex !== 'undefined' && currentActiveAccountIndex !== null) {
             accounts.splice(currentActiveAccountIndex, 1);
             localStorage.setItem('koin_accounts', JSON.stringify(accounts));
@@ -762,146 +844,6 @@ function handleSettingsToggleHide(isChecked) {
     }
 }
 
-let currentViewingRecordId = null;
-
-// 全域正在檢視/編輯的記帳項目 ID
-let currentViewingRecordId = null;
-
-// 10 大主分類與所有子分類圖示、主分類名稱、背景漸層對照字典
-const categoryMetaMap = {
-    // 飲食
-    '飲食': { parent: '飲食', icon: 'utensils', bgClass: 'i-eat' },
-    '早餐': { parent: '飲食', icon: 'croissant', bgClass: 'i-eat' },
-    '午餐': { parent: '飲食', icon: 'salad', bgClass: 'i-eat' },
-    '晚餐': { parent: '飲食', icon: 'soup', bgClass: 'i-eat' },
-    '點心': { parent: '飲食', icon: 'cookie', bgClass: 'i-eat' },
-    '飲料': { parent: '飲食', icon: 'cup-soda', bgClass: 'i-eat' },
-    '酒類': { parent: '飲食', icon: 'beer', bgClass: 'i-eat' },
-    '水果': { parent: '飲食', icon: 'grape', bgClass: 'i-eat' },
-    '宵夜': { parent: '飲食', icon: 'pizza', bgClass: 'i-eat' },
-    '礦泉水': { parent: '飲食', icon: 'glass-water', bgClass: 'i-eat' },
-
-    // 交通
-    '交通': { parent: '交通', icon: 'car', bgClass: 'i-transport' },
-    '加油費': { parent: '交通', icon: 'fuel', bgClass: 'i-transport' },
-    '停車費': { parent: '交通', icon: 'square-parking', bgClass: 'i-transport' },
-    '火車': { parent: '交通', icon: 'train-front', bgClass: 'i-transport' },
-    '公車': { parent: '交通', icon: 'bus-front', bgClass: 'i-transport' },
-    '捷運': { parent: '交通', icon: 'train-front-tunnel', bgClass: 'i-transport' },
-    '悠遊卡': { parent: '交通', icon: 'credit-card', bgClass: 'i-transport' },
-    '汽車': { parent: '交通', icon: 'car-front', bgClass: 'i-transport' },
-    '計程車': { parent: '交通', icon: 'car-taxi-front', bgClass: 'i-transport' },
-    '摩托車': { parent: '交通', icon: 'motorbike', bgClass: 'i-transport' },
-    '單車': { parent: '交通', icon: 'bike', bgClass: 'i-transport' },
-    '機票': { parent: '交通', icon: 'plane', bgClass: 'i-transport' },
-    '船票': { parent: '交通', icon: 'ship', bgClass: 'i-transport' },
-
-    // 購物
-    '購物': { parent: '購物', icon: 'shopping-bag', bgClass: 'i-shopping' },
-    '蝦皮購物': { parent: '購物', icon: 'shopping-bag', bgClass: 'i-shopping' },
-    'momo購物': { parent: '購物', icon: 'shopping-bag', bgClass: 'i-shopping' },
-    'PChome24h': { parent: '購物', icon: 'shopping-bag', bgClass: 'i-shopping' },
-    '市場': { parent: '購物', icon: 'shopping-cart', bgClass: 'i-shopping' },
-    '衣物': { parent: '購物', icon: 'shirt', bgClass: 'i-shopping' },
-    '鞋子': { parent: '購物', icon: 'sport-shoe', bgClass: 'i-shopping' },
-    '配件': { parent: '購物', icon: 'glasses', bgClass: 'i-shopping' },
-    '包包': { parent: '購物', icon: 'handbag', bgClass: 'i-shopping' },
-    '美妝保養': { parent: '購物', icon: 'mirror-round', bgClass: 'i-shopping' },
-    '精品': { parent: '購物', icon: 'gem', bgClass: 'i-shopping' },
-    '禮物': { parent: '購物', icon: 'gift', bgClass: 'i-shopping' },
-    '電子產品': { parent: '購物', icon: 'laptop', bgClass: 'i-shopping' },
-    '應用軟體': { parent: '購物', icon: 'app-window', bgClass: 'i-shopping' },
-    'UNIQLO': { parent: '購物', icon: 'shirt', bgClass: 'i-shopping' },
-    'NET': { parent: '購物', icon: 'shirt', bgClass: 'i-shopping' },
-
-    // 娛樂
-    '娛樂': { parent: '娛樂', icon: 'party-popper', bgClass: 'i-entertainment' },
-    '手遊': { parent: '娛樂', icon: 'gamepad-2', bgClass: 'i-entertainment' },
-    '音樂': { parent: '娛樂', icon: 'music', bgClass: 'i-entertainment' },
-    'Netflix': { parent: '娛樂', icon: 'monitor-play', bgClass: 'i-entertainment' },
-    '電影': { parent: '娛樂', icon: 'clapperboard', bgClass: 'i-entertainment' },
-    '遊樂園': { parent: '娛樂', icon: 'roller-coaster', bgClass: 'i-entertainment' },
-    '展覽': { parent: '娛樂', icon: 'landmark', bgClass: 'i-entertainment' },
-    '運動': { parent: '娛樂', icon: 'dumbbell', bgClass: 'i-entertainment' },
-
-    // 個人
-    '個人': { parent: '個人', icon: 'user', bgClass: 'i-personal' },
-    '社交': { parent: '個人', icon: 'handshake', bgClass: 'i-personal' },
-    '電信費': { parent: '個人', icon: 'phone', bgClass: 'i-personal' },
-    '借款': { parent: '個人', icon: 'coins', bgClass: 'i-personal' },
-    '投資': { parent: '個人', icon: 'trending-up', bgClass: 'i-personal' },
-    '稅金': { parent: '個人', icon: 'circle-dollar-sign', bgClass: 'i-personal' },
-    '保險': { parent: '個人', icon: 'shield-check', bgClass: 'i-personal' },
-    '捐款': { parent: '個人', icon: 'hand-heart', bgClass: 'i-personal' },
-    '寵物': { parent: '個人', icon: 'dog', bgClass: 'i-personal' },
-    '彩券': { parent: '個人', icon: 'receipt', bgClass: 'i-personal' },
-
-    // 醫療
-    '醫療': { parent: '醫療', icon: 'stethoscope', bgClass: 'i-medical' },
-    '門診': { parent: '醫療', icon: 'stethoscope', bgClass: 'i-medical' },
-    '藥品': { parent: '醫療', icon: 'pill', bgClass: 'i-medical' },
-    '醫療用品': { parent: '醫療', icon: 'briefcase-medical', bgClass: 'i-medical' },
-    '打針': { parent: '醫療', icon: 'syringe', bgClass: 'i-medical' },
-    '住院': { parent: '醫療', icon: 'bed-single', bgClass: 'i-medical' },
-    '手術': { parent: '醫療', icon: 'slice', bgClass: 'i-medical' },
-    '健康檢查': { parent: '醫療', icon: 'clipboard-plus', bgClass: 'i-medical' },
-
-    // 家居
-    '家居': { parent: '家居', icon: 'home', bgClass: 'i-home' },
-    '日常用品': { parent: '家居', icon: 'soap-dispenser-droplet', bgClass: 'i-home' },
-    '水費': { parent: '家居', icon: 'droplets', bgClass: 'i-home' },
-    '電費': { parent: '家居', icon: 'zap', bgClass: 'i-home' },
-    '燃料費': { parent: '家居', icon: 'flame', bgClass: 'i-home' },
-    '電話費': { parent: '家居', icon: 'phone-call', bgClass: 'i-home' },
-    '網路費': { parent: '家居', icon: 'house-wifi', bgClass: 'i-home' },
-    '房租': { parent: '家居', icon: 'building', bgClass: 'i-home' },
-    '洗衣費': { parent: '家居', icon: 'washing-machine', bgClass: 'i-home' },
-    '修繕費': { parent: '家居', icon: 'wrench', bgClass: 'i-home' },
-    '家具': { parent: '家居', icon: 'sofa', bgClass: 'i-home' },
-    '訂閱': { parent: '家居', icon: 'newspaper', bgClass: 'i-home' },
-    '家電': { parent: '家居', icon: 'tv', bgClass: 'i-home' },
-    '全聯': { parent: '家居', icon: 'store', bgClass: 'i-home' },
-    '屈臣氏': { parent: '家居', icon: 'store', bgClass: 'i-home' },
-    '康是美': { parent: '家居', icon: 'store', bgClass: 'i-home' },
-
-    // 家庭
-    '家庭': { parent: '家庭', icon: 'users', bgClass: 'i-family' },
-    '生活費': { parent: '家庭', icon: 'wallet-minimal', bgClass: 'i-family' },
-    '教育': { parent: '家庭', icon: 'graduation-cap', bgClass: 'i-family' },
-    '看護': { parent: '家庭', icon: 'person-standing', bgClass: 'i-family' },
-    '玩具': { parent: '家庭', icon: 'toy-brick', bgClass: 'i-family' },
-    '才藝': { parent: '家庭', icon: 'palette', bgClass: 'i-family' },
-
-    // 生活
-    '生活': { parent: '生活', icon: 'coffee', bgClass: 'i-life' },
-    '美容美髮': { parent: '生活', icon: 'scissors', bgClass: 'i-life' },
-    '住宿': { parent: '生活', icon: 'hotel', bgClass: 'i-life' },
-    '旅行': { parent: '生活', icon: 'tree-palm', bgClass: 'i-life' },
-    '派對': { parent: '生活', icon: 'wine', bgClass: 'i-life' },
-
-    // 學習
-    '學習': { parent: '學習', icon: 'book', bgClass: 'i-learn' },
-    '書籍': { parent: '學習', icon: 'book-open-text', bgClass: 'i-learn' },
-    '課程': { parent: '學習', icon: 'presentation', bgClass: 'i-learn' },
-    '教材': { parent: '學習', icon: 'book-marked', bgClass: 'i-learn' },
-    '證書': { parent: '學習', icon: 'book-user', bgClass: 'i-learn' },
-    '探索': { parent: '學習', icon: 'compass', bgClass: 'i-learn' },
-    '文具': { parent: '學習', icon: 'pen-ruler', bgClass: 'i-learn' },
-    '考試': { parent: '學習', icon: 'book-open-check', bgClass: 'i-learn' },
-    '金石堂': { parent: '學習', icon: 'book-open', bgClass: 'i-learn' },
-    '博客來': { parent: '學習', icon: 'book-open', bgClass: 'i-learn' },
-
-    // 收入
-    '薪水': { parent: '收入', icon: 'dollar-sign', bgClass: 'i-income-gold' },
-    '獎金': { parent: '收入', icon: 'circle-dollar-sign', bgClass: 'i-income-gold' },
-    '收款': { parent: '收入', icon: 'hand-coins', bgClass: 'i-income-gold' },
-    '利息': { parent: '收入', icon: 'landmark', bgClass: 'i-income-gold' },
-    '消費回饋': { parent: '收入', icon: 'credit-card', bgClass: 'i-income-gold' },
-    '零用錢': { parent: '收入', icon: 'circle-dollar-sign', bgClass: 'i-income-gold' },
-    '發票': { parent: '收入', icon: 'receipt', bgClass: 'i-income-gold' },
-    '補助': { parent: '收入', icon: 'building-2', bgClass: 'i-income-gold' }
-};
-
 /**
  * 1. 渲染日曆頁下方的明細項目（綁定真實 ID 點擊事件）
  */
@@ -968,7 +910,7 @@ function openRecordSummary(recordId) {
     const meta = categoryMetaMap[rec.category] || { parent: '購物', icon: 'tag', bgClass: 'i-shopping' };
     const isExpense = (rec.type === '支出' || rec.type === '應付款項');
 
-    // 1. 連動主分類大圓形視覺
+    // 連動主分類大圓形視覺
     const mainCatBg = document.getElementById('summary-main-cat-bg');
     const mainCatName = document.getElementById('summary-main-cat-name');
     const mainCatIcon = document.getElementById('summary-main-cat-icon');
@@ -977,7 +919,7 @@ function openRecordSummary(recordId) {
     if (mainCatName) mainCatName.innerText = meta.parent;
     if (mainCatIcon) mainCatIcon.setAttribute('data-lucide', meta.icon);
 
-    // 2. 連動明細卡片內容
+    // 連動明細卡片內容
     const noteEl = document.getElementById('summary-note-text');
     const subCatIcon = document.getElementById('summary-sub-cat-icon');
     const subCatName = document.getElementById('summary-sub-cat-name');
@@ -1038,7 +980,7 @@ function openEditRecordPage() {
     showPage('page-edit-record');
 }
 
-// 編輯記錄專用彈窗開啟器（複用通用彈窗與選擇流程）
+// 編輯記錄專用彈窗開啟器
 function openEditRecordAccountPicker() {
     filterRecordAccounts('');
     window._isEditingPicker = true;
@@ -1062,7 +1004,7 @@ function openEditRecordTimePicker() {
 }
 
 /**
- * 4. 點擊右上角打勾【儲存修改後的記錄】（包含帳戶餘額雙向差額更新與全域連動）
+ * 4. 儲存修改後的記錄（餘額差額更新與全域連動）
  */
 function saveEditedRecord() {
     const newAmount = parseFloat(document.getElementById('edit-rec-amount').value) || 0;
@@ -1088,16 +1030,16 @@ function saveEditedRecord() {
     const oldAccountName = oldRecord.account;
     const recordType = oldRecord.type || '支出';
 
-    // 1. 精準計算舊帳戶與新帳戶的餘額差額（回滾舊款，扣除新款）
+    // 1. 精準計算舊帳戶與新帳戶的餘額差額
     let oldAcc = accounts.find(a => a.name === oldAccountName);
     let newAcc = accounts.find(a => a.name === newAccountName);
 
     if (recordType === '支出' || recordType === '應付款項') {
-        if (oldAcc) oldAcc.amount = (parseFloat(oldAcc.amount) || 0) + oldAmount; // 退回舊支出
-        if (newAcc) newAcc.amount = (parseFloat(newAcc.amount) || 0) - newAmount; // 扣除新支出
+        if (oldAcc) oldAcc.amount = (parseFloat(oldAcc.amount) || 0) + oldAmount;
+        if (newAcc) newAcc.amount = (parseFloat(newAcc.amount) || 0) - newAmount;
     } else if (recordType === '收入' || recordType === '應收款項') {
-        if (oldAcc) oldAcc.amount = (parseFloat(oldAcc.amount) || 0) - oldAmount; // 扣回舊收入
-        if (newAcc) newAcc.amount = (parseFloat(newAcc.amount) || 0) + newAmount; // 加上新收入
+        if (oldAcc) oldAcc.amount = (parseFloat(oldAcc.amount) || 0) - oldAmount;
+        if (newAcc) newAcc.amount = (parseFloat(newAcc.amount) || 0) + newAmount;
     }
 
     // 2. 更新紀錄資料
@@ -1112,7 +1054,7 @@ function saveEditedRecord() {
     localStorage.setItem('koin_records', JSON.stringify(records));
     localStorage.setItem('koin_accounts', JSON.stringify(accounts));
 
-    // 4. 展示大打勾成功動畫浮層並返回日曆
+    // 4. 展示打勾動畫浮層並返回日曆
     const toast = document.getElementById('save-success-toast');
     if (toast) {
         toast.style.display = 'flex';
@@ -1144,7 +1086,6 @@ function deleteCurrentViewingRecord() {
             const amount = parseFloat(targetRecord.amount) || 0;
             const targetAcc = accounts.find(a => a.name === targetRecord.account);
             
-            // 回滾帳戶餘額
             if (targetAcc) {
                 if (targetRecord.type === '支出' || targetRecord.type === '應付款項') {
                     targetAcc.amount = (parseFloat(targetAcc.amount) || 0) + amount;
@@ -1184,9 +1125,10 @@ function resetRecordFormButtons() {
 // 4 大選取模組：帳戶 / 專案 / 日期 / 時間
 // ==========================================
 
-// 1. 帳戶選取模組
+// 1. 帳戶選取
 function openRecordAccountPicker() {
     filterRecordAccounts('');
+    window._isEditingPicker = false;
     openModal('record-account-modal');
 }
 
@@ -1230,54 +1172,10 @@ function selectRecordAccount(name) {
     closeModal('record-account-modal');
 }
 
-function selectRecordProject(name) {
-    if (window._isEditingPicker) {
-        const btn = document.getElementById('edit-btn-project');
-        if (btn) btn.innerText = name;
-        window._isEditingPicker = false;
-    } else {
-        if (typeof recordState !== 'undefined') recordState.project = name;
-        const btn = document.getElementById('btn-select-project');
-        if (btn) btn.innerText = name;
-    }
-    closeModal('record-project-modal');
-}
-
-function selectRecordCalendarDate(fullDate, displayDate) {
-    if (window._isEditingPicker) {
-        const btn = document.getElementById('edit-btn-date');
-        if (btn) btn.innerText = fullDate;
-        window._isEditingPicker = false;
-    } else {
-        if (typeof recordState !== 'undefined') recordState.date = fullDate;
-        const dateBtn = document.getElementById('btn-select-date');
-        if (dateBtn) dateBtn.innerText = displayDate;
-    }
-    closeModal('record-calendar-modal');
-}
-
-function confirmRecordTime() {
-    const hrInput = document.getElementById('input-record-hour');
-    const minInput = document.getElementById('input-record-minute');
-    const hr = hrInput ? hrInput.value : '12';
-    const min = minInput ? minInput.value : '00';
-    const formattedTime = `${String(hr).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
-
-    if (window._isEditingPicker) {
-        const btn = document.getElementById('edit-btn-time');
-        if (btn) btn.innerText = formattedTime;
-        window._isEditingPicker = false;
-    } else {
-        if (typeof recordState !== 'undefined') recordState.time = formattedTime;
-        const timeBtn = document.getElementById('btn-select-time');
-        if (timeBtn) timeBtn.innerText = formattedTime;
-    }
-    closeModal('record-time-modal');
-}
-
-// 2. 專案選取模組
+// 2. 專案選取
 function openRecordProjectPicker() {
     filterRecordProjects('');
+    window._isEditingPicker = false;
     openModal('record-project-modal');
 }
 
@@ -1308,7 +1206,20 @@ function filterRecordProjects(keyword) {
     });
 }
 
-// 3. 動態日曆選取模組
+function selectRecordProject(name) {
+    if (window._isEditingPicker) {
+        const btn = document.getElementById('edit-btn-project');
+        if (btn) btn.innerText = name;
+        window._isEditingPicker = false;
+    } else {
+        if (typeof recordState !== 'undefined') recordState.project = name;
+        const btn = document.getElementById('btn-select-project');
+        if (btn) btn.innerText = name;
+    }
+    closeModal('record-project-modal');
+}
+
+// 3. 日曆選取
 let calendarDisplayDate = new Date();
 
 function openRecordCalendar() {
@@ -1357,7 +1268,20 @@ function renderDynamicRecordCalendar() {
     }
 }
 
-// 4. 時間選取模組
+function selectRecordCalendarDate(fullDate, displayDate) {
+    if (window._isEditingPicker) {
+        const btn = document.getElementById('edit-btn-date');
+        if (btn) btn.innerText = fullDate;
+        window._isEditingPicker = false;
+    } else {
+        if (typeof recordState !== 'undefined') recordState.date = fullDate;
+        const dateBtn = document.getElementById('btn-select-date');
+        if (dateBtn) dateBtn.innerText = displayDate;
+    }
+    closeModal('record-calendar-modal');
+}
+
+// 4. 時間選取
 function openRecordTimePicker() {
     const now = new Date();
     const hrInput = document.getElementById('input-record-hour');
@@ -1369,6 +1293,24 @@ function openRecordTimePicker() {
     openModal('record-time-modal');
 }
 
+function confirmRecordTime() {
+    const hrInput = document.getElementById('input-record-hour');
+    const minInput = document.getElementById('input-record-minute');
+    const hr = hrInput ? hrInput.value : '12';
+    const min = minInput ? minInput.value : '00';
+    const formattedTime = `${String(hr).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+
+    if (window._isEditingPicker) {
+        const btn = document.getElementById('edit-btn-time');
+        if (btn) btn.innerText = formattedTime;
+        window._isEditingPicker = false;
+    } else {
+        if (typeof recordState !== 'undefined') recordState.time = formattedTime;
+        const timeBtn = document.getElementById('btn-select-time');
+        if (timeBtn) timeBtn.innerText = formattedTime;
+    }
+    closeModal('record-time-modal');
+}
 
 // 5. 進階設定頁籤切換
 function switchAdvancedTab(tabType) {
