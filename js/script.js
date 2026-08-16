@@ -762,8 +762,10 @@ function handleSettingsToggleHide(isChecked) {
     }
 }
 
+let currentViewingRecordId = null;
+
 /**
- * 每日交易明細列表渲染
+ * 1. 更新日曆明細渲染：為每筆記錄加上點擊事件 onclick="openRecordSummary(...)"
  */
 function renderDailyDetailsList() {
     const detailContainer = document.getElementById('daily-details-list');
@@ -791,54 +793,31 @@ function renderDailyDetailsList() {
         '美容美髮': 'scissors', '住宿': 'hotel', '旅行': 'tree-palm', '派對': 'wine',
         '書籍': 'book-open-text', '課程': 'presentation', '教材': 'book-marked', '證書': 'book-user', '探索': 'compass', '文具': 'pen-ruler', '考試': 'book-open-check', '金石堂': 'book-open', '博客來': 'book-open'
     };
-    const incomeIconMap = { '薪水': 'dollar-sign', '獎金': 'coins', '投資': 'trending-up', '收款': 'hand-coins', '彩券': 'newspaper', '利息': 'landmark', '消費回饋': 'credit-card', '零用錢': 'circle-dollar-sign', '發票': 'receipt', '補助': 'building-2' };
-    const otherIconMap = { '轉帳': 'arrow-left-right', '提款': 'credit-card', '存款': 'banknote', '還款': 'undo-2', '借出': 'hand-coins', '代付': 'handshake', '報帳': 'briefcase-business', '借入': 'hand-coins', '信貸': 'credit-card', '車貸': 'car', '房貸': 'house' };
 
     detailContainer.innerHTML = ''; 
 
     todayRecords.forEach(rec => {
         const cleanCategory = String(rec.category || '').trim();
-        const parentType = (rec.type === '收入') ? 'income' : 'expense';
-
-        let iconName = expenseIconMap[cleanCategory] || incomeIconMap[cleanCategory] || otherIconMap[cleanCategory];
-        if (!iconName) iconName = (parentType === 'income') ? 'dollar-sign' : 'tag';
-
-        let bgClass = 'i-income-gold'; 
-        if (parentType === 'income') {
-            bgClass = 'i-income-gold';
-        } else {
-            if (['加油費','停車費','火車','公車','捷運','悠遊卡','汽車','計程車','摩托車','單車','機票','船票'].includes(cleanCategory)) bgClass = 'i-transport';
-            else if (['手遊','彩券/刮刮樂','音樂','Spotify','Netflix','電影','遊樂園','展覽','運動'].includes(cleanCategory)) bgClass = 'i-entertainment';
-            else if (['蝦皮購物','momo購物','市場','衣物','鞋子','配件','包包','美妝保養','精品','禮物','電子產品','應用軟體','UNIQLO','NET'].includes(cleanCategory)) bgClass = 'i-shopping';
-            else if (['社交','電信費','借款','投資','稅金','保險','捐款','寵物','彩券'].includes(cleanCategory)) bgClass = 'i-personal';
-            else if (['門診','藥品','醫療用品','打針','住院','手術','健康檢查'].includes(cleanCategory)) bgClass = 'i-medical';
-            else if (['日常用品','水費','電費','燃料費','電話費','網路費','房租','洗衣費','修繕費','家具','訂閱','家電','全聯','屈臣氏','康是美'].includes(cleanCategory)) bgClass = 'i-home';
-            else if (['生活費','教育','看護','玩具','才藝'].includes(cleanCategory)) bgClass = 'i-family';
-            else if (['美容美髮','住宿','旅行','派對'].includes(cleanCategory)) bgClass = 'i-life';
-            else if (['書籍','課程','教材','證書','探索','文具','考試','金石堂','博客來'].includes(cleanCategory)) bgClass = 'i-learn';
-        }
-
         const isExpense = (rec.type === '支出' || rec.type === '應付款項');
-        const amountColorClass = isExpense ? 'text-red' : 'text-green';
-        const formattedAmount = `${isExpense ? '' : '+'}${rec.amount.toLocaleString()}`;
+        const iconName = expenseIconMap[cleanCategory] || 'tag';
 
         const itemHTML = `
-            <div class="form-group" style="padding: 0; margin-bottom: 12px;">
+            <div class="form-group" style="padding: 0; margin-bottom: 12px; cursor: pointer;" onclick="openRecordSummary(${rec.id})">
                 <div class="form-row" style="background: #1c1c28; padding: 14px 16px; border-radius: 16px; border-bottom: none;">
                     <div style="display: flex; align-items: center; gap: 14px;">
-                        <div class="cate-icon-wrapper ${bgClass}" style="width: 44px; height: 44px; margin-bottom: 0;">
+                        <div class="cate-icon-wrapper i-shopping" style="width: 44px; height: 44px; margin-bottom: 0;">
                             <i data-lucide="${iconName}"></i>
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 4px;">
-                            <span style="font-size: 15px; font-weight: 600; color: #ffffff; text-align: left;">${rec.category}</span>
+                            <span style="font-size: 15px; font-weight: 600; color: #ffffff;">${rec.category}</span>
                             <div style="display: flex; gap: 6px;">
-                                <span style="background: rgba(255,255,255,0.05); color: #8e8e93; font-size: 10px; padding: 2px 8px; border-radius: 6px;">${rec.project || '生活開銷'}</span>
-                                <span style="background: rgba(93,93,255,0.1); color: #8e8e93; font-size: 10px; padding: 2px 8px; border-radius: 6px;">${rec.account || '錢包'}</span>
+                                <span style="background: rgba(255,255,255,0.05); color: #8e8e93; font-size: 10px; padding: 2px 8px; border-radius: 6px;">${rec.project || '玩樂'}</span>
+                                <span style="background: rgba(93,93,255,0.1); color: #8e8e93; font-size: 10px; padding: 2px 8px; border-radius: 6px;">${rec.account || 'iLEO'}</span>
                             </div>
                         </div>
                     </div>
-                    <span class="${amountColorClass}" style="font-size: 17px; font-weight: 700;">
-                        $${formattedAmount}
+                    <span class="${isExpense ? 'text-red' : 'text-green'}" style="font-size: 17px; font-weight: 700;">
+                        ${isExpense ? '-' : '+'}$${parseFloat(rec.amount).toLocaleString()}
                     </span>
                 </div>
             </div>
@@ -847,6 +826,99 @@ function renderDailyDetailsList() {
     });
 
     if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+/**
+ * 2. 開啟摘要卡片彈窗
+ */
+function openRecordSummary(recordId) {
+    currentViewingRecordId = recordId;
+    const records = JSON.parse(localStorage.getItem('koin_records') || '[]');
+    const rec = records.find(r => r.id === recordId);
+    if (!rec) return;
+
+    document.getElementById('summary-note-text').innerText = rec.note || '無備註';
+    document.getElementById('summary-sub-cat-name').innerText = rec.category;
+    document.getElementById('summary-amount-text').innerText = `-$${parseFloat(rec.amount).toLocaleString()}`;
+    document.getElementById('summary-account-text').innerText = rec.account || 'iLEO';
+    document.getElementById('summary-project-text').innerText = rec.project || '玩樂';
+    document.getElementById('summary-date-text').innerText = rec.date;
+    document.getElementById('summary-time-text').innerText = rec.time || '12:25';
+
+    openModal('record-summary-modal');
+}
+
+/**
+ * 3. 從摘要卡片跳轉進入「編輯記錄」頁面
+ */
+function openEditRecordPage() {
+    closeModal('record-summary-modal');
+
+    const records = JSON.parse(localStorage.getItem('koin_records') || '[]');
+    const rec = records.find(r => r.id === currentViewingRecordId);
+    if (!rec) return;
+
+    document.getElementById('edit-rec-cat-name').innerText = rec.category;
+    document.getElementById('edit-rec-amount').value = rec.amount;
+    document.getElementById('edit-btn-account').innerText = rec.account || 'iLEO';
+    document.getElementById('edit-btn-project').innerText = rec.project || '玩樂';
+    document.getElementById('edit-btn-date').innerText = rec.date;
+    document.getElementById('edit-btn-time').innerText = rec.time || '12:25';
+    document.getElementById('edit-rec-note').value = rec.note || '';
+
+    showPage('page-edit-record');
+}
+
+/**
+ * 4. 儲存修改後的記帳項目（連動帳戶與日曆）
+ */
+function saveEditedRecord() {
+    const newAmount = parseFloat(document.getElementById('edit-rec-amount').value) || 0;
+    const newNote = document.getElementById('edit-rec-note').value.trim();
+    const newAccount = document.getElementById('edit-btn-account').innerText.trim();
+    const newProject = document.getElementById('edit-btn-project').innerText.trim();
+
+    let records = JSON.parse(localStorage.getItem('koin_records') || '[]');
+    const targetIdx = records.findIndex(r => r.id === currentViewingRecordId);
+    
+    if (targetIdx !== -1) {
+        records[targetIdx].amount = newAmount;
+        records[targetIdx].note = newNote;
+        records[targetIdx].account = newAccount;
+        records[targetIdx].project = newProject;
+        localStorage.setItem('koin_records', JSON.stringify(records));
+    }
+
+    // 播放打勾動畫
+    const toast = document.getElementById('save-success-toast');
+    if (toast) {
+        toast.style.display = 'flex';
+        setTimeout(() => {
+            toast.style.display = 'none';
+            showPage('page-calendar');
+            renderAccountOverview();
+            renderDailyDetailsList();
+        }, 600);
+    } else {
+        showPage('page-calendar');
+        renderAccountOverview();
+        renderDailyDetailsList();
+    }
+}
+
+/**
+ * 5. 刪除當前紀錄
+ */
+function deleteCurrentViewingRecord() {
+    if (confirm('確定要刪除這筆記帳紀錄嗎？')) {
+        let records = JSON.parse(localStorage.getItem('koin_records') || '[]');
+        records = records.filter(r => r.id !== currentViewingRecordId);
+        localStorage.setItem('koin_records', JSON.stringify(records));
+
+        closeModal('record-summary-modal');
+        renderDailyDetailsList();
+        renderAccountOverview();
+    }
 }
 
 /**
