@@ -764,8 +764,146 @@ function handleSettingsToggleHide(isChecked) {
 
 let currentViewingRecordId = null;
 
+// 全域正在檢視/編輯的記帳項目 ID
+let currentViewingRecordId = null;
+
+// 10 大主分類與所有子分類圖示、主分類名稱、背景漸層對照字典
+const categoryMetaMap = {
+    // 飲食
+    '飲食': { parent: '飲食', icon: 'utensils', bgClass: 'i-eat' },
+    '早餐': { parent: '飲食', icon: 'croissant', bgClass: 'i-eat' },
+    '午餐': { parent: '飲食', icon: 'salad', bgClass: 'i-eat' },
+    '晚餐': { parent: '飲食', icon: 'soup', bgClass: 'i-eat' },
+    '點心': { parent: '飲食', icon: 'cookie', bgClass: 'i-eat' },
+    '飲料': { parent: '飲食', icon: 'cup-soda', bgClass: 'i-eat' },
+    '酒類': { parent: '飲食', icon: 'beer', bgClass: 'i-eat' },
+    '水果': { parent: '飲食', icon: 'grape', bgClass: 'i-eat' },
+    '宵夜': { parent: '飲食', icon: 'pizza', bgClass: 'i-eat' },
+    '礦泉水': { parent: '飲食', icon: 'glass-water', bgClass: 'i-eat' },
+
+    // 交通
+    '交通': { parent: '交通', icon: 'car', bgClass: 'i-transport' },
+    '加油費': { parent: '交通', icon: 'fuel', bgClass: 'i-transport' },
+    '停車費': { parent: '交通', icon: 'square-parking', bgClass: 'i-transport' },
+    '火車': { parent: '交通', icon: 'train-front', bgClass: 'i-transport' },
+    '公車': { parent: '交通', icon: 'bus-front', bgClass: 'i-transport' },
+    '捷運': { parent: '交通', icon: 'train-front-tunnel', bgClass: 'i-transport' },
+    '悠遊卡': { parent: '交通', icon: 'credit-card', bgClass: 'i-transport' },
+    '汽車': { parent: '交通', icon: 'car-front', bgClass: 'i-transport' },
+    '計程車': { parent: '交通', icon: 'car-taxi-front', bgClass: 'i-transport' },
+    '摩托車': { parent: '交通', icon: 'motorbike', bgClass: 'i-transport' },
+    '單車': { parent: '交通', icon: 'bike', bgClass: 'i-transport' },
+    '機票': { parent: '交通', icon: 'plane', bgClass: 'i-transport' },
+    '船票': { parent: '交通', icon: 'ship', bgClass: 'i-transport' },
+
+    // 購物
+    '購物': { parent: '購物', icon: 'shopping-bag', bgClass: 'i-shopping' },
+    '蝦皮購物': { parent: '購物', icon: 'shopping-bag', bgClass: 'i-shopping' },
+    'momo購物': { parent: '購物', icon: 'shopping-bag', bgClass: 'i-shopping' },
+    'PChome24h': { parent: '購物', icon: 'shopping-bag', bgClass: 'i-shopping' },
+    '市場': { parent: '購物', icon: 'shopping-cart', bgClass: 'i-shopping' },
+    '衣物': { parent: '購物', icon: 'shirt', bgClass: 'i-shopping' },
+    '鞋子': { parent: '購物', icon: 'sport-shoe', bgClass: 'i-shopping' },
+    '配件': { parent: '購物', icon: 'glasses', bgClass: 'i-shopping' },
+    '包包': { parent: '購物', icon: 'handbag', bgClass: 'i-shopping' },
+    '美妝保養': { parent: '購物', icon: 'mirror-round', bgClass: 'i-shopping' },
+    '精品': { parent: '購物', icon: 'gem', bgClass: 'i-shopping' },
+    '禮物': { parent: '購物', icon: 'gift', bgClass: 'i-shopping' },
+    '電子產品': { parent: '購物', icon: 'laptop', bgClass: 'i-shopping' },
+    '應用軟體': { parent: '購物', icon: 'app-window', bgClass: 'i-shopping' },
+    'UNIQLO': { parent: '購物', icon: 'shirt', bgClass: 'i-shopping' },
+    'NET': { parent: '購物', icon: 'shirt', bgClass: 'i-shopping' },
+
+    // 娛樂
+    '娛樂': { parent: '娛樂', icon: 'party-popper', bgClass: 'i-entertainment' },
+    '手遊': { parent: '娛樂', icon: 'gamepad-2', bgClass: 'i-entertainment' },
+    '音樂': { parent: '娛樂', icon: 'music', bgClass: 'i-entertainment' },
+    'Netflix': { parent: '娛樂', icon: 'monitor-play', bgClass: 'i-entertainment' },
+    '電影': { parent: '娛樂', icon: 'clapperboard', bgClass: 'i-entertainment' },
+    '遊樂園': { parent: '娛樂', icon: 'roller-coaster', bgClass: 'i-entertainment' },
+    '展覽': { parent: '娛樂', icon: 'landmark', bgClass: 'i-entertainment' },
+    '運動': { parent: '娛樂', icon: 'dumbbell', bgClass: 'i-entertainment' },
+
+    // 個人
+    '個人': { parent: '個人', icon: 'user', bgClass: 'i-personal' },
+    '社交': { parent: '個人', icon: 'handshake', bgClass: 'i-personal' },
+    '電信費': { parent: '個人', icon: 'phone', bgClass: 'i-personal' },
+    '借款': { parent: '個人', icon: 'coins', bgClass: 'i-personal' },
+    '投資': { parent: '個人', icon: 'trending-up', bgClass: 'i-personal' },
+    '稅金': { parent: '個人', icon: 'circle-dollar-sign', bgClass: 'i-personal' },
+    '保險': { parent: '個人', icon: 'shield-check', bgClass: 'i-personal' },
+    '捐款': { parent: '個人', icon: 'hand-heart', bgClass: 'i-personal' },
+    '寵物': { parent: '個人', icon: 'dog', bgClass: 'i-personal' },
+    '彩券': { parent: '個人', icon: 'receipt', bgClass: 'i-personal' },
+
+    // 醫療
+    '醫療': { parent: '醫療', icon: 'stethoscope', bgClass: 'i-medical' },
+    '門診': { parent: '醫療', icon: 'stethoscope', bgClass: 'i-medical' },
+    '藥品': { parent: '醫療', icon: 'pill', bgClass: 'i-medical' },
+    '醫療用品': { parent: '醫療', icon: 'briefcase-medical', bgClass: 'i-medical' },
+    '打針': { parent: '醫療', icon: 'syringe', bgClass: 'i-medical' },
+    '住院': { parent: '醫療', icon: 'bed-single', bgClass: 'i-medical' },
+    '手術': { parent: '醫療', icon: 'slice', bgClass: 'i-medical' },
+    '健康檢查': { parent: '醫療', icon: 'clipboard-plus', bgClass: 'i-medical' },
+
+    // 家居
+    '家居': { parent: '家居', icon: 'home', bgClass: 'i-home' },
+    '日常用品': { parent: '家居', icon: 'soap-dispenser-droplet', bgClass: 'i-home' },
+    '水費': { parent: '家居', icon: 'droplets', bgClass: 'i-home' },
+    '電費': { parent: '家居', icon: 'zap', bgClass: 'i-home' },
+    '燃料費': { parent: '家居', icon: 'flame', bgClass: 'i-home' },
+    '電話費': { parent: '家居', icon: 'phone-call', bgClass: 'i-home' },
+    '網路費': { parent: '家居', icon: 'house-wifi', bgClass: 'i-home' },
+    '房租': { parent: '家居', icon: 'building', bgClass: 'i-home' },
+    '洗衣費': { parent: '家居', icon: 'washing-machine', bgClass: 'i-home' },
+    '修繕費': { parent: '家居', icon: 'wrench', bgClass: 'i-home' },
+    '家具': { parent: '家居', icon: 'sofa', bgClass: 'i-home' },
+    '訂閱': { parent: '家居', icon: 'newspaper', bgClass: 'i-home' },
+    '家電': { parent: '家居', icon: 'tv', bgClass: 'i-home' },
+    '全聯': { parent: '家居', icon: 'store', bgClass: 'i-home' },
+    '屈臣氏': { parent: '家居', icon: 'store', bgClass: 'i-home' },
+    '康是美': { parent: '家居', icon: 'store', bgClass: 'i-home' },
+
+    // 家庭
+    '家庭': { parent: '家庭', icon: 'users', bgClass: 'i-family' },
+    '生活費': { parent: '家庭', icon: 'wallet-minimal', bgClass: 'i-family' },
+    '教育': { parent: '家庭', icon: 'graduation-cap', bgClass: 'i-family' },
+    '看護': { parent: '家庭', icon: 'person-standing', bgClass: 'i-family' },
+    '玩具': { parent: '家庭', icon: 'toy-brick', bgClass: 'i-family' },
+    '才藝': { parent: '家庭', icon: 'palette', bgClass: 'i-family' },
+
+    // 生活
+    '生活': { parent: '生活', icon: 'coffee', bgClass: 'i-life' },
+    '美容美髮': { parent: '生活', icon: 'scissors', bgClass: 'i-life' },
+    '住宿': { parent: '生活', icon: 'hotel', bgClass: 'i-life' },
+    '旅行': { parent: '生活', icon: 'tree-palm', bgClass: 'i-life' },
+    '派對': { parent: '生活', icon: 'wine', bgClass: 'i-life' },
+
+    // 學習
+    '學習': { parent: '學習', icon: 'book', bgClass: 'i-learn' },
+    '書籍': { parent: '學習', icon: 'book-open-text', bgClass: 'i-learn' },
+    '課程': { parent: '學習', icon: 'presentation', bgClass: 'i-learn' },
+    '教材': { parent: '學習', icon: 'book-marked', bgClass: 'i-learn' },
+    '證書': { parent: '學習', icon: 'book-user', bgClass: 'i-learn' },
+    '探索': { parent: '學習', icon: 'compass', bgClass: 'i-learn' },
+    '文具': { parent: '學習', icon: 'pen-ruler', bgClass: 'i-learn' },
+    '考試': { parent: '學習', icon: 'book-open-check', bgClass: 'i-learn' },
+    '金石堂': { parent: '學習', icon: 'book-open', bgClass: 'i-learn' },
+    '博客來': { parent: '學習', icon: 'book-open', bgClass: 'i-learn' },
+
+    // 收入
+    '薪水': { parent: '收入', icon: 'dollar-sign', bgClass: 'i-income-gold' },
+    '獎金': { parent: '收入', icon: 'circle-dollar-sign', bgClass: 'i-income-gold' },
+    '收款': { parent: '收入', icon: 'hand-coins', bgClass: 'i-income-gold' },
+    '利息': { parent: '收入', icon: 'landmark', bgClass: 'i-income-gold' },
+    '消費回饋': { parent: '收入', icon: 'credit-card', bgClass: 'i-income-gold' },
+    '零用錢': { parent: '收入', icon: 'circle-dollar-sign', bgClass: 'i-income-gold' },
+    '發票': { parent: '收入', icon: 'receipt', bgClass: 'i-income-gold' },
+    '補助': { parent: '收入', icon: 'building-2', bgClass: 'i-income-gold' }
+};
+
 /**
- * 1. 更新日曆明細渲染：為每筆記錄加上點擊事件 onclick="openRecordSummary(...)"
+ * 1. 渲染日曆頁下方的明細項目（綁定真實 ID 點擊事件）
  */
 function renderDailyDetailsList() {
     const detailContainer = document.getElementById('daily-details-list');
@@ -773,6 +911,8 @@ function renderDailyDetailsList() {
 
     const localRecords = JSON.parse(localStorage.getItem('koin_records')) || [];
     const currentSelectedDate = recordState.date || new Date().toLocaleDateString();
+    
+    // 過濾出所選日期的所有記帳紀錄
     const todayRecords = localRecords.filter(rec => rec.date === currentSelectedDate);
 
     if (todayRecords.length === 0) {
@@ -780,44 +920,32 @@ function renderDailyDetailsList() {
         return;
     }
 
-    const expenseIconMap = {
-        '飲食': 'utensils', '交通': 'car', '娛樂': 'party-popper', '購物': 'shopping-bag', '個人': 'user', '醫療': 'stethoscope', '家居': 'home', '家庭': 'users', '生活': 'coffee', '學習': 'book',
-        '早餐': 'croissant', '午餐': 'utensils', '晚餐': 'soup', '點心': 'cookie', '飲料': 'cup-soda', '酒類': 'beer', '水果': 'grape', '宵夜': 'pizza', '礦泉水': 'glass-water',
-        '加油費': 'fuel', '停車費': 'square-parking', '火車': 'train-front', '公車': 'bus-front', '捷運': 'train-front-tunnel', '悠遊卡': 'credit-card', '汽車': 'car-front', '計程車': 'car-taxi-front', '摩托車': 'motorbike', '單車': 'bike', '機票': 'plane', '船票': 'ship',
-        '手遊': 'gamepad-2', '音樂': 'music', 'Netflix': 'monitor-play', '電影': 'clapperboard', '遊樂園': 'roller-coaster', '展覽': 'landmark', '運動': 'dumbbell',
-        '蝦皮購物': 'shopping-bag', 'momo購物': 'shopping-bag', 'PChome24h': 'shopping-bag', '市場': 'shopping-cart', '衣物': 'shirt', '鞋子': 'sport-shoe', '配件': 'glasses', '包包': 'handbag', '美妝保養': 'mirror-round', '精品': 'gem', '禮物': 'gift', '電子產品': 'laptop', '應用軟體': 'app-window', 'UNIQLO': 'shirt', 'NET': 'shirt',
-        '社交': 'handshake', '電信費': 'phone', '借款': 'coins', '投資': 'trending-up', '稅金': 'circle-dollar-sign', '保險': 'shield-check', '捐款': 'hand-heart', '寵物': 'dog', '彩券': 'receipt',
-        '門診': 'stethoscope', '藥品': 'pill', '醫療用品': 'briefcase-medical', '打針': 'syringe', '住院': 'bed-single', '手術': 'slice', '健康檢查': 'clipboard-plus',
-        '日常用品': 'soap-dispenser-droplet', '水費': 'droplets', '電費': 'zap', '燃料費': 'flame', '電話費': 'phone-call', '網路費': 'house-wifi', '房租': 'building', '洗衣費': 'washing-machine', '修繕費': 'wrench', '家具': 'sofa', '訂閱': 'newspaper', '家電': 'tv', '全聯': 'store', '屈臣氏': 'store', '康是美': 'store',
-        '生活費': 'wallet-minimal', '教育': 'graduation-cap', '看護': 'person-standing', '玩具': 'toy-brick', '才藝': 'palette',
-        '美容美髮': 'scissors', '住宿': 'hotel', '旅行': 'tree-palm', '派對': 'wine',
-        '書籍': 'book-open-text', '課程': 'presentation', '教材': 'book-marked', '證書': 'book-user', '探索': 'compass', '文具': 'pen-ruler', '考試': 'book-open-check', '金石堂': 'book-open', '博客來': 'book-open'
-    };
-
     detailContainer.innerHTML = ''; 
 
     todayRecords.forEach(rec => {
         const cleanCategory = String(rec.category || '').trim();
+        const meta = categoryMetaMap[cleanCategory] || { parent: '其他', icon: 'tag', bgClass: 'i-income-gold' };
         const isExpense = (rec.type === '支出' || rec.type === '應付款項');
-        const iconName = expenseIconMap[cleanCategory] || 'tag';
+        const amountColorClass = isExpense ? 'text-red' : 'text-green';
+        const formattedAmount = `${isExpense ? '' : '+'}${parseFloat(rec.amount).toLocaleString()}`;
 
         const itemHTML = `
             <div class="form-group" style="padding: 0; margin-bottom: 12px; cursor: pointer;" onclick="openRecordSummary(${rec.id})">
                 <div class="form-row" style="background: #1c1c28; padding: 14px 16px; border-radius: 16px; border-bottom: none;">
                     <div style="display: flex; align-items: center; gap: 14px;">
-                        <div class="cate-icon-wrapper i-shopping" style="width: 44px; height: 44px; margin-bottom: 0;">
-                            <i data-lucide="${iconName}"></i>
+                        <div class="cate-icon-wrapper ${meta.bgClass}" style="width: 44px; height: 44px; margin-bottom: 0;">
+                            <i data-lucide="${meta.icon}"></i>
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 4px;">
-                            <span style="font-size: 15px; font-weight: 600; color: #ffffff;">${rec.category}</span>
+                            <span style="font-size: 15px; font-weight: 600; color: #ffffff; text-align: left;">${rec.category}</span>
                             <div style="display: flex; gap: 6px;">
-                                <span style="background: rgba(255,255,255,0.05); color: #8e8e93; font-size: 10px; padding: 2px 8px; border-radius: 6px;">${rec.project || '玩樂'}</span>
-                                <span style="background: rgba(93,93,255,0.1); color: #8e8e93; font-size: 10px; padding: 2px 8px; border-radius: 6px;">${rec.account || 'iLEO'}</span>
+                                <span style="background: rgba(255,255,255,0.05); color: #8e8e93; font-size: 10px; padding: 2px 8px; border-radius: 6px;">${rec.project || '生活開銷'}</span>
+                                <span style="background: rgba(93,93,255,0.1); color: #8e8e93; font-size: 10px; padding: 2px 8px; border-radius: 6px;">${rec.account || '錢包'}</span>
                             </div>
                         </div>
                     </div>
-                    <span class="${isExpense ? 'text-red' : 'text-green'}" style="font-size: 17px; font-weight: 700;">
-                        ${isExpense ? '-' : '+'}$${parseFloat(rec.amount).toLocaleString()}
+                    <span class="${amountColorClass}" style="font-size: 17px; font-weight: 700;">
+                        $${formattedAmount}
                     </span>
                 </div>
             </div>
@@ -829,7 +957,7 @@ function renderDailyDetailsList() {
 }
 
 /**
- * 2. 開啟摘要卡片彈窗
+ * 2. 點擊明細項目，開啟【記帳明細摘要彈窗】並精準連動
  */
 function openRecordSummary(recordId) {
     currentViewingRecordId = recordId;
@@ -837,19 +965,47 @@ function openRecordSummary(recordId) {
     const rec = records.find(r => r.id === recordId);
     if (!rec) return;
 
-    document.getElementById('summary-note-text').innerText = rec.note || '無備註';
-    document.getElementById('summary-sub-cat-name').innerText = rec.category;
-    document.getElementById('summary-amount-text').innerText = `-$${parseFloat(rec.amount).toLocaleString()}`;
-    document.getElementById('summary-account-text').innerText = rec.account || 'iLEO';
-    document.getElementById('summary-project-text').innerText = rec.project || '玩樂';
-    document.getElementById('summary-date-text').innerText = rec.date;
-    document.getElementById('summary-time-text').innerText = rec.time || '12:25';
+    const meta = categoryMetaMap[rec.category] || { parent: '購物', icon: 'tag', bgClass: 'i-shopping' };
+    const isExpense = (rec.type === '支出' || rec.type === '應付款項');
+
+    // 1. 連動主分類大圓形視覺
+    const mainCatBg = document.getElementById('summary-main-cat-bg');
+    const mainCatName = document.getElementById('summary-main-cat-name');
+    const mainCatIcon = document.getElementById('summary-main-cat-icon');
+
+    if (mainCatBg) mainCatBg.className = `summary-hero-circle ${meta.bgClass}`;
+    if (mainCatName) mainCatName.innerText = meta.parent;
+    if (mainCatIcon) mainCatIcon.setAttribute('data-lucide', meta.icon);
+
+    // 2. 連動明細卡片內容
+    const noteEl = document.getElementById('summary-note-text');
+    const subCatIcon = document.getElementById('summary-sub-cat-icon');
+    const subCatName = document.getElementById('summary-sub-cat-name');
+    const amountEl = document.getElementById('summary-amount-text');
+    const accountEl = document.getElementById('summary-account-text');
+    const projectEl = document.getElementById('summary-project-text');
+    const dateEl = document.getElementById('summary-date-text');
+    const timeEl = document.getElementById('summary-time-text');
+
+    if (noteEl) noteEl.innerText = rec.note || '無備註事項';
+    if (subCatName) subCatName.innerText = rec.category;
+    if (subCatIcon) subCatIcon.setAttribute('data-lucide', meta.icon);
+    
+    if (amountEl) {
+        amountEl.innerText = `${isExpense ? '-' : '+'}$${parseFloat(rec.amount).toLocaleString()}`;
+        amountEl.style.color = isExpense ? '#fb7185' : '#4ade80';
+    }
+
+    if (accountEl) accountEl.innerText = rec.account || '錢包';
+    if (projectEl) projectEl.innerText = rec.project || '生活開銷';
+    if (dateEl) dateEl.innerText = rec.date || '2026/08/16';
+    if (timeEl) timeEl.innerText = rec.time || '12:00';
 
     openModal('record-summary-modal');
 }
 
 /**
- * 3. 從摘要卡片跳轉進入「編輯記錄」頁面
+ * 3. 點擊摘要彈窗右上角【編輯筆圖示】，切換至編輯記錄頁
  */
 function openEditRecordPage() {
     closeModal('record-summary-modal');
@@ -858,50 +1014,154 @@ function openEditRecordPage() {
     const rec = records.find(r => r.id === currentViewingRecordId);
     if (!rec) return;
 
-    document.getElementById('edit-rec-cat-name').innerText = rec.category;
-    document.getElementById('edit-rec-amount').value = rec.amount;
-    document.getElementById('edit-btn-account').innerText = rec.account || 'iLEO';
-    document.getElementById('edit-btn-project').innerText = rec.project || '玩樂';
-    document.getElementById('edit-btn-date').innerText = rec.date;
-    document.getElementById('edit-btn-time').innerText = rec.time || '12:25';
-    document.getElementById('edit-rec-note').value = rec.note || '';
+    const meta = categoryMetaMap[rec.category] || { parent: '購物', icon: 'tag', bgClass: 'i-shopping' };
+
+    // 反填編輯表單資料
+    const catNameEl = document.getElementById('edit-rec-cat-name');
+    const iconEl = document.getElementById('edit-rec-icon');
+    const amountInput = document.getElementById('edit-rec-amount');
+    const btnAcc = document.getElementById('edit-btn-account');
+    const btnProj = document.getElementById('edit-btn-project');
+    const btnDate = document.getElementById('edit-btn-date');
+    const btnTime = document.getElementById('edit-btn-time');
+    const noteInput = document.getElementById('edit-rec-note');
+
+    if (catNameEl) catNameEl.innerText = rec.category;
+    if (iconEl) iconEl.setAttribute('data-lucide', meta.icon);
+    if (amountInput) amountInput.value = rec.amount;
+    if (btnAcc) btnAcc.innerText = rec.account || '錢包';
+    if (btnProj) btnProj.innerText = rec.project || '生活開銷';
+    if (btnDate) btnDate.innerText = rec.date || '2026/08/16';
+    if (btnTime) btnTime.innerText = rec.time || '12:00';
+    if (noteInput) noteInput.value = rec.note || '';
 
     showPage('page-edit-record');
 }
 
+// 編輯記錄專用彈窗開啟器（複用通用彈窗與選擇流程）
+function openEditRecordAccountPicker() {
+    filterRecordAccounts('');
+    window._isEditingPicker = true;
+    openModal('record-account-modal');
+}
+
+function openEditRecordProjectPicker() {
+    filterRecordProjects('');
+    window._isEditingPicker = true;
+    openModal('record-project-modal');
+}
+
+function openEditRecordCalendar() {
+    window._isEditingPicker = true;
+    openRecordCalendar();
+}
+
+function openEditRecordTimePicker() {
+    window._isEditingPicker = true;
+    openRecordTimePicker();
+}
+
 /**
- * 4. 儲存修改後的記帳項目（連動帳戶與日曆）
+ * 4. 點擊右上角打勾【儲存修改後的記錄】（包含帳戶餘額雙向差額更新與全域連動）
  */
 function saveEditedRecord() {
     const newAmount = parseFloat(document.getElementById('edit-rec-amount').value) || 0;
     const newNote = document.getElementById('edit-rec-note').value.trim();
-    const newAccount = document.getElementById('edit-btn-account').innerText.trim();
-    const newProject = document.getElementById('edit-btn-project').innerText.trim();
+    const newAccountName = document.getElementById('edit-btn-account').innerText.trim();
+    const newProjectName = document.getElementById('edit-btn-project').innerText.trim();
+    const newDate = document.getElementById('edit-btn-date').innerText.trim();
+    const newTime = document.getElementById('edit-btn-time').innerText.trim();
+
+    if (newAmount <= 0) {
+        alert('請輸入大於 0 的有效金額！');
+        return;
+    }
 
     let records = JSON.parse(localStorage.getItem('koin_records') || '[]');
+    let accounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
+
     const targetIdx = records.findIndex(r => r.id === currentViewingRecordId);
-    
-    if (targetIdx !== -1) {
-        records[targetIdx].amount = newAmount;
-        records[targetIdx].note = newNote;
-        records[targetIdx].account = newAccount;
-        records[targetIdx].project = newProject;
-        localStorage.setItem('koin_records', JSON.stringify(records));
+    if (targetIdx === -1) return;
+
+    const oldRecord = records[targetIdx];
+    const oldAmount = parseFloat(oldRecord.amount) || 0;
+    const oldAccountName = oldRecord.account;
+    const recordType = oldRecord.type || '支出';
+
+    // 1. 精準計算舊帳戶與新帳戶的餘額差額（回滾舊款，扣除新款）
+    let oldAcc = accounts.find(a => a.name === oldAccountName);
+    let newAcc = accounts.find(a => a.name === newAccountName);
+
+    if (recordType === '支出' || recordType === '應付款項') {
+        if (oldAcc) oldAcc.amount = (parseFloat(oldAcc.amount) || 0) + oldAmount; // 退回舊支出
+        if (newAcc) newAcc.amount = (parseFloat(newAcc.amount) || 0) - newAmount; // 扣除新支出
+    } else if (recordType === '收入' || recordType === '應收款項') {
+        if (oldAcc) oldAcc.amount = (parseFloat(oldAcc.amount) || 0) - oldAmount; // 扣回舊收入
+        if (newAcc) newAcc.amount = (parseFloat(newAcc.amount) || 0) + newAmount; // 加上新收入
+    }
+
+    // 2. 更新紀錄資料
+    records[targetIdx].amount = newAmount;
+    records[targetIdx].note = newNote;
+    records[targetIdx].account = newAccountName;
+    records[targetIdx].project = newProjectName;
+    records[targetIdx].date = newDate;
+    records[targetIdx].time = newTime;
+
+    // 3. 持久化寫入 LocalStorage
+    localStorage.setItem('koin_records', JSON.stringify(records));
+    localStorage.setItem('koin_accounts', JSON.stringify(accounts));
+
+    // 4. 展示大打勾成功動畫浮層並返回日曆
+    const toast = document.getElementById('save-success-toast');
+    if (toast) {
+        toast.style.display = 'flex';
+        setTimeout(() => {
+            toast.style.display = 'none';
+            showPage('page-calendar');
+            renderAccountOverview();
+            renderDailyDetailsList();
+            if (typeof renderTrendsPage === 'function') renderTrendsPage();
+            if (typeof renderProjectsPage === 'function') renderProjectsPage();
+        }, 500);
+    } else {
+        showPage('page-calendar');
+        renderAccountOverview();
+        renderDailyDetailsList();
     }
 }
 
 /**
- * 5. 刪除當前紀錄
+ * 5. 摘要彈窗點擊垃圾桶【刪除此筆記錄】並自動回滾餘額
  */
 function deleteCurrentViewingRecord() {
-    if (confirm('確定要刪除這筆記帳紀錄嗎？')) {
+    if (confirm('確定要刪除這筆記帳紀錄嗎？刪除後無法復原。')) {
         let records = JSON.parse(localStorage.getItem('koin_records') || '[]');
+        let accounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
+
+        const targetRecord = records.find(r => r.id === currentViewingRecordId);
+        if (targetRecord) {
+            const amount = parseFloat(targetRecord.amount) || 0;
+            const targetAcc = accounts.find(a => a.name === targetRecord.account);
+            
+            // 回滾帳戶餘額
+            if (targetAcc) {
+                if (targetRecord.type === '支出' || targetRecord.type === '應付款項') {
+                    targetAcc.amount = (parseFloat(targetAcc.amount) || 0) + amount;
+                } else if (targetRecord.type === '收入' || targetRecord.type === '應收款項') {
+                    targetAcc.amount = (parseFloat(targetAcc.amount) || 0) - amount;
+                }
+                localStorage.setItem('koin_accounts', JSON.stringify(accounts));
+            }
+        }
+
         records = records.filter(r => r.id !== currentViewingRecordId);
         localStorage.setItem('koin_records', JSON.stringify(records));
 
         closeModal('record-summary-modal');
         renderDailyDetailsList();
         renderAccountOverview();
+        if (typeof renderTrendsPage === 'function') renderTrendsPage();
     }
 }
 
@@ -958,10 +1218,61 @@ function filterRecordAccounts(keyword) {
 }
 
 function selectRecordAccount(name) {
-    if (typeof recordState !== 'undefined') recordState.account = name;
-    const btn = document.getElementById('btn-select-account');
-    if (btn) btn.innerText = name;
+    if (window._isEditingPicker) {
+        const btn = document.getElementById('edit-btn-account');
+        if (btn) btn.innerText = name;
+        window._isEditingPicker = false;
+    } else {
+        if (typeof recordState !== 'undefined') recordState.account = name;
+        const btn = document.getElementById('btn-select-account');
+        if (btn) btn.innerText = name;
+    }
     closeModal('record-account-modal');
+}
+
+function selectRecordProject(name) {
+    if (window._isEditingPicker) {
+        const btn = document.getElementById('edit-btn-project');
+        if (btn) btn.innerText = name;
+        window._isEditingPicker = false;
+    } else {
+        if (typeof recordState !== 'undefined') recordState.project = name;
+        const btn = document.getElementById('btn-select-project');
+        if (btn) btn.innerText = name;
+    }
+    closeModal('record-project-modal');
+}
+
+function selectRecordCalendarDate(fullDate, displayDate) {
+    if (window._isEditingPicker) {
+        const btn = document.getElementById('edit-btn-date');
+        if (btn) btn.innerText = fullDate;
+        window._isEditingPicker = false;
+    } else {
+        if (typeof recordState !== 'undefined') recordState.date = fullDate;
+        const dateBtn = document.getElementById('btn-select-date');
+        if (dateBtn) dateBtn.innerText = displayDate;
+    }
+    closeModal('record-calendar-modal');
+}
+
+function confirmRecordTime() {
+    const hrInput = document.getElementById('input-record-hour');
+    const minInput = document.getElementById('input-record-minute');
+    const hr = hrInput ? hrInput.value : '12';
+    const min = minInput ? minInput.value : '00';
+    const formattedTime = `${String(hr).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+
+    if (window._isEditingPicker) {
+        const btn = document.getElementById('edit-btn-time');
+        if (btn) btn.innerText = formattedTime;
+        window._isEditingPicker = false;
+    } else {
+        if (typeof recordState !== 'undefined') recordState.time = formattedTime;
+        const timeBtn = document.getElementById('btn-select-time');
+        if (timeBtn) timeBtn.innerText = formattedTime;
+    }
+    closeModal('record-time-modal');
 }
 
 // 2. 專案選取模組
@@ -995,13 +1306,6 @@ function filterRecordProjects(keyword) {
             `);
         }
     });
-}
-
-function selectRecordProject(name) {
-    if (typeof recordState !== 'undefined') recordState.project = name;
-    const btn = document.getElementById('btn-select-project');
-    if (btn) btn.innerText = name;
-    closeModal('record-project-modal');
 }
 
 // 3. 動態日曆選取模組
@@ -1053,13 +1357,6 @@ function renderDynamicRecordCalendar() {
     }
 }
 
-function selectRecordCalendarDate(fullDate, displayDate) {
-    if (typeof recordState !== 'undefined') recordState.date = fullDate;
-    const dateBtn = document.getElementById('btn-select-date');
-    if (dateBtn) dateBtn.innerText = displayDate;
-    closeModal('record-calendar-modal');
-}
-
 // 4. 時間選取模組
 function openRecordTimePicker() {
     const now = new Date();
@@ -1072,21 +1369,6 @@ function openRecordTimePicker() {
     openModal('record-time-modal');
 }
 
-function confirmRecordTime() {
-    const hrInput = document.getElementById('input-record-hour');
-    const minInput = document.getElementById('input-record-minute');
-    
-    const hr = hrInput ? hrInput.value : '12';
-    const min = minInput ? minInput.value : '00';
-    const formattedTime = `${String(hr).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
-    
-    if (typeof recordState !== 'undefined') recordState.time = formattedTime;
-    
-    const timeBtn = document.getElementById('btn-select-time');
-    if (timeBtn) timeBtn.innerText = formattedTime;
-    
-    closeModal('record-time-modal');
-}
 
 // 5. 進階設定頁籤切換
 function switchAdvancedTab(tabType) {
