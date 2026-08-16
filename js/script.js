@@ -888,22 +888,6 @@ function saveEditedRecord() {
         records[targetIdx].project = newProject;
         localStorage.setItem('koin_records', JSON.stringify(records));
     }
-
-    // 播放打勾動畫
-    const toast = document.getElementById('save-success-toast');
-    if (toast) {
-        toast.style.display = 'flex';
-        setTimeout(() => {
-            toast.style.display = 'none';
-            showPage('page-calendar');
-            renderAccountOverview();
-            renderDailyDetailsList();
-        }, 600);
-    } else {
-        showPage('page-calendar');
-        renderAccountOverview();
-        renderDailyDetailsList();
-    }
 }
 
 /**
