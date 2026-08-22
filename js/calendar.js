@@ -154,3 +154,34 @@ function setupScrollObserver() {
         document.querySelectorAll('.month-section').forEach(s => observer.observe(s));
     }, 500);
 }
+
+/**
+ * 點擊日曆介面上的特定日期
+ */
+function onCalendarDateClick(year, month, day, element) {
+    const padMonth = String(month).padStart(2, '0');
+    const padDay = String(day).padStart(2, '0');
+    const fullDate = `${year}/${padMonth}/${padDay}`;
+
+    // 1. 更新全域選中日期
+    if (typeof recordState !== 'undefined') {
+        recordState.date = fullDate;
+    }
+
+    // 2. 更新頂部 Header 顯示選中日期 (例如 2026/08/16)
+    const headerTitle = document.getElementById('full-calendar-month');
+    if (headerTitle) {
+        headerTitle.innerText = fullDate;
+    }
+
+    // 3. 切換選中高亮圈 (active class)
+    document.querySelectorAll('.calendar-grid-day').forEach(el => el.classList.remove('active'));
+    if (element) {
+        element.classList.add('active');
+    }
+
+    // 4. 即時重新渲染該日期的明細清單
+    if (typeof renderDailyDetailsList === 'function') {
+        renderDailyDetailsList();
+    }
+}
