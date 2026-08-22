@@ -845,20 +845,42 @@ function handleSettingsToggleHide(isChecked) {
 }
 
 /**
- * 1. 渲染日曆頁下方的明細項目（綁定真實 ID 點擊事件）
+ * 根據當前選取的日期，動態渲染日曆頁面下方的交易明細
  */
 function renderDailyDetailsList() {
     const detailContainer = document.getElementById('daily-details-list');
     if (!detailContainer) return;
 
     const localRecords = JSON.parse(localStorage.getItem('koin_records')) || [];
-    const currentSelectedDate = recordState.date || new Date().toLocaleDateString();
     
-    // 過濾出所選日期的所有記帳紀錄
-    const todayRecords = localRecords.filter(rec => rec.date === currentSelectedDate);
+    // 取得當前選取的日期（預設為今天）
+    let currentSelectedDate = recordState.date;
+    if (!currentSelectedDate) {
+        const today = new Date();
+        const y = today.getFullYear();
+        const m = String(today.getMonth() + 1).padStart(2, '0');
+        const d = String(today.getDate()).padStart(2, '0');
+        currentSelectedDate = `${y}/${m}/${d}`;
+        recordState.date = currentSelectedDate;
+    }
+
+    // 將當前選取的日期格式統一轉換（支援 2026/08/16 與 2026/8/16）
+    const normalizeDate = (dStr) => {
+        if (!dStr) return '';
+        const parts = dStr.replace(/-/g, '/').split('/');
+        if (parts.length === 3) {
+            return `${parts[0]}/${String(parts[1]).padStart(2, '0')}/${String(parts[2]).padStart(2, '0')}`;
+        }
+        return dStr;
+    };
+
+    const targetDateNormalized = normalizeDate(currentSelectedDate);
+
+    // 過濾出屬於該日期的紀錄
+    const todayRecords = localRecords.filter(rec => normalizeDate(rec.date) === targetDateNormalized);
 
     if (todayRecords.length === 0) {
-        detailContainer.innerHTML = `<p style="color: #8a8a8e; text-align: center; margin-top: 30px; font-size: 14px;">當天尚無交易明細</p>`;
+        detailContainer.innerHTML = `<p style="color: #8e8e93; text-align: center; margin-top: 30px; font-size: 14px;">當天尚無交易明細</p>`;
         return;
     }
 
@@ -869,7 +891,7 @@ function renderDailyDetailsList() {
         const meta = categoryMetaMap[cleanCategory] || { parent: '其他', icon: 'tag', bgClass: 'i-income-gold' };
         const isExpense = (rec.type === '支出' || rec.type === '應付款項');
         const amountColorClass = isExpense ? 'text-red' : 'text-green';
-        const formattedAmount = `${isExpense ? '' : '+'}${parseFloat(rec.amount).toLocaleString()}`;
+        const formattedAmount = `${isExpense ? '-' : '+'}$${parseFloat(rec.amount).toLocaleString()}`;
 
         const itemHTML = `
             <div class="form-group" style="padding: 0; margin-bottom: 12px; cursor: pointer;" onclick="openRecordSummary(${rec.id})">
@@ -887,7 +909,7 @@ function renderDailyDetailsList() {
                         </div>
                     </div>
                     <span class="${amountColorClass}" style="font-size: 17px; font-weight: 700;">
-                        $${formattedAmount}
+                        ${formattedAmount}
                     </span>
                 </div>
             </div>
