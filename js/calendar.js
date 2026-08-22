@@ -3,7 +3,7 @@
  */
 
 // 1. 設定初始狀態
-let selectedDate = new Date();
+let selectedDate = new Date(2026, 7, 16); // 預設 2026 年 7 月 16 日
 const calendarData = {
     startYear: 2025,
     endYear: 2027
@@ -30,14 +30,14 @@ function renderInfiniteCalendar() {
         }
     }
 
-    // 預設滾動到「今天」所在的月份
+    // 預設滾動到選中月份
     setTimeout(() => {
         focusOnCurrentMonth();
     }, 100);
 }
 
 /**
- * 建立單個月份的網格 (包含日期點擊邏輯)
+ * 建立單個月份的網格 (包含完整日期點擊與連動邏輯)
  */
 function createMonthGrid(date) {
     const month = date.getMonth();
@@ -48,7 +48,7 @@ function createMonthGrid(date) {
     section.setAttribute('data-year', year);
     section.setAttribute('data-month', month);
     
-    // 月份標籤 (1月, 2月...)
+    // 月份標籤
     const label = document.createElement('div');
     label.className = 'month-label';
     label.innerText = `${month + 1}月`;
@@ -67,7 +67,7 @@ function createMonthGrid(date) {
         grid.appendChild(empty);
     }
 
-    // 2. 填充日期
+    // 2. 填充實體日期
     for (let i = 1; i <= daysInMonth; i++) {
         const dayDiv = document.createElement('div');
         const isSelected = (year === selectedDate.getFullYear() && 
@@ -76,20 +76,12 @@ function createMonthGrid(date) {
         
         const dayOfWeek = new Date(year, month, i).getDay();
         
-        // 標記今日、週末與選中狀態
         dayDiv.className = `calendar-grid-day current ${isSelected ? 'active' : ''} ${dayOfWeek === 0 ? 'sunday' : ''} ${dayOfWeek === 6 ? 'saturday' : ''}`;
         dayDiv.innerHTML = `<span class="date-val">${i < 10 ? '0' + i : i}</span>`;
         
-        // 點擊事件：選取日期並更新 UI
-        dayDiv.onclick = () => {
-            // 清除全域所有的 active 狀態
-            document.querySelectorAll('.calendar-grid-day').forEach(d => d.classList.remove('active'));
-            dayDiv.classList.add('active');
-            
-            selectedDate = new Date(year, month, i);
-            
-            // 這裡可以觸發儲存或顯示該日帳目的功能
-            updateDailyInfo(selectedDate);
+        // 點擊事件：直接觸發連動處理器
+        dayDiv.onclick = function() {
+            onCalendarDateClick(year, month + 1, i, this);
         };
         
         grid.appendChild(dayDiv);
@@ -104,6 +96,7 @@ function createMonthGrid(date) {
  */
 function focusOnCurrentMonth() {
     const slider = document.getElementById('calendar-month-slider');
+    if (!slider) return;
     const currentMonthSection = slider.querySelector(
         `[data-year="${selectedDate.getFullYear()}"][data-month="${selectedDate.getMonth()}"]`
     );
@@ -111,7 +104,7 @@ function focusOnCurrentMonth() {
     if (currentMonthSection) {
         slider.scrollTo({
             left: currentMonthSection.offsetLeft,
-            behavior: 'auto' // 初始跳轉用 auto，使用者操作用 smooth
+            behavior: 'auto'
         });
     }
 }
@@ -124,16 +117,8 @@ function updateHeaderTitle(year, month) {
     if (title) title.innerText = `${year}/${(month + 1).toString().padStart(2, '0')}`;
 }
 
-function updateDailyInfo(date) {
-    // 範例：更新下方列表的標題
-    const listTitle = document.getElementById('daily-details-list');
-    if (listTitle) {
-        console.log("切換日期至：", date.toLocaleDateString());
-    }
-}
-
 /**
- * 監聽水平滾動，動態更新標題
+ * 監聽水平滾動，動態更新頂部月份
  */
 function setupScrollObserver() {
     const container = document.getElementById('calendar-month-slider');
@@ -149,14 +134,13 @@ function setupScrollObserver() {
         });
     }, { root: container, threshold: 0.6 });
 
-    // 延遲觀察確保 DOM 已渲染
     setTimeout(() => {
         document.querySelectorAll('.month-section').forEach(s => observer.observe(s));
     }, 500);
 }
 
 /**
- * 點擊日曆介面上的特定日期
+ * 點擊日曆介面上的特定日期：切換高亮外圈並即時過濾明細
  */
 function onCalendarDateClick(year, month, day, element) {
     const padMonth = String(month).padStart(2, '0');
@@ -164,6 +148,7 @@ function onCalendarDateClick(year, month, day, element) {
     const fullDate = `${year}/${padMonth}/${padDay}`;
 
     // 1. 更新全域選中日期
+    selectedDate = new Date(year, month - 1, day);
     if (typeof recordState !== 'undefined') {
         recordState.date = fullDate;
     }
