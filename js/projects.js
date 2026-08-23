@@ -99,6 +99,14 @@ function openProjectDetail(projectName) {
  */
 function enterCategorySubLevel(categoryName) {
     currentSelectedProjectCategory = categoryName;
+    
+    // 1. 將頂部 Header 標題從「生活開銷」改為「記帳主分類名稱」(例如：購物、飲食)
+    const titleEl = document.getElementById('proj-detail-title');
+    if (titleEl) {
+        titleEl.innerText = categoryName;
+    }
+
+    // 2. 展開第二層次級頁籤並進入交易明細
     enterProjectSubLevel('transactions');
 }
 
@@ -108,6 +116,14 @@ function enterCategorySubLevel(categoryName) {
 function enterProjectSubLevel(targetTab) {
     currentProjectViewLevel = targetTab;
 
+    // 若不是從特定分類點進來，維持專案名稱；若是分類層級則維持分類名稱
+    const titleEl = document.getElementById('proj-detail-title');
+    if (titleEl) {
+        titleEl.innerText = (currentSelectedProjectCategory !== '全部') 
+            ? currentSelectedProjectCategory 
+            : currentDetailProjectName;
+    }
+
     const subTabs = document.getElementById('proj-detail-sub-tabs');
     if (subTabs) subTabs.style.display = 'flex';
 
@@ -115,6 +131,34 @@ function enterProjectSubLevel(targetTab) {
     if (mainView) mainView.style.display = 'none';
 
     switchProjectDetailTab(targetTab);
+}
+
+/**
+ * 返回第一層：重置標題為專案名稱並隱藏次級頁籤
+ */
+function enterProjectSubLevelMain() {
+    currentProjectViewLevel = 'main';
+    currentSelectedProjectCategory = '全部';
+    
+    // 1. 恢復頂部 Header 標題為專案名稱 (如：生活開銷)
+    const titleEl = document.getElementById('proj-detail-title');
+    if (titleEl) {
+        titleEl.innerText = currentDetailProjectName;
+    }
+
+    // 2. 隱藏第二層頁籤，顯示第一層主預算清單
+    const subTabs = document.getElementById('proj-detail-sub-tabs');
+    if (subTabs) subTabs.style.display = 'none';
+
+    const mainView = document.getElementById('proj-view-main-budget');
+    const transView = document.getElementById('proj-view-transactions');
+    const configView = document.getElementById('proj-view-budget-config');
+
+    if (mainView) mainView.style.display = 'block';
+    if (transView) transView.style.display = 'none';
+    if (configView) configView.style.display = 'none';
+    
+    renderProjectDetailView();
 }
 
 /**
