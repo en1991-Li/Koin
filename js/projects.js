@@ -182,6 +182,7 @@ function renderProjectDetailView() {
 
     if (titleEl) titleEl.innerText = currentDetailProjectName;
 
+    // 格式化日期區間
     const year = currentDetailProjectMonth.getFullYear();
     const month = currentDetailProjectMonth.getMonth() + 1;
     const lastDay = new Date(year, month, 0).getDate();
@@ -190,9 +191,11 @@ function renderProjectDetailView() {
         dateRangeEl.innerText = `${year}/${formattedMonth}/01 － ${year}/${formattedMonth}/${lastDay}`;
     }
 
+    // 撈出對應專案的交易紀錄
     const records = JSON.parse(localStorage.getItem('koin_records') || '[]');
     const projRecords = records.filter(r => (r.project || '生活開銷') === currentDetailProjectName);
 
+    // 計算出帳/入帳/總計
     let outTotal = 0, outCount = 0;
     let inTotal = 0, inCount = 0;
 
@@ -209,6 +212,7 @@ function renderProjectDetailView() {
 
     const netTotal = outTotal - inTotal;
 
+    // 更新 Hero 統計卡片
     if (document.getElementById('proj-detail-out-count')) document.getElementById('proj-detail-out-count').innerText = outCount;
     if (document.getElementById('proj-detail-out-total')) document.getElementById('proj-detail-out-total').innerText = `-$${outTotal.toLocaleString()}`;
     if (document.getElementById('proj-detail-in-count')) document.getElementById('proj-detail-in-count').innerText = inCount;
@@ -216,12 +220,14 @@ function renderProjectDetailView() {
     if (document.getElementById('proj-detail-total-count')) document.getElementById('proj-detail-total-count').innerText = projRecords.length;
     if (document.getElementById('proj-detail-net-total')) document.getElementById('proj-detail-net-total').innerText = `-$${netTotal.toLocaleString()}`;
 
+    // 更新專案預算 Hero 區塊
     if (document.getElementById('proj-detail-budget-name')) document.getElementById('proj-detail-budget-name').innerText = currentDetailProjectName;
     if (document.getElementById('proj-detail-budget-count')) document.getElementById('proj-detail-budget-count').innerText = projRecords.length;
     if (document.getElementById('proj-detail-budget-amount')) document.getElementById('proj-detail-budget-amount').innerText = `$${outTotal.toLocaleString()}`;
 
+    // 10 大主分類之標準圖示與背景樣式設定
     const categoryConfig = {
-        '飲食': { icon: 'utensils', bg: 'i-income-gold' },
+        '飲食': { icon: 'utensils', bg: 'i-eat' },
         '交通': { icon: 'car', bg: 'i-transport' },
         '娛樂': { icon: 'party-popper', bg: 'i-entertainment' },
         '購物': { icon: 'shopping-bag', bg: 'i-shopping' },
@@ -241,11 +247,19 @@ function renderProjectDetailView() {
         categoryStats[cat] = { count: 0, amount: 0 };
     });
 
+    // 依據 categoryMetaMap 將「子分類」歸納聚合至「主分類」
     projRecords.forEach(r => {
-        const cat = r.category || '其他';
-        if (!categoryStats[cat]) categoryStats[cat] = { count: 0, amount: 0 };
-        categoryStats[cat].count++;
-        categoryStats[cat].amount += parseFloat(r.amount) || 0;
+        const rawCat = r.category || '其他';
+        let mainCat = rawCat;
+
+        // 如果存在全域的字典對照，取得其母分類（如 應用軟體 -> 購物）
+        if (typeof categoryMetaMap !== 'undefined' && categoryMetaMap[rawCat]) {
+            mainCat = categoryMetaMap[rawCat].parent || rawCat;
+        }
+
+        if (!categoryStats[mainCat]) categoryStats[mainCat] = { count: 0, amount: 0 };
+        categoryStats[mainCat].count++;
+        categoryStats[mainCat].amount += parseFloat(r.amount) || 0;
     });
 
     const activeCategories = [];
@@ -261,6 +275,7 @@ function renderProjectDetailView() {
 
     let listHTML = '';
 
+    // 1. 未分配預算 (有交易紀錄的母分類)
     if (activeCategories.length > 0) {
         listHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; color: #8e8e93; font-size: 13px; font-weight: 700; margin-bottom: 8px; padding: 0 4px;">
@@ -296,6 +311,7 @@ function renderProjectDetailView() {
         listHTML += `</div>`;
     }
 
+    // 2. 未設定預算 (無交易紀錄的母分類)
     if (inactiveCategories.length > 0) {
         listHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; color: #8e8e93; font-size: 13px; font-weight: 700; margin-bottom: 8px; padding: 0 4px;">
