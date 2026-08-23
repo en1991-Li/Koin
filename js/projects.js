@@ -6,6 +6,7 @@
 let currentDetailProjectName = '生活開銷';
 let currentDetailProjectMonth = new Date();
 let currentProjectViewLevel = 'main'; // 'main' | 'transactions' | 'budget-config'
+let currentSelectedProjectCategory = '全部'; // '全部' | '飲食' | '購物' ...
 
 /**
  * 渲染專案總覽列表
@@ -75,6 +76,7 @@ function renderProjectsPage() {
  */
 function openProjectDetail(projectName) {
     currentDetailProjectName = projectName;
+    currentSelectedProjectCategory = '全部';
     currentProjectViewLevel = 'main';
     
     const subTabs = document.getElementById('proj-detail-sub-tabs');
@@ -90,6 +92,14 @@ function openProjectDetail(projectName) {
 
     renderProjectDetailView();
     showPage('page-project-detail');
+}
+
+/**
+ * 從「未分配/未設定預算項目」點擊進入第二層
+ */
+function enterCategorySubLevel(categoryName) {
+    currentSelectedProjectCategory = categoryName;
+    enterProjectSubLevel('transactions');
 }
 
 /**
@@ -120,6 +130,8 @@ function handleProjectDetailBack() {
 
 function enterProjectSubLevelMain() {
     currentProjectViewLevel = 'main';
+    currentSelectedProjectCategory = '全部';
+    
     const subTabs = document.getElementById('proj-detail-sub-tabs');
     if (subTabs) subTabs.style.display = 'none';
 
@@ -130,6 +142,8 @@ function enterProjectSubLevelMain() {
     if (mainView) mainView.style.display = 'block';
     if (transView) transView.style.display = 'none';
     if (configView) configView.style.display = 'none';
+    
+    renderProjectDetailView();
 }
 
 /**
@@ -182,7 +196,6 @@ function renderProjectDetailView() {
 
     if (titleEl) titleEl.innerText = currentDetailProjectName;
 
-    // 格式化日期區間
     const year = currentDetailProjectMonth.getFullYear();
     const month = currentDetailProjectMonth.getMonth() + 1;
     const lastDay = new Date(year, month, 0).getDate();
@@ -191,11 +204,9 @@ function renderProjectDetailView() {
         dateRangeEl.innerText = `${year}/${formattedMonth}/01 － ${year}/${formattedMonth}/${lastDay}`;
     }
 
-    // 撈出對應專案的交易紀錄
     const records = JSON.parse(localStorage.getItem('koin_records') || '[]');
     const projRecords = records.filter(r => (r.project || '生活開銷') === currentDetailProjectName);
 
-    // 計算出帳/入帳/總計
     let outTotal = 0, outCount = 0;
     let inTotal = 0, inCount = 0;
 
@@ -212,7 +223,6 @@ function renderProjectDetailView() {
 
     const netTotal = outTotal - inTotal;
 
-    // 更新 Hero 統計卡片
     if (document.getElementById('proj-detail-out-count')) document.getElementById('proj-detail-out-count').innerText = outCount;
     if (document.getElementById('proj-detail-out-total')) document.getElementById('proj-detail-out-total').innerText = `-$${outTotal.toLocaleString()}`;
     if (document.getElementById('proj-detail-in-count')) document.getElementById('proj-detail-in-count').innerText = inCount;
@@ -220,12 +230,10 @@ function renderProjectDetailView() {
     if (document.getElementById('proj-detail-total-count')) document.getElementById('proj-detail-total-count').innerText = projRecords.length;
     if (document.getElementById('proj-detail-net-total')) document.getElementById('proj-detail-net-total').innerText = `-$${netTotal.toLocaleString()}`;
 
-    // 更新專案預算 Hero 區塊
     if (document.getElementById('proj-detail-budget-name')) document.getElementById('proj-detail-budget-name').innerText = currentDetailProjectName;
     if (document.getElementById('proj-detail-budget-count')) document.getElementById('proj-detail-budget-count').innerText = projRecords.length;
     if (document.getElementById('proj-detail-budget-amount')) document.getElementById('proj-detail-budget-amount').innerText = `$${outTotal.toLocaleString()}`;
 
-    // 10 大主分類之標準圖示與背景樣式設定
     const categoryConfig = {
         '飲食': { icon: 'utensils', bg: 'i-eat' },
         '交通': { icon: 'car', bg: 'i-transport' },
@@ -247,12 +255,10 @@ function renderProjectDetailView() {
         categoryStats[cat] = { count: 0, amount: 0 };
     });
 
-    // 依據 categoryMetaMap 將「子分類」歸納聚合至「主分類」
     projRecords.forEach(r => {
         const rawCat = r.category || '其他';
         let mainCat = rawCat;
 
-        // 如果存在全域的字典對照，取得其母分類（如 應用軟體 -> 購物）
         if (typeof categoryMetaMap !== 'undefined' && categoryMetaMap[rawCat]) {
             mainCat = categoryMetaMap[rawCat].parent || rawCat;
         }
@@ -275,7 +281,7 @@ function renderProjectDetailView() {
 
     let listHTML = '';
 
-    // 1. 未分配預算 (有交易紀錄的母分類)
+    // 1. 未分配預算
     if (activeCategories.length > 0) {
         listHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; color: #8e8e93; font-size: 13px; font-weight: 700; margin-bottom: 8px; padding: 0 4px;">
@@ -290,7 +296,7 @@ function renderProjectDetailView() {
             const config = categoryConfig[cat.name] || { icon: 'tag', bg: 'i-income-gold' };
 
             listHTML += `
-                <div class="form-row" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: ${isLast ? 'none' : '1px solid rgba(255,255,255,0.05)'};">
+                <div class="form-row" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: ${isLast ? 'none' : '1px solid rgba(255,255,255,0.05)'}; cursor: pointer;" onclick="enterCategorySubLevel('${cat.name}')">
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <div class="cate-icon-wrapper ${config.bg}" style="width: 38px; height: 38px; margin: 0;">
                             <i data-lucide="${config.icon}"></i>
@@ -311,7 +317,7 @@ function renderProjectDetailView() {
         listHTML += `</div>`;
     }
 
-    // 2. 未設定預算 (無交易紀錄的母分類)
+    // 2. 未設定預算
     if (inactiveCategories.length > 0) {
         listHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; color: #8e8e93; font-size: 13px; font-weight: 700; margin-bottom: 8px; padding: 0 4px;">
@@ -326,7 +332,7 @@ function renderProjectDetailView() {
             const config = categoryConfig[cat.name] || { icon: 'tag', bg: 'i-income-gold' };
 
             listHTML += `
-                <div class="form-row" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: ${isLast ? 'none' : '1px solid rgba(255,255,255,0.05)'};">
+                <div class="form-row" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: ${isLast ? 'none' : '1px solid rgba(255,255,255,0.05)'}; cursor: pointer;" onclick="enterCategorySubLevel('${cat.name}')">
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <div class="cate-icon-wrapper ${config.bg}" style="width: 38px; height: 38px; margin: 0;">
                             <i data-lucide="${config.icon}"></i>
@@ -358,36 +364,48 @@ function renderProjectBudgetConfigView() {
     const configContainer = document.getElementById('proj-view-budget-config');
     if (!configContainer) return;
 
-    const projects = JSON.parse(localStorage.getItem('koin_projects') || '[]');
-    const proj = projects.find(p => p.name === currentDetailProjectName) || {
-        name: currentDetailProjectName,
-        currency: 'TWD',
-        budget: 0
+    const isCategoryLevel = (currentSelectedProjectCategory !== '全部');
+    const displayName = isCategoryLevel ? currentSelectedProjectCategory : currentDetailProjectName;
+    const displayType = isCategoryLevel ? '分類' : '專案';
+
+    const categoryConfig = {
+        '飲食': { icon: 'utensils' },
+        '交通': { icon: 'car' },
+        '娛樂': { icon: 'party-popper' },
+        '購物': { icon: 'shopping-bag' },
+        '個人': { icon: 'user' },
+        '醫療': { icon: 'stethoscope' },
+        '家居': { icon: 'home' },
+        '家庭': { icon: 'users' },
+        '生活': { icon: 'coffee' },
+        '學習': { icon: 'book' },
+        '其他': { icon: 'tag' }
     };
+    const displayIcon = isCategoryLevel ? (categoryConfig[currentSelectedProjectCategory]?.icon || 'tag') : 'wine';
 
     configContainer.innerHTML = `
         <div class="add-acc-hero" style="padding: 20px 0 10px;">
             <div class="icon-box" style="background: #2c2c3e; width: 70px; height: 70px; border-radius: 50%; margin-bottom: 0;">
-                <i data-lucide="wine" style="width: 36px; height: 36px; color: #fff;"></i>
+                <i data-lucide="${displayIcon}" style="width: 36px; height: 36px; color: #fff;"></i>
             </div>
         </div>
 
         <div class="form-group" style="background: #1c1c28; border-radius: 20px; padding: 0 16px; margin-top: 15px;">
             <div class="form-row">
                 <label style="color: #8e8e93; font-size: 14px;">預算類型</label>
-                <span style="color: #8e8e93; font-size: 14px;">專案</span>
+                <span style="color: #8e8e93; font-size: 14px;">${displayType}</span>
             </div>
             <div class="form-row">
                 <label style="font-size: 15px;">預算名稱</label>
-                <span style="font-size: 15px; color: #fff;">${proj.name}</span>
+                <span style="font-size: 15px; color: #fff;">${displayName}</span>
             </div>
             <div class="form-row">
                 <label style="font-size: 15px;">主幣種</label>
-                <span style="font-size: 15px; color: #8e8e93;">${proj.currency || 'TWD'}</span>
+                <span style="font-size: 15px; color: #8e8e93;">TWD</span>
             </div>
             <div class="form-row">
                 <label style="font-size: 15px;">預算編列</label>
-                <span style="font-size: 15px; color: #f59e0b; font-weight: 700;">$${(proj.budget || 0).toLocaleString()}</span>
+                <span style="font-size: 15px; color: #f59e0b; font-weight: 700;">$0</span>
             </div>
             <div class="form-row">
                 <label style="font-size: 15px;">預算提醒</label>
@@ -419,36 +437,37 @@ function renderProjectBudgetConfigView() {
                 <textarea placeholder="備註" style="width: 100%; background: #2c2c3e; border: none; border-radius: 12px; color: white; padding: 12px; min-height: 80px; outline: none; resize: none; font-size: 14px;"></textarea>
             </div>
         </div>
-
-        <div style="background: #1c1c28; border-radius: 16px; padding: 12px 16px; margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <div class="cate-icon-wrapper i-home" style="width: 36px; height: 36px; margin: 0;">
-                    <i data-lucide="piggy-bank"></i>
-                </div>
-                <div>
-                    <div style="font-size: 14px; font-weight: 600; color: #fff;">${proj.name}</div>
-                    <div style="font-size: 11px; color: #8e8e93;">36 筆記錄</div>
-                </div>
-            </div>
-            <span style="color: #fb7185; font-weight: 700; font-size: 15px;">$4,750</span>
-        </div>
     `;
 
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 /**
- * 第二層：依日期分組動態渲染交易明細列表
+ * 第二層：依日期分組動態渲染交易明細列表 (支援單一分類過濾)
  */
 function renderProjectTransactionsList() {
     const container = document.getElementById('proj-detail-transactions-container');
     if (!container) return;
 
     const records = JSON.parse(localStorage.getItem('koin_records') || '[]');
-    const projRecords = records.filter(r => (r.project || '生活開銷') === currentDetailProjectName);
+    
+    // 1. 先過濾出該專案紀錄
+    let projRecords = records.filter(r => (r.project || '生活開銷') === currentDetailProjectName);
+
+    // 2. 如果使用者是從特定分類點進來，只篩選屬於該母分類的紀錄
+    if (currentSelectedProjectCategory !== '全部') {
+        projRecords = projRecords.filter(r => {
+            const rawCat = r.category || '其他';
+            let parentCat = rawCat;
+            if (typeof categoryMetaMap !== 'undefined' && categoryMetaMap[rawCat]) {
+                parentCat = categoryMetaMap[rawCat].parent || rawCat;
+            }
+            return parentCat === currentSelectedProjectCategory || rawCat === currentSelectedProjectCategory;
+        });
+    }
 
     if (projRecords.length === 0) {
-        container.innerHTML = `<p style="color: #8a8a8e; text-align: center; margin-top: 40px; font-size: 14px;">此專案尚無交易明細</p>`;
+        container.innerHTML = `<p style="color: #8e8e93; text-align: center; margin-top: 40px; font-size: 14px;">此分類尚無交易明細</p>`;
         return;
     }
 
