@@ -487,7 +487,7 @@ function renderProjectBudgetConfigView() {
 }
 
 /**
- * 第二層：依日期分組動態渲染交易明細列表 (支援單一分類過濾)
+ * 第二層：依日期分組動態渲染交易明細列表
  */
 function renderProjectTransactionsList() {
     const container = document.getElementById('proj-detail-transactions-container');
@@ -546,14 +546,26 @@ function renderProjectTransactionsList() {
         '書籍': 'book-open-text', '課程': 'presentation', '教材': 'book-marked', '證書': 'book-user', '探索': 'compass', '文具': 'pen-ruler', '考試': 'book-open-check', '金石堂': 'book-open', '博客來': 'book-open'
     };
 
+    const weekDays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+
     Object.keys(groupedRecords).forEach(date => {
         const group = groupedRecords[date];
         const totalText = group.dailyTotal < 0 ? `-${Math.abs(group.dailyTotal).toLocaleString()}` : `+${group.dailyTotal.toLocaleString()}`;
         const totalColor = group.dailyTotal < 0 ? '#8e8e93' : '#4ade80';
 
+        // 解析日期並計算星期幾
+        let dayOfWeekStr = '';
+        const dateParts = date.replace(/-/g, '/').split('/');
+        if (dateParts.length === 3) {
+            const dObj = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+            if (!isNaN(dObj.getDay())) {
+                dayOfWeekStr = ` (${weekDays[dObj.getDay()]})`;
+            }
+        }
+
         html += `
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 4px 6px 4px; color: #ffffff; font-size: 13px; font-weight: 700;">
-                <span>${date}</span>
+                <span>${date}<span style="color: #8e8e93; font-weight: 500; font-size: 12px; margin-left: 4px;">${dayOfWeekStr}</span></span>
                 <span style="color: ${totalColor};">${totalText}</span>
             </div>
             <div class="form-group" style="background: #1c1c28; border-radius: 16px; padding: 0 16px; margin-bottom: 15px;">
@@ -566,7 +578,7 @@ function renderProjectTransactionsList() {
             const iconName = expenseIconMap[r.category] || 'tag';
 
             html += `
-                <div class="form-row" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: ${isLast ? 'none' : '1px solid rgba(255,255,255,0.05)'};">
+                <div class="form-row" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: ${isLast ? 'none' : '1px solid rgba(255,255,255,0.05)'}; cursor: pointer;" onclick="openRecordSummary(${r.id})">
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <div class="cate-icon-wrapper i-income-gold" style="width: 40px; height: 40px; margin: 0;">
                             <i data-lucide="${iconName}"></i>
