@@ -532,20 +532,6 @@ function renderProjectTransactionsList() {
     });
 
     let html = '';
-    const expenseIconMap = {
-        '飲食': 'utensils', '交通': 'car', '娛樂': 'party-popper', '購物': 'shopping-bag', '個人': 'user', '醫療': 'stethoscope', '家居': 'home', '家庭': 'users', '生活': 'coffee', '學習': 'book',
-        '早餐': 'croissant', '午餐': 'utensils', '晚餐': 'soup', '點心': 'cookie', '飲料': 'cup-soda', '酒類': 'beer', '水果': 'grape', '宵夜': 'pizza', '礦泉水': 'glass-water',
-        '加油費': 'fuel', '停車費': 'square-parking', '火車': 'train-front', '公車': 'bus-front', '捷運': 'train-front-tunnel', '悠遊卡': 'credit-card', '汽車': 'car-front', '計程車': 'car-taxi-front', '摩托車': 'motorbike', '單車': 'bike', '機票': 'plane', '船票': 'ship',
-        '手遊': 'gamepad-2', '音樂': 'music', 'Netflix': 'monitor-play', '電影': 'clapperboard', '遊樂園': 'roller-coaster', '展覽': 'landmark', '運動': 'dumbbell',
-        '蝦皮購物': 'shopping-bag', 'momo購物': 'shopping-bag', 'PChome24h': 'shopping-bag', '市場': 'shopping-cart', '衣物': 'shirt', '鞋子': 'sport-shoe', '配件': 'glasses', '包包': 'handbag', '美妝保養': 'mirror-round', '精品': 'gem', '禮物': 'gift', '電子產品': 'laptop', '應用軟體': 'app-window', 'UNIQLO': 'shirt', 'NET': 'shirt',
-        '社交': 'handshake', '電信費': 'phone', '借款': 'coins', '投資': 'trending-up', '稅金': 'circle-dollar-sign', '保險': 'shield-check', '捐款': 'hand-heart', '寵物': 'dog', '彩券': 'receipt',
-        '門診': 'stethoscope', '藥品': 'pill', '醫療用品': 'briefcase-medical', '打針': 'syringe', '住院': 'bed-single', '手術': 'slice', '健康檢查': 'clipboard-plus',
-        '日常用品': 'soap-dispenser-droplet', '水費': 'droplets', '電費': 'zap', '燃料費': 'flame', '電話費': 'phone-call', '網路費': 'house-wifi', '房租': 'building', '洗衣費': 'washing-machine', '修繕費': 'wrench', '家具': 'sofa', '訂閱': 'newspaper', '家電': 'tv', '全聯': 'store', '屈臣氏': 'store', '康是美': 'store',
-        '生活費': 'wallet-minimal', '教育': 'graduation-cap', '看護': 'person-standing', '玩具': 'toy-brick', '才藝': 'palette',
-        '美容美髮': 'scissors', '住宿': 'hotel', '旅行': 'tree-palm', '派對': 'wine',
-        '書籍': 'book-open-text', '課程': 'presentation', '教材': 'book-marked', '證書': 'book-user', '探索': 'compass', '文具': 'pen-ruler', '考試': 'book-open-check', '金石堂': 'book-open', '博客來': 'book-open'
-    };
-
     const weekDays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
 
     Object.keys(groupedRecords).forEach(date => {
@@ -575,13 +561,18 @@ function renderProjectTransactionsList() {
             const isLast = (idx === group.records.length - 1);
             const isExpense = (r.type === '支出' || r.type === '應付款項');
             const amtColor = isExpense ? '#fb7185' : '#4ade80';
-            const iconName = expenseIconMap[r.category] || 'tag';
+            
+            // 從全域 categoryMetaMap 取得專屬圖示與背景色彩 class
+            const cleanCategory = String(r.category || '').trim();
+            const meta = (typeof categoryMetaMap !== 'undefined' && categoryMetaMap[cleanCategory]) 
+                ? categoryMetaMap[cleanCategory] 
+                : { icon: 'tag', bgClass: isExpense ? 'i-shopping' : 'i-income-gold' };
 
             html += `
                 <div class="form-row" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: ${isLast ? 'none' : '1px solid rgba(255,255,255,0.05)'}; cursor: pointer;" onclick="openRecordSummary(${r.id})">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <div class="cate-icon-wrapper i-income-gold" style="width: 40px; height: 40px; margin: 0;">
-                            <i data-lucide="${iconName}"></i>
+                        <div class="cate-icon-wrapper ${meta.bgClass}" style="width: 40px; height: 40px; margin: 0;">
+                            <i data-lucide="${meta.icon}"></i>
                         </div>
                         <div>
                             <div style="font-size: 15px; font-weight: 600; color: #fff;">${r.category}</div>
