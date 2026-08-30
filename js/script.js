@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. 初始化圖示
     if (typeof lucide !== 'undefined') lucide.createIcons();
     
-    // 2. 更新日曆標題至當天日期 (YYYY/MM/DD)
+    // 2. 更新日曆標題至當前月份
     updateCalendarHeaderToToday(); 
     
     // 3. 初始頁面渲染
@@ -62,13 +62,6 @@ function showPage(pageId, element) {
         if (typeof renderTrendsPage === 'function') renderTrendsPage();
     }
 
-    if (pageId === 'page-calendar') {
-        updateCalendarHeaderToToday();
-        if (typeof renderDailyDetailsList === 'function') {
-            renderDailyDetailsList();
-        }
-    }
-
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
@@ -76,12 +69,6 @@ function showPage(pageId, element) {
 let currentActiveAccountIndex = null;
 let isAmountHidden = false; 
 let currentViewingRecordId = null;
-
-// 1. recordState 預設抓取系統今天日期 (自動補零 YYYY/MM/DD)
-const _today = new Date();
-const _initYear = _today.getFullYear();
-const _initMonth = String(_today.getMonth() + 1).padStart(2, '0');
-const _initDay = String(_today.getDate()).padStart(2, '0');
 
 let recordState = {
     type: '支出',
@@ -91,7 +78,7 @@ let recordState = {
     isCalculated: false,  
     account: '錢包',
     project: '生活開銷',
-    date: `${_initYear}/${_initMonth}/${_initDay}`, // 動態設為今天
+    date: '2026/08/16',
     time: '12:00',
     advType: 'single'     
 };
@@ -720,14 +707,10 @@ function handleFabClick(element) {
 function updateCalendarHeaderToToday() {
     const now = new Date();
     const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0'); 
     
-    // 直接顯示完整年月日 (例如 2026/08/30)
     const headerTitle = document.getElementById('full-calendar-month');
-    if (headerTitle) {
-        headerTitle.innerText = `${year}/${month}/${day}`;
-    }
+    if (headerTitle) headerTitle.innerText = `${year}/${month}`;
 }
 
 // ==========================================
