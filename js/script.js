@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. 初始化圖示
     if (typeof lucide !== 'undefined') lucide.createIcons();
     
-    // 2. 更新日曆標題至當前月份
+    // 2. 更新日曆標題至當天完整日期 (YYYY/MM/DD)
     updateCalendarHeaderToToday(); 
     
     // 3. 初始頁面渲染
@@ -62,6 +62,14 @@ function showPage(pageId, element) {
         if (typeof renderTrendsPage === 'function') renderTrendsPage();
     }
 
+    // 切換至日曆頁時自動更新當天標題與明細
+    if (pageId === 'page-calendar') {
+        updateCalendarHeaderToToday();
+        if (typeof renderDailyDetailsList === 'function') {
+            renderDailyDetailsList();
+        }
+    }
+
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
@@ -69,6 +77,13 @@ function showPage(pageId, element) {
 let currentActiveAccountIndex = null;
 let isAmountHidden = false; 
 let currentViewingRecordId = null;
+
+// 動態取得今天日期字串 (YYYY/MM/DD)
+const _now = new Date();
+const _curYear = _now.getFullYear();
+const _curMonth = String(_now.getMonth() + 1).padStart(2, '0');
+const _curDay = String(_now.getDate()).padStart(2, '0');
+const _todayStr = `${_curYear}/${_curMonth}/${_curDay}`;
 
 let recordState = {
     type: '支出',
@@ -78,7 +93,7 @@ let recordState = {
     isCalculated: false,  
     account: '錢包',
     project: '生活開銷',
-    date: '2026/08/16',
+    date: _todayStr, // 自動初始化為今天
     time: '12:00',
     advType: 'single'     
 };
@@ -531,7 +546,7 @@ function saveRecord() {
         account: currentAccountName,                         
         project: recordState.project || '生活開銷',
         amount: amount,                                      
-        date: recordState.date || new Date().toLocaleDateString(), 
+        date: recordState.date || _todayStr, 
         time: recordState.time || '12:00',                   
         note: note                                           
     };
@@ -704,13 +719,19 @@ function handleFabClick(element) {
     }
 }
 
+/**
+ * 更新日曆 Header 標題為「當天完整日期 (YYYY/MM/DD)」
+ */
 function updateCalendarHeaderToToday() {
     const now = new Date();
     const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0'); 
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
     
     const headerTitle = document.getElementById('full-calendar-month');
-    if (headerTitle) headerTitle.innerText = `${year}/${month}`;
+    if (headerTitle) {
+        headerTitle.innerText = `${year}/${month}/${day}`;
+    }
 }
 
 // ==========================================
@@ -853,18 +874,12 @@ function renderDailyDetailsList() {
 
     const localRecords = JSON.parse(localStorage.getItem('koin_records')) || [];
     
-    // 取得當前選取的日期（預設為今天）
     let currentSelectedDate = recordState.date;
     if (!currentSelectedDate) {
-        const today = new Date();
-        const y = today.getFullYear();
-        const m = String(today.getMonth() + 1).padStart(2, '0');
-        const d = String(today.getDate()).padStart(2, '0');
-        currentSelectedDate = `${y}/${m}/${d}`;
+        currentSelectedDate = _todayStr;
         recordState.date = currentSelectedDate;
     }
 
-    // 將當前選取的日期格式統一轉換（支援 2026/08/16 與 2026/8/16）
     const normalizeDate = (dStr) => {
         if (!dStr) return '';
         const parts = dStr.replace(/-/g, '/').split('/');
@@ -875,8 +890,6 @@ function renderDailyDetailsList() {
     };
 
     const targetDateNormalized = normalizeDate(currentSelectedDate);
-
-    // 過濾出屬於該日期的紀錄
     const todayRecords = localRecords.filter(rec => normalizeDate(rec.date) === targetDateNormalized);
 
     if (todayRecords.length === 0) {
@@ -932,7 +945,6 @@ function openRecordSummary(recordId) {
     const meta = categoryMetaMap[rec.category] || { parent: '購物', icon: 'tag', bgClass: 'i-shopping' };
     const isExpense = (rec.type === '支出' || rec.type === '應付款項');
 
-    // 連動主分類大圓形視覺
     const mainCatBg = document.getElementById('summary-main-cat-bg');
     const mainCatName = document.getElementById('summary-main-cat-name');
     const mainCatIcon = document.getElementById('summary-main-cat-icon');
@@ -941,7 +953,6 @@ function openRecordSummary(recordId) {
     if (mainCatName) mainCatName.innerText = meta.parent;
     if (mainCatIcon) mainCatIcon.setAttribute('data-lucide', meta.icon);
 
-    // 連動明細卡片內容
     const noteEl = document.getElementById('summary-note-text');
     const subCatIcon = document.getElementById('summary-sub-cat-icon');
     const subCatName = document.getElementById('summary-sub-cat-name');
@@ -962,7 +973,7 @@ function openRecordSummary(recordId) {
 
     if (accountEl) accountEl.innerText = rec.account || '錢包';
     if (projectEl) projectEl.innerText = rec.project || '生活開銷';
-    if (dateEl) dateEl.innerText = rec.date || '2026/08/16';
+    if (dateEl) dateEl.innerText = rec.date || _todayStr;
     if (timeEl) timeEl.innerText = rec.time || '12:00';
 
     openModal('record-summary-modal');
@@ -980,7 +991,6 @@ function openEditRecordPage() {
 
     const meta = categoryMetaMap[rec.category] || { parent: '購物', icon: 'tag', bgClass: 'i-shopping' };
 
-    // 反填編輯表單資料
     const catNameEl = document.getElementById('edit-rec-cat-name');
     const iconEl = document.getElementById('edit-rec-icon');
     const amountInput = document.getElementById('edit-rec-amount');
@@ -995,7 +1005,7 @@ function openEditRecordPage() {
     if (amountInput) amountInput.value = rec.amount;
     if (btnAcc) btnAcc.innerText = rec.account || '錢包';
     if (btnProj) btnProj.innerText = rec.project || '生活開銷';
-    if (btnDate) btnDate.innerText = rec.date || '2026/08/16';
+    if (btnDate) btnDate.innerText = rec.date || _todayStr;
     if (btnTime) btnTime.innerText = rec.time || '12:00';
     if (noteInput) noteInput.value = rec.note || '';
 
@@ -1041,7 +1051,7 @@ function saveEditedRecord() {
         return;
     }
 
-    let records = JSON.parse(localStorage.getItem('koin_records') || '[]');
+    let records = JSON.parse(localStorage.getItem('koin_records')) || [];
     let accounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
 
     const targetIdx = records.findIndex(r => r.id === currentViewingRecordId);
@@ -1052,7 +1062,6 @@ function saveEditedRecord() {
     const oldAccountName = oldRecord.account;
     const recordType = oldRecord.type || '支出';
 
-    // 1. 精準計算舊帳戶與新帳戶的餘額差額
     let oldAcc = accounts.find(a => a.name === oldAccountName);
     let newAcc = accounts.find(a => a.name === newAccountName);
 
@@ -1064,7 +1073,6 @@ function saveEditedRecord() {
         if (newAcc) newAcc.amount = (parseFloat(newAcc.amount) || 0) + newAmount;
     }
 
-    // 2. 更新紀錄資料
     records[targetIdx].amount = newAmount;
     records[targetIdx].note = newNote;
     records[targetIdx].account = newAccountName;
@@ -1072,11 +1080,9 @@ function saveEditedRecord() {
     records[targetIdx].date = newDate;
     records[targetIdx].time = newTime;
 
-    // 3. 持久化寫入 LocalStorage
     localStorage.setItem('koin_records', JSON.stringify(records));
     localStorage.setItem('koin_accounts', JSON.stringify(accounts));
 
-    // 4. 展示打勾動畫浮層並返回日曆
     const toast = document.getElementById('save-success-toast');
     if (toast) {
         toast.style.display = 'flex';
@@ -1100,7 +1106,7 @@ function saveEditedRecord() {
  */
 function deleteCurrentViewingRecord() {
     if (confirm('確定要刪除這筆記帳紀錄嗎？刪除後無法復原。')) {
-        let records = JSON.parse(localStorage.getItem('koin_records') || '[]');
+        let records = JSON.parse(localStorage.getItem('koin_records')) || [];
         let accounts = JSON.parse(localStorage.getItem('koin_accounts')) || [];
 
         const targetRecord = records.find(r => r.id === currentViewingRecordId);
