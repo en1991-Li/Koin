@@ -3,15 +3,24 @@
  */
 
 // 1. 設定初始狀態
-let selectedDate = new Date(2026, 7, 16); // 預設 2026 年 7 月 16 日
-const calendarData = {
-    startYear: 2025,
-    endYear: 2027
-};
+let selectedDate = new Date();
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 確保 recordState 與日曆選取日期同步為今天
+    const y = selectedDate.getFullYear();
+    const m = String(selectedDate.getMonth() + 1).padStart(2, '0');
+    const d = String(selectedDate.getDate()).padStart(2, '0');
+    if (typeof recordState !== 'undefined') {
+        recordState.date = `${y}/${m}/${d}`;
+    }
+
     renderInfiniteCalendar();
     setupScrollObserver();
+    
+    // 初始化頂部標題為當日
+    if (typeof updateCalendarHeaderToToday === 'function') {
+        updateCalendarHeaderToToday();
+    }
 });
 
 /**
