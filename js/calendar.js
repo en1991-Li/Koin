@@ -3,7 +3,7 @@
  */
 
 // 1. 設定初始狀態
-let selectedDate = new Date(2026, 7, 16); // 預設 2026 年 7 月 16 日
+let selectedDate = new Date();
 const calendarData = {
     startYear: 2025,
     endYear: 2027
