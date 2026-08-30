@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. 初始化圖示
     if (typeof lucide !== 'undefined') lucide.createIcons();
     
-    // 2. 更新日曆標題至當前月份/當天日期
+    // 2. 更新日曆標題至當天日期 (YYYY/MM/DD)
     updateCalendarHeaderToToday(); 
     
     // 3. 初始頁面渲染
@@ -62,7 +62,6 @@ function showPage(pageId, element) {
         if (typeof renderTrendsPage === 'function') renderTrendsPage();
     }
 
-    // 修正：補上閉合大括號
     if (pageId === 'page-calendar') {
         updateCalendarHeaderToToday();
         if (typeof renderDailyDetailsList === 'function') {
