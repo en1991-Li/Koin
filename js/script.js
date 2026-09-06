@@ -62,21 +62,24 @@ function showPage(pageId, element) {
         if (typeof renderTrendsPage === 'function') renderTrendsPage();
     }
 
-    // 切換至日曆頁時自動更新當天標題與明細
+    // 連動：切換至日曆頁時自動更新當天標題與當天明細
     if (pageId === 'page-calendar') {
         updateCalendarHeaderToToday();
         if (typeof renderDailyDetailsList === 'function') {
             renderDailyDetailsList();
         }
     }
-    
+
+    // 連動：切換至新增帳戶頁時動態重置帳單週期
     if (pageId === 'page-add-account') {
-    const cycleSlider = document.getElementById('cycle-slider');
-    if (cycleSlider) cycleSlider.value = 31;
-    const cycleDisplay = document.getElementById('main-cycle-display');
-    if (cycleDisplay) {
-        cycleDisplay.innerHTML = `每月月底 <i data-lucide="chevron-right" class="s-icon"></i>`;
+        const cycleSlider = document.getElementById('cycle-slider');
+        if (cycleSlider) cycleSlider.value = 31;
+        const cycleDisplay = document.getElementById('main-cycle-display');
+        if (cycleDisplay) {
+            cycleDisplay.innerHTML = `每月月底 <i data-lucide="chevron-right" class="s-icon"></i>`;
+        }
     }
+
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
@@ -799,25 +802,20 @@ function updateCycleText(val) {
 
     const now = new Date();
     const curYear = now.getFullYear();
-    const curMonth = now.getMonth() + 1; // 1 ~ 12
+    const curMonth = now.getMonth() + 1;
 
     const pad = (n) => String(n).padStart(2, '0');
 
     if (val == 31) {
-        // 每月月底模式：從當月 1 號到當月最後一天
         const lastDayOfCurMonth = new Date(curYear, curMonth, 0).getDate();
         rangeDisplay.innerText = `${curYear}/${pad(curMonth)}/01 – ${curYear}/${pad(curMonth)}/${pad(lastDayOfCurMonth)}`;
         noteDisplay.innerText = "帳單結帳日：每月月底";
     } else {
-        // 指定特定日期模式（例如每月 15 號結帳，帳單週期為 上個月15號 ~ 這個月15號）
         const dayNum = parseInt(val, 10);
-
-        // 推算前一個月的年份與月份
         const prevDate = new Date(curYear, curMonth - 2, 1);
         const prevYear = prevDate.getFullYear();
         const prevMonth = prevDate.getMonth() + 1;
 
-        // 避免前一個月沒有該日期（例如2月沒有30號），取最大天數防呆
         const maxPrevDay = new Date(prevYear, prevMonth, 0).getDate();
         const actualPrevDay = Math.min(dayNum, maxPrevDay);
 
