@@ -69,7 +69,14 @@ function showPage(pageId, element) {
             renderDailyDetailsList();
         }
     }
-
+    
+    if (pageId === 'page-add-account') {
+    const cycleSlider = document.getElementById('cycle-slider');
+    if (cycleSlider) cycleSlider.value = 31;
+    const cycleDisplay = document.getElementById('main-cycle-display');
+    if (cycleDisplay) {
+        cycleDisplay.innerHTML = `每月月底 <i data-lucide="chevron-right" class="s-icon"></i>`;
+    }
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
@@ -772,24 +779,70 @@ function deleteAccountAction() {
     }
 }
 
-function openCyclePicker() { openModal('cycle-picker-modal'); }
+/**
+ * 開啟帳單週期彈窗：動態以當前月份初始化日期區間與說明
+ */
+function openCyclePicker() {
+    const slider = document.getElementById('cycle-slider');
+    const currentVal = slider ? slider.value : '31';
+    updateCycleText(currentVal);
+    openModal('cycle-picker-modal');
+}
+
+/**
+ * 滑動週期拉桿：依據當前月份動態計算「結帳日」與「帳單週期起訖區間」
+ */
 function updateCycleText(val) {
     const rangeDisplay = document.getElementById('modal-date-range');
     const noteDisplay = document.getElementById('modal-cycle-note');
+    if (!rangeDisplay || !noteDisplay) return;
+
+    const now = new Date();
+    const curYear = now.getFullYear();
+    const curMonth = now.getMonth() + 1; // 1 ~ 12
+
+    const pad = (n) => String(n).padStart(2, '0');
+
     if (val == 31) {
-        rangeDisplay.innerText = "2026/04/01 – 2026/04/30";
+        // 每月月底模式：從當月 1 號到當月最後一天
+        const lastDayOfCurMonth = new Date(curYear, curMonth, 0).getDate();
+        rangeDisplay.innerText = `${curYear}/${pad(curMonth)}/01 – ${curYear}/${pad(curMonth)}/${pad(lastDayOfCurMonth)}`;
         noteDisplay.innerText = "帳單結帳日：每月月底";
     } else {
-        rangeDisplay.innerText = `2026/03/${val.padStart(2,'0')} – 2026/04/${val.padStart(2,'0')}`;
-        noteDisplay.innerText = `帳單結帳日：每月 ${val} 號`;
+        // 指定特定日期模式（例如每月 15 號結帳，帳單週期為 上個月15號 ~ 這個月15號）
+        const dayNum = parseInt(val, 10);
+
+        // 推算前一個月的年份與月份
+        const prevDate = new Date(curYear, curMonth - 2, 1);
+        const prevYear = prevDate.getFullYear();
+        const prevMonth = prevDate.getMonth() + 1;
+
+        // 避免前一個月沒有該日期（例如2月沒有30號），取最大天數防呆
+        const maxPrevDay = new Date(prevYear, prevMonth, 0).getDate();
+        const actualPrevDay = Math.min(dayNum, maxPrevDay);
+
+        const maxCurDay = new Date(curYear, curMonth, 0).getDate();
+        const actualCurDay = Math.min(dayNum, maxCurDay);
+
+        rangeDisplay.innerText = `${prevYear}/${pad(prevMonth)}/${pad(actualPrevDay)} – ${curYear}/${pad(curMonth)}/${pad(actualCurDay)}`;
+        noteDisplay.innerText = `帳單結帳日：每月 ${dayNum} 號`;
     }
 }
 
+/**
+ * 確認週期選擇：更新新增帳戶表單外層按鈕顯示
+ */
 function confirmCycle() {
-    const val = document.getElementById('cycle-slider').value;
+    const slider = document.getElementById('cycle-slider');
+    const val = slider ? slider.value : '31';
     const text = (val == 31) ? "每月月底" : `每月 ${val} 號`;
-    document.getElementById('main-cycle-display').innerHTML = `${text} <i data-lucide="chevron-right" class="s-icon"></i>`;
-    if (typeof lucide !== 'undefined') lucide.createIcons();
+    
+    const displayEl = document.getElementById('main-cycle-display');
+    if (displayEl) {
+        displayEl.innerHTML = `${text} <i data-lucide="chevron-right" class="s-icon"></i>`;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+    
     closeModal('cycle-picker-modal');
 }
 
