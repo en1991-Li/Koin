@@ -59,7 +59,12 @@ function showPage(pageId, element) {
     }
 
     if (pageId === 'page-trends') {
-        if (typeof renderTrendsPage === 'function') renderTrendsPage();
+        if (typeof syncTrendsDateWithCurrent === 'function') {
+            syncTrendsDateWithCurrent();
+        }
+        if (typeof renderTrendsPage === 'function') {
+            renderTrendsPage();
+        }
     }
 
     // 連動：切換至日曆頁時自動更新當天標題與當天明細
