@@ -2,9 +2,8 @@
  * Koin 每月報表核心統計與視覺化 - trends.js
  */
 
-// 預設當前月份
 let currentTrendsDate = new Date();
-let currentTrendsSubTab = '總覽'; // '總覽' | '明細' | '類別' | '排行' ...
+let currentTrendsSubTab = '總覽'; // 記錄當前頁籤
 
 /**
  * 確保月份狀態與系統當前日期對齊
@@ -26,7 +25,11 @@ function syncTrendsDateWithCurrent() {
  */
 function changeTrendsMonth(dir) {
     currentTrendsDate.setMonth(currentTrendsDate.getMonth() + dir);
-    renderTrendsPage();
+    if (currentTrendsSubTab === '明細') {
+        renderTrendsTransactionsList();
+    } else {
+        renderTrendsPage();
+    }
 }
 
 /**
@@ -52,7 +55,7 @@ function switchTrendsTab(tabName, el) {
 }
 
 /**
- * 每月報表核心渲染引擎 (總覽視圖)
+ * 1. 每月報表核心渲染引擎 (總覽視圖)
  */
 function renderTrendsPage() {
     const rangeEl = document.getElementById('trends-date-range');
@@ -66,7 +69,6 @@ function renderTrendsPage() {
     // 更新頂部日期區間
     rangeEl.innerText = `${year}/${padMonth}/01 － ${year}/${padMonth}/${String(lastDay).padStart(2, '0')}`;
 
-    // 如果目前停留在明細頁籤，重新過濾明細並返回
     if (currentTrendsSubTab === '明細') {
         renderTrendsTransactionsList();
         return;
@@ -169,7 +171,7 @@ function renderTrendsPage() {
         netTotalEl.style.color = netTotal >= 0 ? '#4ade80' : '#fb7185';
     }
 
-    // 渲染類別圓形環
+    // 渲染類別甜甜圈圓環
     const catContainer = document.getElementById('trends-category-circles');
     const sortedMainCats = Object.entries(mainCategoryStats).sort((a, b) => b[1].amount - a[1].amount);
 
@@ -225,7 +227,7 @@ function renderTrendsPage() {
                 const rec = item.lastRecord || {};
 
                 topHTML += `
-                    <div class="form-row" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: ${isLast ? 'none' : '1px solid rgba(255,255,255,0.05)'};">
+                    <div class="form-row" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: ${isLast ? 'none' : '1px solid rgba(255,255,255,0.05)'}; cursor: pointer;" onclick="openRecordSummary(${rec.id})">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <span style="font-size: 14px; font-weight: 800; color: ${rankBadgeColors[index]}; width: 14px; text-align: center;">${index + 1}</span>
                             <div class="cate-icon-wrapper ${meta.bgClass}" style="width: 42px; height: 42px; margin: 0;">
@@ -254,15 +256,21 @@ function renderTrendsPage() {
 }
 
 /**
- * 渲染每月報表中的「明細」列表視圖 (按日期倒序分組，並包含星期與總計)
+ * 2. 渲染每月報表中的「明細」列表視圖 (按日期倒序分組，並包含星期與總計)
  */
 function renderTrendsTransactionsList() {
     const container = document.getElementById('trends-transactions-container');
+    const rangeEl = document.getElementById('trends-date-range');
     if (!container) return;
 
     const year = currentTrendsDate.getFullYear();
     const month = currentTrendsDate.getMonth() + 1;
+    const lastDay = new Date(year, month, 0).getDate();
     const padMonth = String(month).padStart(2, '0');
+
+    if (rangeEl) {
+        rangeEl.innerText = `${year}/${padMonth}/01 － ${year}/${padMonth}/${String(lastDay).padStart(2, '0')}`;
+    }
 
     const allRecords = JSON.parse(localStorage.getItem('koin_records') || '[]');
     const targetMonthPrefix = `${year}/${padMonth}`;
@@ -296,7 +304,7 @@ function renderTrendsTransactionsList() {
         }
     });
 
-    // 日期倒序排序 (最新的日期排在最上方)
+    // 日期倒序排序 (最新日期在最前)
     const sortedDates = Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a));
     const weekDays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
 
@@ -307,18 +315,18 @@ function renderTrendsTransactionsList() {
         const groupTotalText = `${isNetExpense ? '-' : '+'}$${Math.abs(group.total).toLocaleString()}`;
         const groupTotalColor = isNetExpense ? '#fb7185' : '#4ade80';
 
-        // 星期幾判定
+        // 星期幾計算
         let weekDayStr = '';
         const parts = dateStr.replace(/-/g, '/').split('/');
         if (parts.length === 3) {
-            const dObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            const dObj = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
             if (!isNaN(dObj.getDay())) {
                 weekDayStr = ` (${weekDays[dObj.getDay()]})`;
             }
         }
 
         html += `
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 4px 6px 4px; color: #ffffff; font-size: 13px; font-weight: 700;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 4px 6px 4px; color: #ffffff; font-size: 13px; font-weight: 700;">
                 <span>${dateStr}<span style="color: #8e8e93; font-weight: 500; font-size: 12px; margin-left: 4px;">${weekDayStr}</span></span>
                 <span style="color: ${groupTotalColor};">${groupTotalText}</span>
             </div>
