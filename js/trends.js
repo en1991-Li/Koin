@@ -15,10 +15,11 @@ function changeTrendsMonth(dir) {
 function switchTrendsTab(tabName, el) {
     document.querySelectorAll('.trends-tab').forEach(t => t.classList.remove('active'));
     if (el) el.classList.add('active');
+    renderTrendsPage();
 }
 
 /**
- * 每月報表核心渲染引擎 (已加入月份嚴格過濾)
+ * 每月報表核心渲染引擎
  */
 function renderTrendsPage() {
     const rangeEl = document.getElementById('trends-date-range');
@@ -30,12 +31,12 @@ function renderTrendsPage() {
     const padMonth = String(month).padStart(2, '0');
     
     // 更新頂部日期區間文字
-    rangeEl.innerText = `${year}/${padMonth}/01 － ${year}/${padMonth}/${lastDay}`;
+    rangeEl.innerText = `${year}/${padMonth}/01 － ${year}/${padMonth}/${String(lastDay).padStart(2, '0')}`;
 
-    // 1. 取得所有紀錄並嚴格過濾出「當前選中月份」的紀錄
+    // 1. 嚴格過濾當前選中月份紀錄
     const allRecords = JSON.parse(localStorage.getItem('koin_records') || '[]');
     const targetMonthPrefix = `${year}/${padMonth}`;
-    const targetMonthPrefixAlt = `${year}/${month}/`; // 兼容無補零格式
+    const targetMonthPrefixAlt = `${year}/${month}/`;
 
     const records = allRecords.filter(r => {
         if (!r.date) return false;
@@ -49,67 +50,116 @@ function renderTrendsPage() {
     let transferInTotal = 0, transferInCount = 0;
     let adjustTotal = 0, adjustCount = 0;
 
-    const categoryExpenseMap = {};
+    // 分類統計 (聚合母分類與各項目)
+    const mainCategoryStats = {};
+    const subCategoryStats = {};
 
     // 2. 統計當月數據
     records.forEach(r => {
         const amt = parseFloat(r.amount) || 0;
+        const rawCat = (r.category || '未分類').trim();
+
         if (r.type === '支出' || r.type === '應付款項') {
             outTotal += amt;
             outCount++;
-            categoryExpenseMap[r.category] = (categoryExpenseMap[r.category] || 0) + amt;
+
+            // 子項目累計
+            if (!subCategoryStats[rawCat]) {
+                subCategoryStats[rawCat] = { amount: 0, count: 0, lastRecord: r };
+            }
+            subCategoryStats[rawCat].amount += amt;
+            subCategoryStats[rawCat].count++;
+
+            // 母分類累計 (依 categoryMetaMap)
+            let parentCat = '其他';
+            if (typeof categoryMetaMap !== 'undefined' && categoryMetaMap[rawCat]) {
+                parentCat = categoryMetaMap[rawCat].parent || rawCat;
+            } else {
+                parentCat = rawCat;
+            }
+
+            if (!mainCategoryStats[parentCat]) {
+                mainCategoryStats[parentCat] = { amount: 0, count: 0 };
+            }
+            mainCategoryStats[parentCat].amount += amt;
+            mainCategoryStats[parentCat].count++;
+
         } else if (r.type === '收入' || r.type === '應收款項') {
             inTotal += amt;
             inCount++;
         } else if (r.type === '轉帳') {
             transferOutTotal += amt;
             transferOutCount++;
+        } else if (r.type === '調整餘額') {
+            adjustTotal += amt;
+            adjustCount++;
         }
     });
 
     const netTotal = inTotal - outTotal;
     const maxVal = Math.max(outTotal, inTotal, transferOutTotal, 1);
 
-    // 3. 更新收支數字與進度條
-    document.getElementById('trends-out-count').innerText = outCount;
-    document.getElementById('trends-out-total').innerText = `-$${outTotal.toLocaleString()}`;
-    document.getElementById('trends-out-bar').style.width = `${(outTotal / maxVal) * 100}%`;
+    // 3. 更新收支數據與比例條
+    const setElemText = (id, text) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = text;
+    };
 
-    document.getElementById('trends-in-count').innerText = inCount;
-    document.getElementById('trends-in-total').innerText = `+$${inTotal.toLocaleString()}`;
-    document.getElementById('trends-in-bar').style.width = `${(inTotal / maxVal) * 100}%`;
+    setElemText('trends-out-count', outCount);
+    setElemText('trends-out-total', `-$${outTotal.toLocaleString()}`);
+    if (document.getElementById('trends-out-bar')) {
+        document.getElementById('trends-out-bar').style.width = `${(outTotal / maxVal) * 100}%`;
+    }
 
-    document.getElementById('trends-transfer-out-count').innerText = transferOutCount;
-    document.getElementById('trends-transfer-out-total').innerText = `-$${transferOutTotal.toLocaleString()}`;
-    document.getElementById('trends-transfer-out-bar').style.width = `${(transferOutTotal / maxVal) * 100}%`;
+    setElemText('trends-in-count', inCount);
+    setElemText('trends-in-total', `+$${inTotal.toLocaleString()}`);
+    if (document.getElementById('trends-in-bar')) {
+        document.getElementById('trends-in-bar').style.width = `${(inTotal / maxVal) * 100}%`;
+    }
 
-    document.getElementById('trends-transfer-in-count').innerText = transferInCount;
-    document.getElementById('trends-transfer-in-total').innerText = `+$${transferInTotal.toLocaleString()}`;
+    setElemText('trends-transfer-out-count', transferOutCount);
+    setElemText('trends-transfer-out-total', `-$${transferOutTotal.toLocaleString()}`);
+    if (document.getElementById('trends-transfer-out-bar')) {
+        document.getElementById('trends-transfer-out-bar').style.width = `${(transferOutTotal / maxVal) * 100}%`;
+    }
 
-    document.getElementById('trends-adjust-count').innerText = adjustCount;
-    document.getElementById('trends-adjust-total').innerText = `+$${adjustTotal.toLocaleString()}`;
+    setElemText('trends-transfer-in-count', transferInCount);
+    setElemText('trends-transfer-in-total', `+$${transferInTotal.toLocaleString()}`);
 
-    document.getElementById('trends-total-count').innerText = records.length;
-    document.getElementById('trends-net-total').innerText = `${netTotal >= 0 ? '+' : '-'}$${Math.abs(netTotal).toLocaleString()}`;
+    setElemText('trends-adjust-count', adjustCount);
+    setElemText('trends-adjust-total', `+$${adjustTotal.toLocaleString()}`);
 
-    // 4. 渲染當月類別圓環
+    setElemText('trends-total-count', records.length);
+    const netTotalEl = document.getElementById('trends-net-total');
+    if (netTotalEl) {
+        netTotalEl.innerText = `${netTotal >= 0 ? '+' : '-'}$${Math.abs(netTotal).toLocaleString()}`;
+        netTotalEl.style.color = netTotal >= 0 ? '#4ade80' : '#fb7185';
+    }
+
+    // 4. 渲染當月類別圓環 (聚合到主分類，附帶圖示與圓環進度)
     const catContainer = document.getElementById('trends-category-circles');
-    const sortedCats = Object.entries(categoryExpenseMap).sort((a, b) => b[1] - a[1]);
-    
+    const sortedMainCats = Object.entries(mainCategoryStats).sort((a, b) => b[1].amount - a[1].amount);
+
     if (catContainer) {
-        if (sortedCats.length === 0) {
-            catContainer.innerHTML = `<span style="color:#8e8e93; font-size:12px; padding:10px;">該月份尚無類別支出資料</span>`;
+        if (sortedMainCats.length === 0 || outTotal === 0) {
+            catContainer.innerHTML = `<span style="color:#8e8e93; font-size:12px; padding:15px;">該月份尚無支出分類資料</span>`;
         } else {
             let catHTML = '';
-            sortedCats.forEach(([catName, amt]) => {
-                const percent = outTotal > 0 ? Math.round((amt / outTotal) * 1000) / 10 : 0;
+            sortedMainCats.forEach(([catName, data]) => {
+                const percent = Math.round((data.amount / outTotal) * 100);
+                const meta = (typeof categoryMetaMap !== 'undefined' && categoryMetaMap[catName]) 
+                    ? categoryMetaMap[catName] 
+                    : { icon: 'tag' };
+
                 catHTML += `
-                    <div class="trends-cat-card">
-                        <div class="trends-circle-progress" style="background: conic-gradient(#fb7185 ${percent}%, rgba(255,255,255,0.08) 0);">
-                            <span>${percent}%</span>
+                    <div class="trends-cat-circle-item" style="display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 68px;">
+                        <div class="donut-ring" style="width: 58px; height: 58px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: conic-gradient(#fb7185 ${percent * 3.6}deg, #2c2c3e 0deg); box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+                            <div class="donut-inner" style="width: 44px; height: 44px; border-radius: 50%; background: #1c1c28; display: flex; align-items: center; justify-content: center;">
+                                <i data-lucide="${meta.icon}" style="width: 20px; height: 20px; color: #ffffff;"></i>
+                            </div>
                         </div>
-                        <div style="font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 2px;">${catName}</div>
-                        <div style="font-size: 11px; color: #fb7185; font-weight: 700;">$${amt.toLocaleString()}</div>
+                        <span style="font-size: 12px; color: #ffffff; font-weight: 600;">${catName}</span>
+                        <span style="font-size: 11px; color: #8e8e93;">${percent}%</span>
                     </div>
                 `;
             });
@@ -117,38 +167,52 @@ function renderTrendsPage() {
         }
     }
 
-    // 5. 渲染當月 TOP 3 支出排行
+    // 5. 渲染當月 TOP 3 支出排行 (動態串接 categoryMetaMap 圖示與漸層)
     const top3Container = document.getElementById('trends-top3-container');
-    const topRecords = records
-        .filter(r => r.type === '支出' || r.type === '應付款項')
-        .sort((a, b) => parseFloat(b.amount) - parseFloat(a.amount))
+    const sortedSubCats = Object.entries(subCategoryStats)
+        .map(([name, val]) => ({ name, ...val }))
+        .sort((a, b) => b.amount - a.amount)
         .slice(0, 3);
 
+    const rankBadgeColors = ['#f59e0b', '#94a3b8', '#b45309']; // 金、銀、銅
+
     if (top3Container) {
-        if (topRecords.length === 0) {
+        if (sortedSubCats.length === 0 || outTotal === 0) {
             top3Container.innerHTML = `<p style="color:#8e8e93; text-align:center; font-size:13px; padding:20px 0;">該月份尚無排行紀錄</p>`;
         } else {
-            let topHTML = '';
-            topRecords.forEach(r => {
+            let topHTML = `<div class="form-group" style="background: #1c1c28; border-radius: 20px; padding: 0 16px; margin-bottom: 20px;">`;
+            
+            sortedSubCats.forEach((item, index) => {
+                const isLast = (index === sortedSubCats.length - 1);
+                const percent = Math.round((item.amount / outTotal) * 100);
+                const meta = (typeof categoryMetaMap !== 'undefined' && categoryMetaMap[item.name]) 
+                    ? categoryMetaMap[item.name] 
+                    : { icon: 'tag', bgClass: 'i-shopping' };
+                
+                const rec = item.lastRecord || {};
+
                 topHTML += `
-                    <div class="form-group" style="background: #1c1c28; border-radius: 18px; padding: 14px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <div class="form-row" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: ${isLast ? 'none' : '1px solid rgba(255,255,255,0.05)'};">
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <div class="cate-icon-wrapper i-shopping" style="width: 44px; height: 44px; margin: 0;">
-                                <i data-lucide="shopping-bag"></i>
+                            <span style="font-size: 14px; font-weight: 800; color: ${rankBadgeColors[index]}; width: 14px; text-align: center;">${index + 1}</span>
+                            <div class="cate-icon-wrapper ${meta.bgClass}" style="width: 42px; height: 42px; margin: 0;">
+                                <i data-lucide="${meta.icon}"></i>
                             </div>
                             <div>
-                                <div style="font-size: 15px; font-weight: 600; color: #fff;">${r.category}</div>
-                                <div style="font-size: 11px; color: #8e8e93; margin: 2px 0;">${r.note || '無備註'}</div>
-                                <div style="display: flex; gap: 5px; margin-top: 4px;">
-                                    <span style="background: rgba(255,255,255,0.06); color: #8e8e93; font-size: 10px; padding: 1px 6px; border-radius: 5px;">${r.project || '生活開銷'}</span>
-                                    <span style="background: rgba(93,93,255,0.12); color: #8e8e93; font-size: 10px; padding: 1px 6px; border-radius: 5px;">${r.account || '錢包'}</span>
+                                <div style="font-size: 15px; font-weight: 600; color: #fff;">${item.name}</div>
+                                <div style="font-size: 11px; color: #8e8e93; margin: 2px 0;">${item.count} 筆記錄 · 佔比 ${percent}%</div>
+                                <div style="display: flex; gap: 5px; margin-top: 2px;">
+                                    <span style="background: rgba(255,255,255,0.06); color: #8e8e93; font-size: 10px; padding: 1px 6px; border-radius: 5px;">${rec.project || '生活開銷'}</span>
+                                    <span style="background: rgba(93,93,255,0.12); color: #8e8e93; font-size: 10px; padding: 1px 6px; border-radius: 5px;">${rec.account || '錢包'}</span>
                                 </div>
                             </div>
                         </div>
-                        <span style="color: #fb7185; font-size: 16px; font-weight: 700;">$${parseFloat(r.amount).toLocaleString()}</span>
+                        <span style="color: #fb7185; font-size: 16px; font-weight: 700;">-$${item.amount.toLocaleString()}</span>
                     </div>
                 `;
             });
+            
+            topHTML += `</div>`;
             top3Container.innerHTML = topHTML;
         }
     }
