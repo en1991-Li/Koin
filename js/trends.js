@@ -256,6 +256,93 @@ function renderTrendsPage() {
 }
 
 /**
+ * 繪製當月每日支出趨勢折線/面積圖 (純 SVG)
+ */
+function renderTrendsExpenseChart(monthRecords, daysInMonth) {
+    const svg = document.getElementById('trends-expense-svg');
+    const maxLabel = document.getElementById('trends-chart-max-label');
+    const midDayEl = document.getElementById('trends-chart-mid-day');
+    const endDayEl = document.getElementById('trends-chart-end-day');
+    if (!svg) return;
+
+    if (midDayEl) midDayEl.innerText = `${Math.floor(daysInMonth / 2)}日`;
+    if (endDayEl) endDayEl.innerText = `${daysInMonth}日`;
+
+    // 1. 統計當月 1 ~ N 日的每日支出總額
+    const dailyExpenses = new Array(daysInMonth + 1).fill(0);
+    monthRecords.forEach(r => {
+        if (r.type === '支出' || r.type === '應付款項') {
+            const parts = (r.date || '').replace(/-/g, '/').split('/');
+            if (parts.length === 3) {
+                const day = parseInt(parts[2], 10);
+                if (day >= 1 && day <= daysInMonth) {
+                    dailyExpenses[day] += (parseFloat(r.amount) || 0);
+                }
+            }
+        }
+    });
+
+    const maxExpense = Math.max(...dailyExpenses.slice(1), 0);
+    if (maxLabel) {
+        maxLabel.innerText = `最高單日: $${maxExpense.toLocaleString()}`;
+    }
+
+    // 若完全沒有支出，顯示空狀態水平線
+    if (maxExpense === 0) {
+        svg.innerHTML = `
+            <line x1="0" y1="80" x2="320" y2="80" stroke="rgba(255,255,255,0.08)" stroke-width="2" stroke-dasharray="4" />
+            <text x="160" y="55" fill="#8e8e93" font-size="11" text-anchor="middle">當月尚無支出紀錄</text>
+        `;
+        return;
+    }
+
+    // 2. 計算 SVG 座標點 (viewBox: 0 0 320 100)
+    // 預留上下邊距：Y 軸 15 ~ 85
+    const width = 320;
+    const height = 100;
+    const paddingY = 15;
+    const chartHeight = height - paddingY * 2;
+
+    const points = [];
+    for (let day = 1; day <= daysInMonth; day++) {
+        const x = ((day - 1) / (daysInMonth - 1)) * width;
+        const ratio = dailyExpenses[day] / maxExpense;
+        const y = height - paddingY - (ratio * chartHeight);
+        points.push({ x: Number(x.toFixed(1)), y: Number(y.toFixed(1)), val: dailyExpenses[day], day });
+    }
+
+    const polylineCoords = points.map(p => `${p.x},${p.y}`).join(' ');
+    const areaCoords = `0,${height} ${polylineCoords} ${width},${height}`;
+
+    // 3. 組合 SVG (含漸層面積、主折線、最高點標記圓點)
+    const highestPoint = points.reduce((prev, curr) => (curr.val > prev.val ? curr : prev), points[0]);
+
+    svg.innerHTML = `
+        <defs>
+            <linearGradient id="expenseTrendGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#fb7185" stop-opacity="0.35" />
+                <stop offset="100%" stop-color="#fb7185" stop-opacity="0.0" />
+            </linearGradient>
+        </defs>
+        
+        <!-- 背景參考基準線 -->
+        <line x1="0" y1="${height - paddingY}" x2="${width}" y2="${height - paddingY}" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
+        <line x1="0" y1="${paddingY}" x2="${width}" y2="${paddingY}" stroke="rgba(255,255,255,0.04)" stroke-dasharray="3" stroke-width="1" />
+
+        <!-- 漸層填滿面積 -->
+        <polygon points="${areaCoords}" fill="url(#expenseTrendGrad)" />
+
+        <!-- 主趨勢曲線 -->
+        <polyline points="${polylineCoords}" fill="none" stroke="#fb7185" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+
+        <!-- 最高消費點標記 -->
+        ${highestPoint.val > 0 ? `
+            <circle cx="${highestPoint.x}" cy="${highestPoint.y}" r="4" fill="#fb7185" stroke="#1c1c28" stroke-width="2" />
+        ` : ''}
+    `;
+}
+
+/**
  * 2. 渲染每月報表中的「明細」列表視圖 (按日期倒序分組，並包含星期與總計)
  */
 function renderTrendsTransactionsList() {
@@ -285,6 +372,14 @@ function renderTrendsTransactionsList() {
 
     if (monthRecords.length === 0) {
         container.innerHTML = `<p style="color: #8e8e93; text-align: center; margin-top: 40px; font-size: 14px;">該月份尚無交易明細</p>`;
+        return;
+    }
+
+    // === 核心觸發：渲染當月每日支出趨勢圖 ===
+    renderTrendsExpenseChart(monthRecords, lastDay);
+
+    if (monthRecords.length === 0) {
+        container.innerHTML = `<p style="color: #8e8e93; text-align: center; margin-top: 30px; font-size: 14px;">該月份尚無交易明細</p>`;
         return;
     }
 
