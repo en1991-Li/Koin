@@ -425,6 +425,9 @@
                     <span class="trends-tab" onclick="switchTrendsTab('對象', this)">對象</span>
                 </div>
 
+                <!-- 視圖 A：總覽視圖 (包含收支長條、甜甜圈圓環與 TOP3) -->
+               <div id="trends-view-overview">
+                   <!-- 收支統計大卡片 -->
                 <div class="form-group" style="background: #1c1c28; border-radius: 20px; padding: 16px; margin: 15px 0;">
                     <div class="trends-stat-row">
                         <div class="trends-stat-left">
@@ -490,12 +493,18 @@
                     </div>
                 </div>
 
+                <!-- 類別佔比圓環區 -->
                 <div style="font-size: 14px; font-weight: 700; color: #fff; margin: 18px 0 10px 4px;">類別</div>
                 <div class="trends-category-row no-scrollbar" id="trends-category-circles"></div>
 
+                <!-- TOP 3 支出排行 -->
                 <div style="font-size: 14px; font-weight: 700; color: #fff; margin: 20px 0 10px 4px;">TOP 3</div>
                 <div id="trends-top3-container"></div>
+                <!-- 視圖 B：明細列表視圖 (點擊「明細」頁籤時顯示) -->
+                <div id="trends-view-details" style="display: none;">
+                <div id="trends-transactions-container"></div>
             </div>
+        </div>
         </section>
 
         <!-- ==================== 10. 更多功能頁  ==================== -->
