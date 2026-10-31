@@ -1,5 +1,24 @@
-// 預設當前系統月份
+/**
+ * Koin 每月報表核心統計與視覺化 - trends.js
+ */
+
+// 預設為系統當前選中之年月（優先對齊 recordState.date，無則使用系統今天）
 let currentTrendsDate = new Date();
+
+/**
+ * 確保月份狀態與系統當前日期對齊
+ */
+function syncTrendsDateWithCurrent() {
+    if (typeof recordState !== 'undefined' && recordState.date) {
+        const parts = recordState.date.replace(/-/g, '/').split('/');
+        if (parts.length >= 2) {
+            currentTrendsDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, 1);
+            return;
+        }
+    }
+    const now = new Date();
+    currentTrendsDate = new Date(now.getFullYear(), now.getMonth(), 1);
+}
 
 /**
  * 切換報表月份 (+1 或 -1 個月)
@@ -30,10 +49,10 @@ function renderTrendsPage() {
     const lastDay = new Date(year, month, 0).getDate();
     const padMonth = String(month).padStart(2, '0');
     
-    // 更新頂部日期區間文字
+    // 1. 動態更新頂部日期區間 (例如：2026/10/01 － 2026/10/31)
     rangeEl.innerText = `${year}/${padMonth}/01 － ${year}/${padMonth}/${String(lastDay).padStart(2, '0')}`;
 
-    // 1. 嚴格過濾當前選中月份紀錄
+    // 2. 嚴格過濾當前選中月份紀錄 (相容補零與無補零格式)
     const allRecords = JSON.parse(localStorage.getItem('koin_records') || '[]');
     const targetMonthPrefix = `${year}/${padMonth}`;
     const targetMonthPrefixAlt = `${year}/${month}/`;
@@ -50,11 +69,11 @@ function renderTrendsPage() {
     let transferInTotal = 0, transferInCount = 0;
     let adjustTotal = 0, adjustCount = 0;
 
-    // 分類統計 (聚合母分類與各項目)
+    // 分類統計
     const mainCategoryStats = {};
     const subCategoryStats = {};
 
-    // 2. 統計當月數據
+    // 3. 統計當月數據
     records.forEach(r => {
         const amt = parseFloat(r.amount) || 0;
         const rawCat = (r.category || '未分類').trim();
@@ -99,7 +118,7 @@ function renderTrendsPage() {
     const netTotal = inTotal - outTotal;
     const maxVal = Math.max(outTotal, inTotal, transferOutTotal, 1);
 
-    // 3. 更新收支數據與比例條
+    // 4. 更新收支數據與比例條
     const setElemText = (id, text) => {
         const el = document.getElementById(id);
         if (el) el.innerText = text;
@@ -136,7 +155,7 @@ function renderTrendsPage() {
         netTotalEl.style.color = netTotal >= 0 ? '#4ade80' : '#fb7185';
     }
 
-    // 4. 渲染當月類別圓環 (聚合到主分類，附帶圖示與圓環進度)
+    // 5. 渲染類別甜甜圈圓環
     const catContainer = document.getElementById('trends-category-circles');
     const sortedMainCats = Object.entries(mainCategoryStats).sort((a, b) => b[1].amount - a[1].amount);
 
@@ -167,14 +186,14 @@ function renderTrendsPage() {
         }
     }
 
-    // 5. 渲染當月 TOP 3 支出排行 (動態串接 categoryMetaMap 圖示與漸層)
+    // 6. 渲染當月 TOP 3 支出排行
     const top3Container = document.getElementById('trends-top3-container');
     const sortedSubCats = Object.entries(subCategoryStats)
         .map(([name, val]) => ({ name, ...val }))
         .sort((a, b) => b.amount - a.amount)
         .slice(0, 3);
 
-    const rankBadgeColors = ['#f59e0b', '#94a3b8', '#b45309']; // 金、銀、銅
+    const rankBadgeColors = ['#f59e0b', '#94a3b8', '#b45309'];
 
     if (top3Container) {
         if (sortedSubCats.length === 0 || outTotal === 0) {
