@@ -5,6 +5,21 @@
 let currentTrendsDate = new Date();
 let currentTrendsSubTab = '總覽'; // '總覽' | '明細' | '類別' | '排行' ...
 
+// 10 大主分類指定配色字典 (全模組共用)
+const catColorMap = {
+    '飲食': '#f59e0b',
+    '交通': '#3b82f6',
+    '娛樂': '#a855f7',
+    '購物': '#ef4444',
+    '個人': '#6366f1',
+    '醫療': '#06b6d4',
+    '家居': '#10b981',
+    '家庭': '#ec4899',
+    '生活': '#84cc16',
+    '學習': '#14b8a6',
+    '其他': '#8e8e93'
+};
+
 /**
  * 確保月份狀態與系統當前日期對齊
  */
@@ -21,7 +36,7 @@ function syncTrendsDateWithCurrent() {
 }
 
 /**
- * 切換報表月份 (+1 或 -1 個月)
+ * 切換報表月份 (+1 或 -1 個月) 並連動當前畫面
  */
 function changeTrendsMonth(dir) {
     currentTrendsDate.setMonth(currentTrendsDate.getMonth() + dir);
@@ -70,11 +85,11 @@ function switchTrendsTab(tabName, el) {
 }
 
 /**
- * 取得當前選中月份的篩選紀錄
+ * 精準過濾出當前月份紀錄（相容各種日期格式補零差異）
  */
 function getFilteredMonthRecords() {
     const year = currentTrendsDate.getFullYear();
-    const month = currentTrendsDate.getMonth() + 1;
+    const month = currentTrendsDate.getMonth() + 1; // 1 ~ 12
     const lastDay = new Date(year, month, 0).getDate();
     const padMonth = String(month).padStart(2, '0');
 
@@ -84,18 +99,23 @@ function getFilteredMonthRecords() {
     }
 
     const allRecords = JSON.parse(localStorage.getItem('koin_records') || '[]');
-    const targetMonthPrefix = `${year}/${padMonth}`;
-    const targetMonthPrefixAlt = `${year}/${month}/`;
+
+    const filteredRecords = allRecords.filter(r => {
+        if (!r.date) return false;
+        const parts = r.date.replace(/-/g, '/').split('/');
+        if (parts.length >= 2) {
+            const rYear = parseInt(parts[0], 10);
+            const rMonth = parseInt(parts[1], 10);
+            return rYear === year && rMonth === month;
+        }
+        return false;
+    });
 
     return {
         year,
         month,
         lastDay,
-        records: allRecords.filter(r => {
-            if (!r.date) return false;
-            const normalizedDate = r.date.replace(/-/g, '/');
-            return normalizedDate.startsWith(targetMonthPrefix) || normalizedDate.startsWith(targetMonthPrefixAlt);
-        })
+        records: filteredRecords
     };
 }
 
@@ -206,10 +226,11 @@ function renderTrendsPage() {
                 const meta = (typeof categoryMetaMap !== 'undefined' && categoryMetaMap[catName]) 
                     ? categoryMetaMap[catName] 
                     : { icon: 'tag' };
+                const color = catColorMap[catName] || '#5d5dff';
 
                 catHTML += `
                     <div class="trends-cat-circle-item" style="display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 68px;">
-                        <div class="donut-ring" style="width: 58px; height: 58px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: conic-gradient(#fb7185 ${percent * 3.6}deg, #2c2c3e 0deg); box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+                        <div class="donut-ring" style="width: 58px; height: 58px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: conic-gradient(${color} ${percent * 3.6}deg, #2c2c3e 0deg); box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
                             <div class="donut-inner" style="width: 44px; height: 44px; border-radius: 50%; background: #1c1c28; display: flex; align-items: center; justify-content: center;">
                                 <i data-lucide="${meta.icon}" style="width: 20px; height: 20px; color: #ffffff;"></i>
                             </div>
@@ -277,7 +298,7 @@ function renderTrendsPage() {
 }
 
 /**
- * 2. 渲染每月報表中的「類別」視圖 
+ * 2. 渲染每月報表中的「類別」視圖 (套用 catColorMap 配色)
  */
 function renderTrendsCategoryView() {
     const svg = document.getElementById('trends-category-donut-svg');
@@ -287,21 +308,6 @@ function renderTrendsCategoryView() {
     if (!svg || !listContainer) return;
 
     const { records } = getFilteredMonthRecords();
-
-    // 10 大主分類配色字典
-    const catColorMap = {
-        '飲食': '#f59e0b',
-        '交通': '#3b82f6',
-        '娛樂': '#a855f7',
-        '購物': '#ef4444',
-        '個人': '#6366f1',
-        '醫療': '#06b6d4',
-        '家居': '#10b981',
-        '家庭': '#ec4899',
-        '生活': '#84cc16',
-        '學習': '#14b8a6',
-        '其他': '#8e8e93'
-    };
 
     let totalExpense = 0;
     const mainCatMap = {};
@@ -327,7 +333,6 @@ function renderTrendsCategoryView() {
         }
     });
 
-    // 更新中央大字與最下方總計
     if (centerAmount) centerAmount.innerText = totalExpense.toLocaleString();
     if (bottomTotal) bottomTotal.innerText = `$${totalExpense.toLocaleString()}`;
 
@@ -342,15 +347,13 @@ function renderTrendsCategoryView() {
         return;
     }
 
-    // ==========================================
-    // SVG 甜甜圈圓環與外拉折線演算法
-    // ==========================================
+    // SVG 甜甜圈圓環與外拉折線繪製
     const cx = 170, cy = 130;
-    const rOuter = 82; // 外半徑
-    const rInner = 52; // 內半徑
-    const rMid = (rOuter + rInner) / 2; // 環體中心半徑（放字用）
+    const rOuter = 82;
+    const rInner = 52;
+    const rMid = (rOuter + rInner) / 2;
 
-    let startAngle = -90; // 從 12 點鐘方向開始
+    let startAngle = -90;
     let pathsHTML = '';
     let textsHTML = '';
     let pointersHTML = '';
@@ -359,13 +362,11 @@ function renderTrendsCategoryView() {
         const ratio = data.amount / totalExpense;
         const sweepAngle = ratio * 360;
         const endAngle = startAngle + sweepAngle;
-        const color = catThemeColors[catName] || '#9B72CF';
+        const color = catColorMap[catName] || '#8e8e93';
         const percentStr = `${(ratio * 100).toFixed(1)}%`;
 
-        // 弧度轉換
         const rad = deg => (deg * Math.PI) / 180;
 
-        // 計算扇形 4 個角點
         const x1 = cx + rOuter * Math.cos(rad(startAngle));
         const y1 = cy + rOuter * Math.sin(rad(startAngle));
         const x2 = cx + rOuter * Math.cos(rad(endAngle));
@@ -376,22 +377,17 @@ function renderTrendsCategoryView() {
         const y4 = cy + rInner * Math.sin(rad(startAngle));
 
         const largeArc = sweepAngle > 180 ? 1 : 0;
-
-        // 生成甜甜圈扇區路徑 (含扇區交界深色微切線)
         const d = `M ${x1} ${y1} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${x2} ${y2} L ${x3} ${y3} A ${rInner} ${rInner} 0 ${largeArc} 0 ${x4} ${y4} Z`;
         pathsHTML += `<path d="${d}" fill="${color}" stroke="#161622" stroke-width="2" />`;
 
-        // 扇形正中間角度
         const midAngle = startAngle + sweepAngle / 2;
 
-        // 1. 在環體內部寫上「分類名稱」(佔比大於 4% 才顯示避免重疊)
         if (sweepAngle > 14) {
             const tx = cx + rMid * Math.cos(rad(midAngle));
             const ty = cy + rMid * Math.sin(rad(midAngle)) + 4;
             textsHTML += `<text x="${tx}" y="${ty}" fill="#1c1c28" font-size="11" font-weight="700" text-anchor="middle">${catName}</text>`;
         }
 
-        // 2. 外拉折線與「百分比標註」
         if (sweepAngle > 7) {
             const p1x = cx + (rOuter + 3) * Math.cos(rad(midAngle));
             const p1y = cy + (rOuter + 3) * Math.sin(rad(midAngle));
@@ -418,30 +414,25 @@ function renderTrendsCategoryView() {
         <g id="donut-pointers">${pointersHTML}</g>
     `;
 
-    // ==========================================
-    // 渲染下方明細列表 (左圖示+名額筆數 / 右金額)
-    // ==========================================
+    // 渲染下方明細清單 (圖示背景色即時對齊 catColorMap)
     let listHTML = '';
     sortedCats.forEach(([catName, data]) => {
         const meta = (typeof categoryMetaMap !== 'undefined' && categoryMetaMap[catName]) 
             ? categoryMetaMap[catName] 
             : { icon: 'tag', bgClass: 'i-shopping' };
-        const color = catThemeColors[catName] || '#DD7A7E';
+        const color = catColorMap[catName] || '#8e8e93';
 
         listHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 2px 4px; cursor: pointer;">
                 <div style="display: flex; align-items: center; gap: 14px;">
-                    <!-- 圓形彩底 Icon -->
                     <div style="width: 42px; height: 42px; border-radius: 50%; background: ${color}; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">
                         <i data-lucide="${meta.icon}" style="width: 20px; height: 20px; color: #ffffff;"></i>
                     </div>
-                    <!-- 類別名稱 (筆數) -->
                     <span style="font-size: 16px; font-weight: 600; color: #ffffff;">
                         ${catName} <span style="font-weight: 500; font-size: 15px; color: #ffffff;">(${data.count})</span>
                     </span>
                 </div>
-                <!-- 金額 (紅色) -->
-                <span style="font-size: 17px; font-weight: 700; color: #DD7A7E;">
+                <span style="font-size: 17px; font-weight: 700; color: #fb7185;">
                     $${data.amount.toLocaleString()}
                 </span>
             </div>
@@ -461,7 +452,6 @@ function renderTrendsTransactionsList() {
 
     const { records, lastDay } = getFilteredMonthRecords();
 
-    // 觸發繪製 SVG 曲線圖與 Tooltip
     renderTrendsExpenseChart(records, lastDay);
 
     if (records.length === 0) {
