@@ -256,14 +256,21 @@ function renderTrendsPage() {
 }
 
 /**
- * 繪製當月每日支出趨勢折線/面積圖 (純 SVG)
+ * 繪製當月每日支出趨勢折線圖 (支援點擊與觸控 Tooltip)
  */
 function renderTrendsExpenseChart(monthRecords, daysInMonth) {
     const svg = document.getElementById('trends-expense-svg');
     const maxLabel = document.getElementById('trends-chart-max-label');
     const midDayEl = document.getElementById('trends-chart-mid-day');
     const endDayEl = document.getElementById('trends-chart-end-day');
+    const tooltip = document.getElementById('trends-chart-tooltip');
+    const tooltipDate = document.getElementById('tooltip-date');
+    const tooltipAmount = document.getElementById('tooltip-amount');
+    const chartContainer = document.getElementById('trends-chart-container');
     if (!svg) return;
+
+    // 每次重新繪製時先隱藏 Tooltip
+    if (tooltip) tooltip.style.display = 'none';
 
     if (midDayEl) midDayEl.innerText = `${Math.floor(daysInMonth / 2)}日`;
     if (endDayEl) endDayEl.innerText = `${daysInMonth}日`;
@@ -297,7 +304,6 @@ function renderTrendsExpenseChart(monthRecords, daysInMonth) {
     }
 
     // 2. 計算 SVG 座標點 (viewBox: 0 0 320 100)
-    // 預留上下邊距：Y 軸 15 ~ 85
     const width = 320;
     const height = 100;
     const paddingY = 15;
@@ -308,15 +314,19 @@ function renderTrendsExpenseChart(monthRecords, daysInMonth) {
         const x = ((day - 1) / (daysInMonth - 1)) * width;
         const ratio = dailyExpenses[day] / maxExpense;
         const y = height - paddingY - (ratio * chartHeight);
-        points.push({ x: Number(x.toFixed(1)), y: Number(y.toFixed(1)), val: dailyExpenses[day], day });
+        points.push({ 
+            x: Number(x.toFixed(1)), 
+            y: Number(y.toFixed(1)), 
+            val: dailyExpenses[day], 
+            day 
+        });
     }
 
     const polylineCoords = points.map(p => `${p.x},${p.y}`).join(' ');
     const areaCoords = `0,${height} ${polylineCoords} ${width},${height}`;
-
-    // 3. 組合 SVG (含漸層面積、主折線、最高點標記圓點)
     const highestPoint = points.reduce((prev, curr) => (curr.val > prev.val ? curr : prev), points[0]);
 
+    // 3. 生成 SVG 元素 (底圖面積、曲線、垂直虛線游標、透明觸控熱區)
     svg.innerHTML = `
         <defs>
             <linearGradient id="expenseTrendGrad" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -335,15 +345,82 @@ function renderTrendsExpenseChart(monthRecords, daysInMonth) {
         <!-- 主趨勢曲線 -->
         <polyline points="${polylineCoords}" fill="none" stroke="#fb7185" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
 
-        <!-- 最高消費點標記 -->
-        ${highestPoint.val > 0 ? `
-            <circle cx="${highestPoint.x}" cy="${highestPoint.y}" r="4" fill="#fb7185" stroke="#1c1c28" stroke-width="2" />
-        ` : ''}
-    `;
-}
+        <!-- 活動指示線 (預設隱藏) -->
+        <line id="svg-indicator-line" x1="0" y1="${paddingY}" x2="0" y2="${height - paddingY}" stroke="rgba(251, 113, 133, 0.4)" stroke-width="1.5" stroke-dasharray="2" style="display: none;" />
 
+        <!-- 最高點小圓點 -->
+        ${highestPoint.val > 0 ? `
+            <circle id="svg-highest-point" cx="${highestPoint.x}" cy="${highestPoint.y}" r="3.5" fill="#fb7185" stroke="#1c1c28" stroke-width="1.5" />
+        ` : ''}
+
+        <!-- 點擊高亮圓點 (預設隱藏) -->
+        <circle id="svg-active-dot" cx="0" cy="0" r="4.5" fill="#ffffff" stroke="#fb7185" stroke-width="2" style="display: none;" />
+
+        <!-- 透明擴大點擊與觸控熱區 (Touch Targets) -->
+        <g id="svg-touch-targets">
+            ${points.map((p, idx) => `
+                <circle cx="${p.x}" cy="${p.y}" r="12" fill="transparent" style="cursor: pointer;" data-index="${idx}" />
+            `).join('')}
+        </g>
+    `;
+
+    // 4. 綁定觸控與點擊互動監聽
+    const touchGroup = document.getElementById('svg-touch-targets');
+    const indicatorLine = document.getElementById('svg-indicator-line');
+    const activeDot = document.getElementById('svg-active-dot');
+
+    if (touchGroup && chartContainer && tooltip) {
+        const handlePointSelect = (p) => {
+            const curMonth = currentTrendsDate.getMonth() + 1;
+            
+            // 更新文字內容
+            if (tooltipDate) tooltipDate.innerText = `${curMonth}月${p.day}日`;
+            if (tooltipAmount) tooltipAmount.innerText = `$${p.val.toLocaleString()}`;
+
+            // 計算在容器中的實際百分比座標
+            const percentX = (p.x / width) * 100;
+            const percentY = (p.y / height) * 100;
+
+            // 邊界防呆（避免左邊或右邊跑出畫面）
+            const clampX = Math.max(12, Math.min(88, percentX));
+            tooltip.style.left = `${clampX}%`;
+            tooltip.style.top = `${percentY}%`;
+            tooltip.style.display = 'block';
+
+            // 同步顯示垂直虛線與高亮小白點
+            if (indicatorLine) {
+                indicatorLine.setAttribute('x1', p.x);
+                indicatorLine.setAttribute('x2', p.x);
+                indicatorLine.style.display = 'block';
+            }
+            if (activeDot) {
+                activeDot.setAttribute('cx', p.x);
+                activeDot.setAttribute('cy', p.y);
+                activeDot.style.display = 'block';
+            }
+        };
+
+        // 點擊熱區事件
+        touchGroup.querySelectorAll('circle').forEach(c => {
+            c.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = parseInt(c.getAttribute('data-index'), 10);
+                handlePointSelect(points[idx]);
+            });
+        });
+
+        // 點擊圖表外任意處關閉提示
+        document.addEventListener('click', (e) => {
+            if (!chartContainer.contains(e.target)) {
+                tooltip.style.display = 'none';
+                if (indicatorLine) indicatorLine.style.display = 'none';
+                if (activeDot) activeDot.style.display = 'none';
+            }
+        }, { once: true });
+    }
+}
 /**
- * 2. 渲染每月報表中的「明細」列表視圖 (按日期倒序分組，並包含星期與總計)
+ * 渲染每月報表中的「明細」列表視圖 (按日期倒序分組，並包含星期與總計)
  */
 function renderTrendsTransactionsList() {
     const container = document.getElementById('trends-transactions-container');
