@@ -51,12 +51,11 @@ body, html {
     box-shadow: 0 20px 60px rgba(0,0,0,0.8);
     overflow: hidden;
 }
-
+/* 確保所有頁面的內容滾動容器都能正常上下滑動 */
 .content-scroll {
-    flex: 1;
-    overflow-y: auto;
-    padding-bottom: 100px;
-    -webkit-overflow-scrolling: touch;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch; /* 確保 iOS 滑動回彈順暢 */
+    box-sizing: border-box;
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -1221,4 +1220,16 @@ input:checked + .slider:before { transform: translateX(20px); }
 .trends-circle-progress span {
     position: relative;
     z-index: 1;
+}
+
+/* 確保 page-trends 具有滿版高度基準 */
+#page-trends {
+    height: 100%;
+    position: relative;
+    display: none;
+    flex-direction: column;
+}
+
+#page-trends.active {
+    display: flex !important;
 }
