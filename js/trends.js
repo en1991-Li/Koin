@@ -277,14 +277,14 @@ function renderTrendsPage() {
 }
 
 /**
- * 2. 渲染每月報表中的「類別」視圖 (包含大色段圓環、各分類圓環、金額、筆數與百分比)
+ * 2. 渲染每月報表中的「類別」視圖 
  */
 function renderTrendsCategoryView() {
-    const heroDonut = document.getElementById('trends-category-hero-donut');
-    const heroTotal = document.getElementById('trends-category-hero-total');
-    const heroCount = document.getElementById('trends-category-hero-count');
+    const svg = document.getElementById('trends-category-donut-svg');
+    const centerAmount = document.getElementById('trends-cat-center-amount');
+    const bottomTotal = document.getElementById('trends-cat-bottom-total');
     const listContainer = document.getElementById('trends-category-detail-list');
-    if (!listContainer) return;
+    if (!svg || !listContainer) return;
 
     const { records } = getFilteredMonthRecords();
 
@@ -304,7 +304,6 @@ function renderTrendsCategoryView() {
     };
 
     let totalExpense = 0;
-    let expenseCount = 0;
     const mainCatMap = {};
 
     records.forEach(r => {
@@ -312,7 +311,6 @@ function renderTrendsCategoryView() {
             const amt = parseFloat(r.amount) || 0;
             const rawCat = (r.category || '未分類').trim();
             totalExpense += amt;
-            expenseCount++;
 
             let parentCat = '其他';
             if (typeof categoryMetaMap !== 'undefined' && categoryMetaMap[rawCat]) {
@@ -322,89 +320,135 @@ function renderTrendsCategoryView() {
             }
 
             if (!mainCatMap[parentCat]) {
-                mainCatMap[parentCat] = { amount: 0, count: 0, subItems: {} };
+                mainCatMap[parentCat] = { amount: 0, count: 0 };
             }
             mainCatMap[parentCat].amount += amt;
             mainCatMap[parentCat].count++;
-
-            // 子項目細分
-            mainCatMap[parentCat].subItems[rawCat] = (mainCatMap[parentCat].subItems[rawCat] || 0) + amt;
         }
     });
 
-    // 更新頂部 Hero 大甜甜圈
-    if (heroTotal) heroTotal.innerText = `-$${totalExpense.toLocaleString()}`;
-    if (heroCount) heroCount.innerText = `${expenseCount} 筆`;
+    // 更新中央大字與最下方總計
+    if (centerAmount) centerAmount.innerText = totalExpense.toLocaleString();
+    if (bottomTotal) bottomTotal.innerText = `$${totalExpense.toLocaleString()}`;
 
     const sortedCats = Object.entries(mainCatMap).sort((a, b) => b[1].amount - a[1].amount);
 
     if (sortedCats.length === 0 || totalExpense === 0) {
-        if (heroDonut) heroDonut.style.background = '#2c2c3e';
+        svg.innerHTML = `
+            <circle cx="170" cy="130" r="70" fill="none" stroke="#2c2c3e" stroke-width="30" />
+            <text x="170" y="135" fill="#8e8e93" font-size="12" text-anchor="middle">尚無支出數據</text>
+        `;
         listContainer.innerHTML = `<p style="color: #8e8e93; text-align: center; margin-top: 30px; font-size: 14px;">該月份尚無支出分類資料</p>`;
         return;
     }
 
-    // 計算多段 Conic-Gradient
-    let currentDegree = 0;
-    const gradientStops = [];
+    // ==========================================
+    // SVG 甜甜圈圓環與外拉折線演算法
+    // ==========================================
+    const cx = 170, cy = 130;
+    const rOuter = 82; // 外半徑
+    const rInner = 52; // 內半徑
+    const rMid = (rOuter + rInner) / 2; // 環體中心半徑（放字用）
+
+    let startAngle = -90; // 從 12 點鐘方向開始
+    let pathsHTML = '';
+    let textsHTML = '';
+    let pointersHTML = '';
+
     sortedCats.forEach(([catName, data]) => {
         const ratio = data.amount / totalExpense;
-        const deg = ratio * 360;
-        const color = catColorMap[catName] || '#5d5dff';
-        gradientStops.push(`${color} ${currentDegree.toFixed(1)}deg ${(currentDegree + deg).toFixed(1)}deg`);
-        currentDegree += deg;
+        const sweepAngle = ratio * 360;
+        const endAngle = startAngle + sweepAngle;
+        const color = catThemeColors[catName] || '#9B72CF';
+        const percentStr = `${(ratio * 100).toFixed(1)}%`;
+
+        // 弧度轉換
+        const rad = deg => (deg * Math.PI) / 180;
+
+        // 計算扇形 4 個角點
+        const x1 = cx + rOuter * Math.cos(rad(startAngle));
+        const y1 = cy + rOuter * Math.sin(rad(startAngle));
+        const x2 = cx + rOuter * Math.cos(rad(endAngle));
+        const y2 = cy + rOuter * Math.sin(rad(endAngle));
+        const x3 = cx + rInner * Math.cos(rad(endAngle));
+        const y3 = cy + rInner * Math.sin(rad(endAngle));
+        const x4 = cx + rInner * Math.cos(rad(startAngle));
+        const y4 = cy + rInner * Math.sin(rad(startAngle));
+
+        const largeArc = sweepAngle > 180 ? 1 : 0;
+
+        // 生成甜甜圈扇區路徑 (含扇區交界深色微切線)
+        const d = `M ${x1} ${y1} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${x2} ${y2} L ${x3} ${y3} A ${rInner} ${rInner} 0 ${largeArc} 0 ${x4} ${y4} Z`;
+        pathsHTML += `<path d="${d}" fill="${color}" stroke="#161622" stroke-width="2" />`;
+
+        // 扇形正中間角度
+        const midAngle = startAngle + sweepAngle / 2;
+
+        // 1. 在環體內部寫上「分類名稱」(佔比大於 4% 才顯示避免重疊)
+        if (sweepAngle > 14) {
+            const tx = cx + rMid * Math.cos(rad(midAngle));
+            const ty = cy + rMid * Math.sin(rad(midAngle)) + 4;
+            textsHTML += `<text x="${tx}" y="${ty}" fill="#1c1c28" font-size="11" font-weight="700" text-anchor="middle">${catName}</text>`;
+        }
+
+        // 2. 外拉折線與「百分比標註」
+        if (sweepAngle > 7) {
+            const p1x = cx + (rOuter + 3) * Math.cos(rad(midAngle));
+            const p1y = cy + (rOuter + 3) * Math.sin(rad(midAngle));
+
+            const isRightSide = Math.cos(rad(midAngle)) >= 0;
+            const p2x = cx + (rOuter + 22) * Math.cos(rad(midAngle));
+            const p2y = cy + (rOuter + 22) * Math.sin(rad(midAngle));
+            const p3x = isRightSide ? p2x + 18 : p2x - 18;
+            const textAnchor = isRightSide ? 'start' : 'end';
+            const textX = isRightSide ? p3x + 5 : p3x - 5;
+
+            pointersHTML += `
+                <polyline points="${p1x},${p1y} ${p2x},${p2y} ${p3x},${p2y}" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1" />
+                <text x="${textX}" y="${p2y + 3.5}" fill="#ffffff" font-size="11" font-weight="500" text-anchor="${textAnchor}">${percentStr}</text>
+            `;
+        }
+
+        startAngle = endAngle;
     });
 
-    if (heroDonut) {
-        heroDonut.style.background = `conic-gradient(${gradientStops.join(', ')})`;
-    }
+    svg.innerHTML = `
+        <g id="donut-slices">${pathsHTML}</g>
+        <g id="donut-texts">${textsHTML}</g>
+        <g id="donut-pointers">${pointersHTML}</g>
+    `;
 
-    // 生成分類詳細卡片列表
-    let listHTML = `<div class="form-group" style="background: #1c1c28; border-radius: 20px; padding: 4px 16px; margin-bottom: 30px;">`;
-
-    sortedCats.forEach(([catName, data], idx) => {
-        const isLast = (idx === sortedCats.length - 1);
-        const percent = Math.round((data.amount / totalExpense) * 1000) / 10;
+    // ==========================================
+    // 渲染下方明細列表 (左圖示+名額筆數 / 右金額)
+    // ==========================================
+    let listHTML = '';
+    sortedCats.forEach(([catName, data]) => {
         const meta = (typeof categoryMetaMap !== 'undefined' && categoryMetaMap[catName]) 
             ? categoryMetaMap[catName] 
             : { icon: 'tag', bgClass: 'i-shopping' };
-        const color = catColorMap[catName] || '#fb7185';
+        const color = catThemeColors[catName] || '#DD7A7E';
 
         listHTML += `
-            <div class="form-row" style="display: flex; flex-direction: column; padding: 16px 0; border-bottom: ${isLast ? 'none' : '1px solid rgba(255,255,255,0.05)'};">
-                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <!-- 個別分類支出圓環 -->
-                        <div class="donut-ring" style="width: 48px; height: 48px; min-width: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: conic-gradient(${color} ${percent * 3.6}deg, #2c2c3e 0deg); box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
-                            <div class="donut-inner" style="width: 36px; height: 36px; border-radius: 50%; background: #1c1c28; display: flex; align-items: center; justify-content: center;">
-                                <i data-lucide="${meta.icon}" style="width: 18px; height: 18px; color: #ffffff;"></i>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div style="font-size: 15px; font-weight: 700; color: #ffffff;">${catName}</div>
-                            <div style="font-size: 11px; color: #8e8e93; margin-top: 2px;">
-                                ${data.count} 筆記錄 · <span style="color: ${color}; font-weight: 700;">${percent}%</span>
-                            </div>
-                        </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 2px 4px; cursor: pointer;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <!-- 圓形彩底 Icon -->
+                    <div style="width: 42px; height: 42px; border-radius: 50%; background: ${color}; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">
+                        <i data-lucide="${meta.icon}" style="width: 20px; height: 20px; color: #ffffff;"></i>
                     </div>
-
-                    <div style="text-align: right;">
-                        <span style="font-size: 16px; font-weight: 700; color: #fb7185;">-$${data.amount.toLocaleString()}</span>
-                    </div>
+                    <!-- 類別名稱 (筆數) -->
+                    <span style="font-size: 16px; font-weight: 600; color: #ffffff;">
+                        ${catName} <span style="font-weight: 500; font-size: 15px; color: #ffffff;">(${data.count})</span>
+                    </span>
                 </div>
-
-                <!-- 條形進度條 -->
-                <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; margin-top: 10px;">
-                    <div style="width: ${percent}%; height: 100%; background: ${color}; border-radius: 4px; transition: width 0.3s ease;"></div>
-                </div>
+                <!-- 金額 (紅色) -->
+                <span style="font-size: 17px; font-weight: 700; color: #DD7A7E;">
+                    $${data.amount.toLocaleString()}
+                </span>
             </div>
         `;
     });
 
-    listHTML += `</div>`;
     listContainer.innerHTML = listHTML;
-
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
