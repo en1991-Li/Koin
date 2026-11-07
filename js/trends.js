@@ -51,13 +51,15 @@ function refreshCurrentTrendsView() {
         renderTrendsTransactionsList();
     } else if (currentTrendsSubTab === '類別') {
         renderTrendsCategoryView();
+    } else if (currentTrendsSubTab === '排行') {
+        renderTrendsRankingsView();
     } else {
         renderTrendsPage();
     }
 }
 
 /**
- * 點擊次級頁籤：切換「總覽」、「明細」、「類別」視圖
+ * 點擊次級頁籤：切換「總覽」、「明細」、「類別」、「排行」視圖
  */
 function switchTrendsTab(tabName, el) {
     currentTrendsSubTab = tabName;
@@ -67,10 +69,12 @@ function switchTrendsTab(tabName, el) {
     const overviewView = document.getElementById('trends-view-overview');
     const detailsView = document.getElementById('trends-view-details');
     const categoriesView = document.getElementById('trends-view-categories');
+    const rankingsView = document.getElementById('trends-view-rankings');
 
     if (overviewView) overviewView.style.display = 'none';
     if (detailsView) detailsView.style.display = 'none';
     if (categoriesView) categoriesView.style.display = 'none';
+    if (rankingsView) rankingsView.style.display = 'none';
 
     if (tabName === '明細') {
         if (detailsView) detailsView.style.display = 'block';
@@ -78,6 +82,9 @@ function switchTrendsTab(tabName, el) {
     } else if (tabName === '類別') {
         if (categoriesView) categoriesView.style.display = 'block';
         renderTrendsCategoryView();
+    } else if (tabName === '排行') {
+        if (rankingsView) rankingsView.style.display = 'block';
+        renderTrendsRankingsView();
     } else {
         if (overviewView) overviewView.style.display = 'block';
         renderTrendsPage();
@@ -347,7 +354,6 @@ function renderTrendsCategoryView() {
         return;
     }
 
-    // SVG 甜甜圈圓環與外拉折線繪製
     const cx = 170, cy = 130;
     const rOuter = 82;
     const rInner = 52;
@@ -414,7 +420,7 @@ function renderTrendsCategoryView() {
         <g id="donut-pointers">${pointersHTML}</g>
     `;
 
-    // 渲染下方明細清單 (圖示背景色即時對齊 catColorMap)
+    // 渲染下方明細清單
     let listHTML = '';
     sortedCats.forEach(([catName, data]) => {
         const meta = (typeof categoryMetaMap !== 'undefined' && categoryMetaMap[catName]) 
@@ -444,7 +450,101 @@ function renderTrendsCategoryView() {
 }
 
 /**
- * 3. 渲染每月報表中的「明細」列表視圖
+ * 3. 渲染每月報表中的「排行」視圖 (全項目支出排名)
+ */
+function renderTrendsRankingsView() {
+    const totalCountEl = document.getElementById('trends-ranking-total-count');
+    const totalAmountEl = document.getElementById('trends-ranking-total-amount');
+    const listContainer = document.getElementById('trends-ranking-detail-list');
+    if (!listContainer) return;
+
+    const { records } = getFilteredMonthRecords();
+
+    let totalExpense = 0;
+    const subCategoryStats = {};
+
+    records.forEach(r => {
+        if (r.type === '支出' || r.type === '應付款項') {
+            const amt = parseFloat(r.amount) || 0;
+            const rawCat = (r.category || '未分類').trim();
+            totalExpense += amt;
+
+            if (!subCategoryStats[rawCat]) {
+                subCategoryStats[rawCat] = { amount: 0, count: 0, lastRecord: r };
+            }
+            subCategoryStats[rawCat].amount += amt;
+            subCategoryStats[rawCat].count++;
+        }
+    });
+
+    const sortedRankings = Object.entries(subCategoryStats)
+        .map(([name, data]) => ({ name, ...data }))
+        .sort((a, b) => b.amount - a.amount);
+
+    if (totalCountEl) totalCountEl.innerText = `${sortedRankings.length} 項`;
+    if (totalAmountEl) totalAmountEl.innerText = `-$${totalExpense.toLocaleString()}`;
+
+    if (sortedRankings.length === 0 || totalExpense === 0) {
+        listContainer.innerHTML = `<p style="color: #8e8e93; text-align: center; margin-top: 30px; font-size: 14px;">該月份尚無支出排行紀錄</p>`;
+        return;
+    }
+
+    // 金、銀、銅前 3 名專屬徽章色
+    const rankColors = ['#f59e0b', '#94a3b8', '#b45309'];
+
+    let html = `<div class="form-group" style="background: #1c1c28; border-radius: 20px; padding: 4px 16px; margin-bottom: 20px;">`;
+
+    sortedRankings.forEach((item, index) => {
+        const isLast = (index === sortedRankings.length - 1);
+        const percent = Math.round((item.amount / totalExpense) * 1000) / 10;
+        const meta = (typeof categoryMetaMap !== 'undefined' && categoryMetaMap[item.name]) 
+            ? categoryMetaMap[item.name] 
+            : { icon: 'tag', bgClass: 'i-shopping', parent: '其他' };
+        
+        const parentColor = catColorMap[meta.parent] || '#8e8e93';
+        const rankColor = index < 3 ? rankColors[index] : '#8e8e93';
+        const rec = item.lastRecord || {};
+
+        html += `
+            <div class="form-row" style="display: flex; flex-direction: column; padding: 14px 0; border-bottom: ${isLast ? 'none' : '1px solid rgba(255,255,255,0.05)'}; cursor: pointer;" onclick="openRecordSummary(${rec.id})">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <!-- 排行序號 (前三名特顯) -->
+                        <div style="font-size: 15px; font-weight: 800; color: ${rankColor}; width: 22px; text-align: center;">
+                            ${index + 1}
+                        </div>
+                        <!-- 子分類圖示 -->
+                        <div class="cate-icon-wrapper ${meta.bgClass}" style="width: 42px; height: 42px; margin: 0;">
+                            <i data-lucide="${meta.icon}"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 15px; font-weight: 600; color: #ffffff;">${item.name}</div>
+                            <div style="font-size: 11px; color: #8e8e93; margin-top: 2px;">
+                                ${item.count} 筆記錄 · <span style="color: ${parentColor}; font-weight: 700;">${percent}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="font-size: 16px; font-weight: 700; color: #fb7185;">-$${item.amount.toLocaleString()}</span>
+                    </div>
+                </div>
+
+                <!-- 條形進度條 -->
+                <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; margin-top: 10px;">
+                    <div style="width: ${percent}%; height: 100%; background: ${parentColor}; border-radius: 4px; transition: width 0.3s ease;"></div>
+                </div>
+            </div>
+        `;
+    });
+
+    html += `</div>`;
+    listContainer.innerHTML = html;
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+/**
+ * 4. 渲染每月報表中的「明細」列表視圖
  */
 function renderTrendsTransactionsList() {
     const container = document.getElementById('trends-transactions-container');
