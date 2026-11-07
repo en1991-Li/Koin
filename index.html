@@ -501,14 +501,12 @@
 
                 <!-- 視圖 B：明細列表視圖 (點擊「明細」頁籤時獨立顯示) -->
                 <div id="trends-view-details" style="display: none;">
-                    <!-- 當月每日支出趨勢卡片 -->
                     <div class="form-group" style="background: #1c1c28; border-radius: 20px; padding: 16px; margin-bottom: 16px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                             <span style="font-size: 14px; font-weight: 700; color: #ffffff;">每日支出趨勢</span>
                             <span style="font-size: 11px; color: #8e8e93;" id="trends-chart-max-label">最高單日: $0</span>
                         </div>
                         
-                        <!-- SVG 動態圖表容器 (單一容器，內含 Tooltip 與畫布) -->
                         <div id="trends-chart-container" style="width: 100%; height: 110px; position: relative;">
                             <div id="trends-chart-tooltip" style="display: none; position: absolute; top: 0; left: 0; transform: translate(-50%, -115%); background: rgba(33, 33, 52, 0.95); border: 1px solid rgba(251, 113, 133, 0.4); padding: 5px 9px; border-radius: 8px; pointer-events: none; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.5); text-align: center; white-space: nowrap;">
                                 <div id="tooltip-date" style="font-size: 10px; color: #8e8e93; margin-bottom: 2px;">8月16日</div>
@@ -524,59 +522,51 @@
                         </div>
                     </div>
 
-                    <!-- 下方每日明細列表 -->
                     <div id="trends-transactions-container"></div>
                 </div>
+
+                <!-- 視圖 C：類別視圖 (點擊「類別」頁籤時獨立顯示) -->
+                <div id="trends-view-categories" style="display: none; padding-bottom: 20px;">
+                    <div style="position: relative; width: 100%; height: 260px; display: flex; align-items: center; justify-content: center; margin-top: 10px;">
+                        <svg id="trends-category-donut-svg" viewBox="0 0 340 260" style="width: 100%; height: 100%; overflow: visible;"></svg>
+                        
+                        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none;">
+                            <span id="trends-cat-center-amount" style="font-size: 26px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">0</span>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 16px; margin: 5px 0 20px 8px; font-size: 12px; color: #8e8e93;">
+                        <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #fb7185;"></span>支出</span>
+                        <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #fb923c;"></span>轉出</span>
+                        <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #4ade80;"></span>轉入</span>
+                    </div>
+
+                    <div id="trends-category-detail-list" style="display: flex; flex-direction: column; gap: 14px;"></div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 4px 10px 4px; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 15px;">
+                        <span style="font-size: 16px; font-weight: 700; color: #ffffff;">總計</span>
+                        <span id="trends-cat-bottom-total" style="font-size: 17px; font-weight: 800; color: #fb7185;">$0</span>
+                    </div>
+                </div>
+
+                <!-- 視圖 D：排行視圖 (點擊「排行」頁籤時獨立顯示) -->
+                <div id="trends-view-rankings" style="display: none; padding-bottom: 20px;">
+                    <div class="form-group" style="background: #1c1c28; border-radius: 20px; padding: 18px 16px; margin: 15px 0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-size: 13px; color: #8e8e93;">當月支出項目總數</div>
+                            <div id="trends-ranking-total-count" style="font-size: 20px; font-weight: 800; color: #ffffff; margin-top: 4px;">0 項</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 13px; color: #8e8e93;">支出總額</div>
+                            <div id="trends-ranking-total-amount" style="font-size: 20px; font-weight: 800; color: #fb7185; margin-top: 4px;">-$0</div>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 14px; font-weight: 700; color: #fff; margin: 20px 0 10px 4px;">支出金額排行</div>
+                    <div id="trends-ranking-detail-list"></div>
+                </div>
             </div>
-
- <!-- 視圖 C：類別視圖  -->
-<div id="trends-view-categories" style="display: none; padding-bottom: 20px;">
-    <!-- 頂部環形圖表與外拉指示線區塊 -->
-    <div style="position: relative; width: 100%; height: 260px; display: flex; align-items: center; justify-content: center; margin-top: 10px;">
-        <svg id="trends-category-donut-svg" viewBox="0 0 340 260" style="width: 100%; height: 100%; overflow: visible;"></svg>
-        
-        <!-- 環形中央金額 -->
-        <div style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none;">
-            <span id="trends-cat-center-amount" style="font-size: 26px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">0</span>
-        </div>
-    </div>
-
-    <!-- 圖表下方類型指示器 -->
-    <div style="display: flex; gap: 16px; margin: 5px 0 20px 8px; font-size: 12px; color: #8e8e93;">
-        <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #fb7185;"></span>支出</span>
-        <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #fb923c;"></span>轉出</span>
-        <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #4ade80;"></span>轉入</span>
-    </div>
-
-    <!-- 各分類列表清單 -->
-    <div id="trends-category-detail-list" style="display: flex; flex-direction: column; gap: 14px;"></div>
-
-    <!-- 最下方總計行 -->
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 4px 10px 4px; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 15px;">
-        <span style="font-size: 16px; font-weight: 700; color: #ffffff;">總計</span>
-        <span id="trends-cat-bottom-total" style="font-size: 17px; font-weight: 800; color: #fb7185;">$0</span>
-    </div>
-</div>
-            <!-- 視圖 D：排行視圖 (點擊「排行」頁籤時獨立顯示) -->
-<div id="trends-view-rankings" style="display: none; padding-bottom: 20px;">
-    <!-- 排行頂部概覽卡片 -->
-    <div class="form-group" style="background: #1c1c28; border-radius: 20px; padding: 18px 16px; margin: 15px 0; display: flex; justify-content: space-between; align-items: center;">
-        <div>
-            <div style="font-size: 13px; color: #8e8e93;">當月支出項目總數</div>
-            <div id="trends-ranking-total-count" style="font-size: 20px; font-weight: 800; color: #ffffff; margin-top: 4px;">0 項</div>
-        </div>
-        <div style="text-align: right;">
-            <div style="font-size: 13px; color: #8e8e93;">支出總額</div>
-            <div id="trends-ranking-total-amount" style="font-size: 20px; font-weight: 800; color: #fb7185; margin-top: 4px;">-$0</div>
-        </div>
-    </div>
-
-            <!-- 排行列表區 -->
-       <div style="font-size: 14px; font-weight: 700; color: #fff; margin: 20px 0 10px 4px;">支出金額排行</div>
-       <div id="trends-ranking-detail-list"></div>
-    </div>
-</div>
-     </section>
+        </section>
 
         <!-- ==================== 10. 更多功能頁 ==================== -->
         <section id="page-settings" class="page">
