@@ -3,7 +3,7 @@
  */
 
 let currentTrendsDate = new Date();
-let currentTrendsSubTab = '總覽'; // '總覽' | '明細' | '類別' | '排行' | '帳戶' ...
+let currentTrendsSubTab = '總覽'; // '總覽' | '明細' | '類別' | '排行' | '帳戶' | '專案' ...
 
 // 10 大主分類指定配色字典 (全模組共用)
 const catColorMap = {
@@ -55,13 +55,15 @@ function refreshCurrentTrendsView() {
         renderTrendsRankingsView();
     } else if (currentTrendsSubTab === '帳戶') {
         renderTrendsAccountsView();
+    } else if (currentTrendsSubTab === '專案') {
+        renderTrendsProjectsView();
     } else {
         renderTrendsPage();
     }
 }
 
 /**
- * 點擊次級頁籤：切換「總覽」、「明細」、「類別」、「排行」、「帳戶」視圖
+ * 點擊次級頁籤：切換「總覽」、「明細」、「類別」、「排行」、「帳戶」、「專案」視圖
  */
 function switchTrendsTab(tabName, el) {
     currentTrendsSubTab = tabName;
@@ -73,12 +75,14 @@ function switchTrendsTab(tabName, el) {
     const categoriesView = document.getElementById('trends-view-categories');
     const rankingsView = document.getElementById('trends-view-rankings');
     const accountsView = document.getElementById('trends-view-accounts');
+    const projectsView = document.getElementById('trends-view-projects');
 
     if (overviewView) overviewView.style.display = 'none';
     if (detailsView) detailsView.style.display = 'none';
     if (categoriesView) categoriesView.style.display = 'none';
     if (rankingsView) rankingsView.style.display = 'none';
     if (accountsView) accountsView.style.display = 'none';
+    if (projectsView) projectsView.style.display = 'none';
 
     if (tabName === '明細') {
         if (detailsView) detailsView.style.display = 'block';
@@ -92,6 +96,9 @@ function switchTrendsTab(tabName, el) {
     } else if (tabName === '帳戶') {
         if (accountsView) accountsView.style.display = 'block';
         renderTrendsAccountsView();
+    } else if (tabName === '專案') {
+        if (projectsView) projectsView.style.display = 'block';
+        renderTrendsProjectsView();
     } else {
         if (overviewView) overviewView.style.display = 'block';
         renderTrendsPage();
@@ -555,7 +562,6 @@ function renderTrendsAccountsView() {
 
     const { records } = getFilteredMonthRecords();
 
-    // 紅色至珊瑚粉紅之單色階層漸變 (Monochrome Coral/Red)
     const accountShadeColors = ['#E54D52', '#DD5E63', '#D16C70', '#C27478', '#B37D80', '#9E5558'];
 
     let totalExpense = 0;
@@ -623,14 +629,12 @@ function renderTrendsAccountsView() {
 
         const midAngle = startAngle + sweepAngle / 2;
 
-        // 扇環內部帳戶名稱標籤
         if (sweepAngle > 14) {
             const tx = cx + rMid * Math.cos(rad(midAngle));
             const ty = cy + rMid * Math.sin(rad(midAngle)) + 4;
             textsHTML += `<text x="${tx}" y="${ty}" fill="#ffffff" font-size="11" font-weight="700" text-anchor="middle">${accName}</text>`;
         }
 
-        // 外折線與百分比標籤
         if (sweepAngle > 6) {
             const p1x = cx + (rOuter + 3) * Math.cos(rad(midAngle));
             const p1y = cy + (rOuter + 3) * Math.sin(rad(midAngle));
@@ -657,7 +661,6 @@ function renderTrendsAccountsView() {
         <g id="donut-acc-pointers">${pointersHTML}</g>
     `;
 
-    // 渲染帳戶列表清單 (依帳戶類型配置對應圖標)
     let listHTML = '';
     const localAccounts = JSON.parse(localStorage.getItem('koin_accounts') || '[]');
 
@@ -693,7 +696,149 @@ function renderTrendsAccountsView() {
 }
 
 /**
- * 5. 渲染每月報表中的「明細」列表視圖
+ * 5. 渲染每月報表中的「專案」視圖
+ */
+function renderTrendsProjectsView() {
+    const svg = document.getElementById('trends-project-donut-svg');
+    const centerAmount = document.getElementById('trends-proj-center-amount');
+    const bottomTotal = document.getElementById('trends-proj-bottom-total');
+    const listContainer = document.getElementById('trends-project-detail-list');
+    if (!svg || !listContainer) return;
+
+    const { records } = getFilteredMonthRecords();
+
+    // 依截圖：雙色/多色磚紅與珊瑚粉色階漸變
+    const projectShadeColors = ['#E54D52', '#B34A4E', '#D9686C', '#9E3C40', '#F27B80'];
+
+    let totalExpense = 0;
+    const projectMap = {};
+
+    records.forEach(r => {
+        if (r.type === '支出' || r.type === '應付款項') {
+            const amt = parseFloat(r.amount) || 0;
+            const projName = (r.project || '生活開銷').trim();
+            totalExpense += amt;
+
+            if (!projectMap[projName]) {
+                projectMap[projName] = { amount: 0, count: 0 };
+            }
+            projectMap[projName].amount += amt;
+            projectMap[projName].count++;
+        }
+    });
+
+    if (centerAmount) centerAmount.innerText = totalExpense.toLocaleString();
+    if (bottomTotal) bottomTotal.innerText = `$${totalExpense.toLocaleString()}`;
+
+    const sortedProjects = Object.entries(projectMap).sort((a, b) => b[1].amount - a[1].amount);
+
+    if (sortedProjects.length === 0 || totalExpense === 0) {
+        svg.innerHTML = `
+            <circle cx="170" cy="130" r="70" fill="none" stroke="#2c2c3e" stroke-width="30" />
+            <text x="170" y="135" fill="#8e8e93" font-size="12" text-anchor="middle">尚無支出數據</text>
+        `;
+        listContainer.innerHTML = `<p style="color: #8e8e93; text-align: center; margin-top: 30px; font-size: 14px;">該月份尚無專案支出資料</p>`;
+        return;
+    }
+
+    const cx = 170, cy = 130;
+    const rOuter = 82;
+    const rInner = 52;
+    const rMid = (rOuter + rInner) / 2;
+
+    let startAngle = -90;
+    let pathsHTML = '';
+    let textsHTML = '';
+    let pointersHTML = '';
+
+    sortedProjects.forEach(([projName, data], index) => {
+        const ratio = data.amount / totalExpense;
+        const sweepAngle = ratio * 360;
+        const endAngle = startAngle + sweepAngle;
+        const color = projectShadeColors[index % projectShadeColors.length];
+        const percentStr = `${(ratio * 100).toFixed(0)}%`;
+
+        const rad = deg => (deg * Math.PI) / 180;
+
+        const x1 = cx + rOuter * Math.cos(rad(startAngle));
+        const y1 = cy + rOuter * Math.sin(rad(startAngle));
+        const x2 = cx + rOuter * Math.cos(rad(endAngle));
+        const y2 = cy + rOuter * Math.sin(rad(endAngle));
+        const x3 = cx + rInner * Math.cos(rad(endAngle));
+        const y3 = cy + rInner * Math.sin(rad(endAngle));
+        const x4 = cx + rInner * Math.cos(rad(startAngle));
+        const y4 = cy + rInner * Math.sin(rad(startAngle));
+
+        const largeArc = sweepAngle > 180 ? 1 : 0;
+        const d = `M ${x1} ${y1} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${x2} ${y2} L ${x3} ${y3} A ${rInner} ${rInner} 0 ${largeArc} 0 ${x4} ${y4} Z`;
+        pathsHTML += `<path d="${d}" fill="${color}" stroke="#161622" stroke-width="2" />`;
+
+        const midAngle = startAngle + sweepAngle / 2;
+
+        // 扇環內部專案名稱標籤
+        if (sweepAngle > 14) {
+            const tx = cx + rMid * Math.cos(rad(midAngle));
+            const ty = cy + rMid * Math.sin(rad(midAngle)) + 4;
+            textsHTML += `<text x="${tx}" y="${ty}" fill="#ffffff" font-size="11" font-weight="700" text-anchor="middle">${projName}</text>`;
+        }
+
+        // 外折線與百分比標籤[cite: 3]
+        if (sweepAngle > 6) {
+            const p1x = cx + (rOuter + 3) * Math.cos(rad(midAngle));
+            const p1y = cy + (rOuter + 3) * Math.sin(rad(midAngle));
+
+            const isRightSide = Math.cos(rad(midAngle)) >= 0;
+            const p2x = cx + (rOuter + 22) * Math.cos(rad(midAngle));
+            const p2y = cy + (rOuter + 22) * Math.sin(rad(midAngle));
+            const p3x = isRightSide ? p2x + 18 : p2x - 18;
+            const textAnchor = isRightSide ? 'start' : 'end';
+            const textX = isRightSide ? p3x + 5 : p3x - 5;
+
+            pointersHTML += `
+                <polyline points="${p1x},${p1y} ${p2x},${p2y} ${p3x},${p2y}" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1" />
+                <text x="${textX}" y="${p2y + 3.5}" fill="#ffffff" font-size="11" font-weight="500" text-anchor="${textAnchor}">${percentStr}</text>
+            `;
+        }
+
+        startAngle = endAngle;
+    });
+
+    svg.innerHTML = `
+        <g id="donut-proj-slices">${pathsHTML}</g>
+        <g id="donut-proj-texts">${textsHTML}</g>
+        <g id="donut-proj-pointers">${pointersHTML}</g>
+    `;
+
+    // 渲染專案列表清單 [cite: 3]
+    let listHTML = '';
+    sortedProjects.forEach(([projName, data]) => {
+        let iconName = 'piggy-bank';
+        if (projName.includes('月') || projName.includes('統計')) iconName = 'calendar';
+        else if (projName.includes('生活') || projName.includes('開銷')) iconName = 'wine';
+
+        listHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 2px 4px; cursor: pointer;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="width: 42px; height: 42px; border-radius: 50%; background: #2c2c3e; border: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">
+                        <i data-lucide="${iconName}" style="width: 20px; height: 20px; color: #ffffff;"></i>
+                    </div>
+                    <span style="font-size: 16px; font-weight: 600; color: #ffffff;">
+                        ${projName} <span style="font-weight: 500; font-size: 15px; color: #ffffff;">(${data.count})</span>
+                    </span>
+                </div>
+                <span style="font-size: 17px; font-weight: 700; color: #fb7185;">
+                    $${data.amount.toLocaleString()}
+                </span>
+            </div>
+        `;
+    });
+
+    listContainer.innerHTML = listHTML;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+/**
+ * 6. 渲染每月報表中的「明細」列表視圖
  */
 function renderTrendsTransactionsList() {
     const container = document.getElementById('trends-transactions-container');
