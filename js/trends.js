@@ -57,50 +57,55 @@ function refreshCurrentTrendsView() {
         renderTrendsAccountsView();
     } else if (currentTrendsSubTab === '專案') {
         renderTrendsProjectsView();
+    } else if (currentTrendsSubTab === '帳戶分組') {
+        renderTrendsAccountGroupsView();
     } else {
         renderTrendsPage();
     }
 }
 
 /**
- * 點擊次級頁籤：切換「總覽」、「明細」、「類別」、「排行」、「帳戶」、「專案」視圖
+ * 點擊次級頁籤：切換各統計視圖
  */
 function switchTrendsTab(tabName, el) {
     currentTrendsSubTab = tabName;
     document.querySelectorAll('.trends-tab').forEach(t => t.classList.remove('active'));
     if (el) el.classList.add('active');
 
-    const overviewView = document.getElementById('trends-view-overview');
-    const detailsView = document.getElementById('trends-view-details');
-    const categoriesView = document.getElementById('trends-view-categories');
-    const rankingsView = document.getElementById('trends-view-rankings');
-    const accountsView = document.getElementById('trends-view-accounts');
-    const projectsView = document.getElementById('trends-view-projects');
-
-    if (overviewView) overviewView.style.display = 'none';
-    if (detailsView) detailsView.style.display = 'none';
-    if (categoriesView) categoriesView.style.display = 'none';
-    if (rankingsView) rankingsView.style.display = 'none';
-    if (accountsView) accountsView.style.display = 'none';
-    if (projectsView) projectsView.style.display = 'none';
+    const viewIds = [
+        'trends-view-overview',
+        'trends-view-details',
+        'trends-view-categories',
+        'trends-view-rankings',
+        'trends-view-accounts',
+        'trends-view-projects',
+        'trends-view-account-groups'
+    ];
+    viewIds.forEach(id => {
+        const v = document.getElementById(id);
+        if (v) v.style.display = 'none';
+    });
 
     if (tabName === '明細') {
-        if (detailsView) detailsView.style.display = 'block';
+        document.getElementById('trends-view-details').style.display = 'block';
         renderTrendsTransactionsList();
     } else if (tabName === '類別') {
-        if (categoriesView) categoriesView.style.display = 'block';
+        document.getElementById('trends-view-categories').style.display = 'block';
         renderTrendsCategoryView();
     } else if (tabName === '排行') {
-        if (rankingsView) rankingsView.style.display = 'block';
+        document.getElementById('trends-view-rankings').style.display = 'block';
         renderTrendsRankingsView();
     } else if (tabName === '帳戶') {
-        if (accountsView) accountsView.style.display = 'block';
+        document.getElementById('trends-view-accounts').style.display = 'block';
         renderTrendsAccountsView();
     } else if (tabName === '專案') {
-        if (projectsView) projectsView.style.display = 'block';
+        document.getElementById('trends-view-projects').style.display = 'block';
         renderTrendsProjectsView();
+    } else if (tabName === '帳戶分組') {
+        document.getElementById('trends-view-account-groups').style.display = 'block';
+        renderTrendsAccountGroupsView();
     } else {
-        if (overviewView) overviewView.style.display = 'block';
+        document.getElementById('trends-view-overview').style.display = 'block';
         renderTrendsPage();
     }
 }
@@ -838,7 +843,157 @@ function renderTrendsProjectsView() {
 }
 
 /**
- * 6. 渲染每月報表中的「明細」列表視圖
+ * 6. 渲染每月報表中的「帳戶分組」視圖 (紅珊瑚色階圓環 + 無圖示純文字列表)
+ */
+function renderTrendsAccountGroupsView() {
+    const svg = document.getElementById('trends-acc-group-donut-svg');
+    const centerAmount = document.getElementById('trends-acc-group-center-amount');
+    const bottomTotal = document.getElementById('trends-acc-group-bottom-total');
+    const listContainer = document.getElementById('trends-acc-group-detail-list');
+    if (!svg || !listContainer) return;
+
+    const { records } = getFilteredMonthRecords();
+    const localAccounts = JSON.parse(localStorage.getItem('koin_accounts') || '[]');
+
+    // 建立「帳戶名稱 -> 帳戶分組」對照字典
+    const accountToGroupMap = {};
+    localAccounts.forEach(acc => {
+        if (acc.name) {
+            accountToGroupMap[acc.name.trim()] = acc.group || (acc.isCredit ? '信用卡' : '現金');
+        }
+    });
+
+    // 珊瑚紅至深磚紅單色階層漸變
+    const groupShadeColors = ['#E54D52', '#9E3C40', '#D16C70', '#B34A4E', '#F27B80'];
+
+    let totalExpense = 0;
+    const groupMap = {};
+
+    records.forEach(r => {
+        if (r.type === '支出' || r.type === '應付款項') {
+            const amt = parseFloat(r.amount) || 0;
+            const accName = (r.account || '錢包').trim();
+            totalExpense += amt;
+
+            // 優先從帳戶設定檔找分組，若無則依名稱關鍵字智慧歸類
+            let groupName = accountToGroupMap[accName];
+            if (!groupName) {
+                if (accName.includes('卡') || accName.includes('WAY')) groupName = '信用卡';
+                else if (accName.includes('iLEO') || accName.includes('數位')) groupName = '數位銀行';
+                else if (accName.includes('銀行') || accName.includes('郵局')) groupName = '銀行';
+                else groupName = '現金';
+            }
+
+            if (!groupMap[groupName]) {
+                groupMap[groupName] = { amount: 0, count: 0 };
+            }
+            groupMap[groupName].amount += amt;
+            groupMap[groupName].count++;
+        }
+    });
+
+    if (centerAmount) centerAmount.innerText = totalExpense.toLocaleString();
+    if (bottomTotal) bottomTotal.innerText = `$${totalExpense.toLocaleString()}`;
+
+    const sortedGroups = Object.entries(groupMap).sort((a, b) => b[1].amount - a[1].amount);
+
+    if (sortedGroups.length === 0 || totalExpense === 0) {
+        svg.innerHTML = `
+            <circle cx="170" cy="130" r="70" fill="none" stroke="#2c2c3e" stroke-width="30" />
+            <text x="170" y="135" fill="#8e8e93" font-size="12" text-anchor="middle">尚無支出數據</text>
+        `;
+        listContainer.innerHTML = `<p style="color: #8e8e93; text-align: center; margin-top: 30px; font-size: 14px;">該月份尚無帳戶分組支出資料</p>`;
+        return;
+    }
+
+    const cx = 170, cy = 130;
+    const rOuter = 82;
+    const rInner = 52;
+    const rMid = (rOuter + rInner) / 2;
+
+    let startAngle = -90;
+    let pathsHTML = '';
+    let textsHTML = '';
+    let pointersHTML = '';
+
+    sortedGroups.forEach(([groupName, data], index) => {
+        const ratio = data.amount / totalExpense;
+        const sweepAngle = ratio * 360;
+        const endAngle = startAngle + sweepAngle;
+        const color = groupShadeColors[index % groupShadeColors.length];
+        const percentStr = `${(ratio * 100).toFixed(1)}%`;
+
+        const rad = deg => (deg * Math.PI) / 180;
+
+        const x1 = cx + rOuter * Math.cos(rad(startAngle));
+        const y1 = cy + rOuter * Math.sin(rad(startAngle));
+        const x2 = cx + rOuter * Math.cos(rad(endAngle));
+        const y2 = cy + rOuter * Math.sin(rad(endAngle));
+        const x3 = cx + rInner * Math.cos(rad(endAngle));
+        const y3 = cy + rInner * Math.sin(rad(endAngle));
+        const x4 = cx + rInner * Math.cos(rad(startAngle));
+        const y4 = cy + rInner * Math.sin(rad(startAngle));
+
+        const largeArc = sweepAngle > 180 ? 1 : 0;
+        const d = `M ${x1} ${y1} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${x2} ${y2} L ${x3} ${y3} A ${rInner} ${rInner} 0 ${largeArc} 0 ${x4} ${y4} Z`;
+        pathsHTML += `<path d="${d}" fill="${color}" stroke="#161622" stroke-width="2" />`;
+
+        const midAngle = startAngle + sweepAngle / 2;
+
+        // 扇環內部分組名稱標籤 (如：信用卡、現金)
+        if (sweepAngle > 10) {
+            const tx = cx + rMid * Math.cos(rad(midAngle));
+            const ty = cy + rMid * Math.sin(rad(midAngle)) + 4;
+            textsHTML += `<text x="${tx}" y="${ty}" fill="#ffffff" font-size="11" font-weight="700" text-anchor="middle">${groupName}</text>`;
+        }
+
+        // 外折線與百分比標籤
+        if (sweepAngle > 4) {
+            const p1x = cx + (rOuter + 3) * Math.cos(rad(midAngle));
+            const p1y = cy + (rOuter + 3) * Math.sin(rad(midAngle));
+
+            const isRightSide = Math.cos(rad(midAngle)) >= 0;
+            const p2x = cx + (rOuter + 22) * Math.cos(rad(midAngle));
+            const p2y = cy + (rOuter + 22) * Math.sin(rad(midAngle));
+            const p3x = isRightSide ? p2x + 18 : p2x - 18;
+            const textAnchor = isRightSide ? 'start' : 'end';
+            const textX = isRightSide ? p3x + 5 : p3x - 5;
+
+            pointersHTML += `
+                <polyline points="${p1x},${p1y} ${p2x},${p2y} ${p3x},${p2y}" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1" />
+                <text x="${textX}" y="${p2y + 3.5}" fill="#ffffff" font-size="11" font-weight="500" text-anchor="${textAnchor}">${percentStr}</text>
+            `;
+        }
+
+        startAngle = endAngle;
+    });
+
+    svg.innerHTML = `
+        <g id="donut-acc-group-slices">${pathsHTML}</g>
+        <g id="donut-acc-group-texts">${textsHTML}</g>
+        <g id="donut-acc-group-pointers">${pointersHTML}</g>
+    `;
+
+    // 渲染純文字列表清單 (左側分組名+筆數，右側紅色總額，無圓形圖示)
+    let listHTML = '';
+    sortedGroups.forEach(([groupName, data]) => {
+        listHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 2px 0; cursor: pointer;">
+                <span style="font-size: 16px; font-weight: 600; color: #ffffff;">
+                    ${groupName} <span style="font-weight: 500; font-size: 15px; color: #ffffff;">(${data.count})</span>
+                </span>
+                <span style="font-size: 17px; font-weight: 700; color: #fb7185;">
+                    $${data.amount.toLocaleString()}
+                </span>
+            </div>
+        `;
+    });
+
+    listContainer.innerHTML = listHTML;
+}
+
+/**
+ * 7. 渲染每月報表中的「明細」列表視圖
  */
 function renderTrendsTransactionsList() {
     const container = document.getElementById('trends-transactions-container');
