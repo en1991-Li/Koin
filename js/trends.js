@@ -59,6 +59,8 @@ function refreshCurrentTrendsView() {
         renderTrendsProjectsView();
     } else if (currentTrendsSubTab === '帳戶分組') {
         renderTrendsAccountGroupsView();
+    } else if (currentTrendsSubTab === '名稱') {
+        renderTrendsNamesView();
     } else {
         renderTrendsPage();
     }
@@ -79,7 +81,8 @@ function switchTrendsTab(tabName, el) {
         'trends-view-rankings',
         'trends-view-accounts',
         'trends-view-projects',
-        'trends-view-account-groups'
+        'trends-view-account-groups',
+        'trends-view-names'
     ];
     viewIds.forEach(id => {
         const v = document.getElementById(id);
@@ -104,6 +107,9 @@ function switchTrendsTab(tabName, el) {
     } else if (tabName === '帳戶分組') {
         document.getElementById('trends-view-account-groups').style.display = 'block';
         renderTrendsAccountGroupsView();
+    } else if (tabName === '名稱') {
+        document.getElementById('trends-view-names').style.display = 'block';
+        renderTrendsNamesView();
     } else {
         document.getElementById('trends-view-overview').style.display = 'block';
         renderTrendsPage();
@@ -992,8 +998,82 @@ function renderTrendsAccountGroupsView() {
     listContainer.innerHTML = listHTML;
 }
 
+// 記錄「名稱」頁籤的排序方向 ('asc' = 由小到大，對齊截圖預設；'desc' = 由大到小)
+let trendsNamesSortOrder = 'asc';
+
 /**
- * 7. 渲染每月報表中的「明細」列表視圖
+ * 切換「名稱」頁籤的金額排序方向
+ */
+function toggleTrendsNamesSort() {
+    trendsNamesSortOrder = (trendsNamesSortOrder === 'asc') ? 'desc' : 'asc';
+    renderTrendsNamesView();
+}
+
+/**
+ * 7. 渲染每月報表中的「名稱」視圖 (對齊截圖：無圓環純文字清單 + 依金額排序)
+ */
+function renderTrendsNamesView() {
+    const totalItemsEl = document.getElementById('trends-names-total-items');
+    const bottomTotalEl = document.getElementById('trends-names-bottom-total');
+    const listContainer = document.getElementById('trends-names-detail-list');
+    if (!listContainer) return;
+
+    const { records } = getFilteredMonthRecords();
+
+    let totalExpense = 0;
+    const nameMap = {};
+
+    records.forEach(r => {
+        if (r.type === '支出' || r.type === '應付款項') {
+            const amt = parseFloat(r.amount) || 0;
+            // 優先採用備註(note)作為名稱，若無備註則採用分類名稱(category)
+            const rawNote = (r.note || '').trim();
+            const itemName = rawNote !== '' ? rawNote : (r.category || '未分類').trim();
+
+            totalExpense += amt;
+
+            if (!nameMap[itemName]) {
+                nameMap[itemName] = { amount: 0, count: 0 };
+            }
+            nameMap[itemName].amount += amt;
+            nameMap[itemName].count++;
+        }
+    });
+
+    // 依金額進行排序
+    const sortedNames = Object.entries(nameMap).sort((a, b) => {
+        return trendsNamesSortOrder === 'asc'
+            ? a[1].amount - b[1].amount
+            : b[1].amount - a[1].amount;
+    });
+
+    if (totalItemsEl) totalItemsEl.innerText = `總共 ${sortedNames.length} 筆`;
+    if (bottomTotalEl) bottomTotalEl.innerText = `$${totalExpense.toLocaleString()}`;
+
+    if (sortedNames.length === 0 || totalExpense === 0) {
+        listContainer.innerHTML = `<p style="color: #8e8e93; text-align: center; margin-top: 30px; font-size: 14px;">該月份尚無支出名稱紀錄</p>`;
+        return;
+    }
+
+    let listHTML = '';
+    sortedNames.forEach(([itemName, data]) => {
+        listHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 2px 0; cursor: pointer;">
+                <span style="font-size: 16px; font-weight: 600; color: #ffffff;">
+                    ${itemName} <span style="font-weight: 500; font-size: 15px; color: #ffffff;">(${data.count})</span>
+                </span>
+                <span style="font-size: 17px; font-weight: 700; color: #fb7185;">
+                    $${data.amount.toLocaleString()}
+                </span>
+            </div>
+        `;
+    });
+
+    listContainer.innerHTML = listHTML;
+}
+
+/**
+ * 8. 渲染每月報表中的「明細」列表視圖
  */
 function renderTrendsTransactionsList() {
     const container = document.getElementById('trends-transactions-container');
