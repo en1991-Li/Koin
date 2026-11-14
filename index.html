@@ -638,6 +638,30 @@
                     </div>
                 </div>
 
+                <!-- 視圖 H：名稱視圖 (點擊「名稱」頁籤時獨立顯示) -->
+                <div id="trends-view-names" style="display: none; padding-bottom: 20px;">
+                    <!-- 圖表下方類型指示器 -->
+                    <div style="display: flex; gap: 16px; margin: 12px 0 18px 4px; font-size: 12px; color: #8e8e93;">
+                        <span style="display: flex; align-items: center; gap: 6px; color: #ffffff; font-weight: 600;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #a78bfa;"></span>總計</span>
+                        <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #fb7185;"></span>支出</span>
+                    </div>
+
+                    <!-- 總筆數與排序控制列 -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 4px 16px 4px;">
+                        <span id="trends-names-total-items" style="font-size: 16px; font-weight: 700; color: #ffffff;">總共 0 筆</span>
+                        <span id="trends-names-sort-btn" onclick="toggleTrendsNamesSort()" style="font-size: 13px; color: #8e8e93; text-decoration: underline; text-underline-offset: 4px; cursor: pointer;">依金額排序</span>
+                    </div>
+
+                    <!-- 名稱純文字支出列表 -->
+                    <div id="trends-names-detail-list" style="display: flex; flex-direction: column; gap: 18px; padding: 4px 4px;"></div>
+
+                    <!-- 最下方總計行 -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 4px 10px 4px; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 24px;">
+                        <span style="font-size: 16px; font-weight: 700; color: #ffffff;">總計</span>
+                        <span id="trends-names-bottom-total" style="font-size: 17px; font-weight: 800; color: #fb7185;">$0</span>
+                    </div>
+                </div>
+
             </div>
         </section>
 
