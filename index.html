@@ -1381,6 +1381,25 @@
                         <div class="form-btn" id="btn-select-date" onclick="openRecordCalendar()">今天</div>
                         <div class="form-btn" id="btn-select-time" onclick="openRecordTimePicker()">現在</div>
                     </div>
+                    <!-- 商家與標籤選擇按鈕 (第 3 排) -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+    <div class="form-btn" id="btn-select-merchant" onclick="openRecordMerchantPicker()">
+        <i data-lucide="store" style="width:14px; display:inline-block; vertical-align:middle; margin-right:4px; color:#8e8e93;"></i> 
+        <span id="record-merchant-display">選擇商家</span>
+    </div>
+    <div class="form-btn" id="btn-select-tags" onclick="openRecordTagPicker()">
+        <i data-lucide="tag" style="width:14px; display:inline-block; vertical-align:middle; margin-right:4px; color:#8e8e93;"></i> 
+        <span id="record-tags-display">選擇標籤</span>
+    </div>
+</div>
+
+<!-- 常用商家快捷膠囊列 (一鍵帶入商家與預設分類) -->
+<div style="margin-top: 12px;">
+    <div style="font-size: 11px; color: #8e8e93; margin-bottom: 6px; padding-left: 2px;">常用商家快捷</div>
+    <div id="quick-merchants-bar" class="no-scrollbar" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;">
+        <!-- 由 JS 動態渲染常用商家膠囊 -->
+    </div>
+</div>
 
                     <textarea id="record-note" placeholder="備註事項..." style="width: 100%; background: #2c2c3e; border: none; border-radius: 12px; color: white; padding: 15px; margin-top: 15px; min-height: 80px; outline: none; resize: none;"></textarea>
                     
@@ -1462,6 +1481,40 @@
                 <div class="modal-footer"><button onclick="closeModal('record-project-modal')">取消</button></div>
             </div>
         </div>
+
+        <!-- 商家選擇彈窗 (支援搜尋與一鍵新增) -->
+<div id="record-merchant-modal" class="modal-overlay" style="display: none;" onclick="closeModal('record-merchant-modal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">選擇或新增商家</div>
+        <div style="padding: 0 15px 10px 15px; display: flex; gap: 8px;">
+            <input type="text" id="merchant-search-input" placeholder="🔍 輸入商家名稱 (如: 路易莎)..." oninput="filterRecordMerchants(this.value)" style="flex: 1; background:#2c2c3e; border:none; padding:10px; border-radius:8px; color:white; outline:none;">
+            <button onclick="addCustomMerchantFromInput()" style="background: #5d5dff; color: white; border: none; border-radius: 8px; padding: 0 14px; font-weight: 600; cursor: pointer;">新增</button>
+        </div>
+        <div class="modal-options" id="record-merchant-options" style="max-height: 240px; overflow-y: auto;"></div>
+        <div class="modal-footer" style="gap: 10px;">
+            <button onclick="clearRecordMerchant()" style="color: #fb7185;">清除商家</button>
+            <button onclick="closeModal('record-merchant-modal')">取消</button>
+        </div>
+    </div>
+</div>
+
+<!-- 標籤多選彈窗 (支援複選膠囊與自訂新增) -->
+<div id="record-tag-modal" class="modal-overlay" style="display: none;" onclick="closeModal('record-tag-modal')">
+    <div class="modal-content" onclick="event.stopPropagation()" style="padding: 20px;">
+        <div class="modal-header" style="border:none; padding-bottom: 10px;">選擇標籤 (可複選)</div>
+        <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+            <input type="text" id="custom-tag-input" placeholder="輸入新標籤..." style="flex: 1; background:#2c2c3e; border:none; padding:10px; border-radius:8px; color:white; outline:none;">
+            <button onclick="addCustomTag()" style="background: #5d5dff; color: white; border: none; border-radius: 8px; padding: 0 14px; font-weight: 600; cursor: pointer;">新增</button>
+        </div>
+        <div id="record-tag-chips-container" style="display: flex; flex-wrap: wrap; gap: 8px; max-height: 200px; overflow-y: auto; margin-bottom: 20px;">
+            <!-- 由 JS 動態渲染標籤膠囊 -->
+        </div>
+        <div class="modal-footer" style="border:none; gap:10px;">
+            <button onclick="clearRecordTags()" style="color: #fb7185;">清空</button>
+            <button class="btn-confirm" style="background:#5d5dff; color: white;" onclick="closeModal('record-tag-modal')">確定</button>
+        </div>
+    </div>
+</div>
 
         <div id="record-advanced-modal" class="modal-overlay" style="display: none;" onclick="closeModal('record-advanced-modal')">
             <div class="modal-content" onclick="event.stopPropagation()" style="padding: 20px;">
