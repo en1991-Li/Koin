@@ -1437,7 +1437,7 @@ function switchAdvancedTab(tabType) {
 
 // 預設常用商家清單 (含智慧對應分類，點擊一鍵帶入)
 const defaultQuickMerchants = [
-    { name: '7-ELEVEN', category: '點心', icon: 'store' },
+    { name: '7-ELEVEN', category: '飲料', icon: 'store' },
     { name: '全家', category: '飲料', icon: 'store' },
     { name: '路易莎', category: '飲料', icon: 'coffee' },
     { name: '錢都', category: '晚餐', icon: 'soup' },
