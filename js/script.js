@@ -65,6 +65,10 @@ function showPage(pageId, element) {
         if (typeof refreshCurrentTrendsView === 'function') {
             refreshCurrentTrendsView();
         }
+    }
+
+    // 連動：切換至新增記錄頁時初始化商家快捷列與標籤狀態
+    if (pageId === 'page-add-record') {
         if (typeof resetMerchantAndTagsState === 'function') {
             resetMerchantAndTagsState();
         }
@@ -111,7 +115,7 @@ let recordState = {
     isCalculated: false,  
     account: '錢包',
     project: '生活開銷',
-    date: _todayStr, // 自動初始化為今天
+    date: _todayStr,
     time: '12:00',
     advType: 'single'     
 };
@@ -558,18 +562,18 @@ function saveRecord() {
     }
 
     const newRecord = {
-    id: Date.now(),
-    type: recordState.type,
-    category: recordState.category,
-    amount: finalAmount,
-    account: recordState.account,
-    project: recordState.project,
-    date: recordState.date,
-    time: recordState.time,
-    note: document.getElementById('record-note').value.trim(),
-    merchant: selectedRecordMerchant || '', // 寫入商家
-    tags: [...selectedRecordTags]           // 寫入標籤陣列
-};
+        id: Date.now(),
+        type: currentRecordType,
+        category: currentCategory,
+        amount: amount,
+        account: currentAccountName,
+        project: recordState.project || '生活開銷',
+        date: recordState.date || _todayStr,
+        time: recordState.time || '12:00',
+        note: note,
+        merchant: selectedRecordMerchant || '',
+        tags: [...selectedRecordTags]
+    };
 
     let localRecords = JSON.parse(localStorage.getItem('koin_records')) || [];
     localRecords.push(newRecord);
@@ -588,6 +592,7 @@ function saveRecord() {
         changeSubGrid('main-expense'); 
     }
 
+    resetMerchantAndTagsState();
     showPage('page-calendar'); 
     renderAccountOverview();
     resetCategorySelection();
@@ -792,9 +797,6 @@ function deleteAccountAction() {
     }
 }
 
-/**
- * 開啟帳單週期彈窗：動態以當前月份初始化日期區間與說明
- */
 function openCyclePicker() {
     const slider = document.getElementById('cycle-slider');
     const currentVal = slider ? slider.value : '31';
@@ -802,9 +804,6 @@ function openCyclePicker() {
     openModal('cycle-picker-modal');
 }
 
-/**
- * 滑動週期拉桿：依據當前月份動態計算「結帳日」與「帳單週期起訖區間」
- */
 function updateCycleText(val) {
     const rangeDisplay = document.getElementById('modal-date-range');
     const noteDisplay = document.getElementById('modal-cycle-note');
@@ -837,9 +836,6 @@ function updateCycleText(val) {
     }
 }
 
-/**
- * 確認週期選擇：更新新增帳戶表單外層按鈕顯示
- */
 function confirmCycle() {
     const slider = document.getElementById('cycle-slider');
     const val = slider ? slider.value : '31';
@@ -995,7 +991,7 @@ function renderDailyDetailsList() {
 }
 
 /**
- * 2. 點擊明細項目，開啟【記帳明細摘要彈窗】並精準連動
+ * 點擊明細項目，開啟【記帳明細摘要彈窗】並精準連動
  */
 function openRecordSummary(recordId) {
     currentViewingRecordId = recordId;
@@ -1041,7 +1037,7 @@ function openRecordSummary(recordId) {
 }
 
 /**
- * 3. 點擊摘要彈窗右上角【編輯筆圖示】，切換至編輯記錄頁
+ * 點擊摘要彈窗右上角【編輯筆圖示】，切換至編輯記錄頁
  */
 function openEditRecordPage() {
     closeModal('record-summary-modal');
@@ -1073,7 +1069,6 @@ function openEditRecordPage() {
     showPage('page-edit-record');
 }
 
-// 編輯記錄專用彈窗開啟器
 function openEditRecordAccountPicker() {
     filterRecordAccounts('');
     window._isEditingPicker = true;
@@ -1097,7 +1092,7 @@ function openEditRecordTimePicker() {
 }
 
 /**
- * 4. 儲存修改後的記錄（餘額差額更新與全域連動）
+ * 儲存修改後的記錄（餘額差額更新與全域連動）
  */
 function saveEditedRecord() {
     const newAmount = parseFloat(document.getElementById('edit-rec-amount').value) || 0;
@@ -1163,7 +1158,7 @@ function saveEditedRecord() {
 }
 
 /**
- * 5. 摘要彈窗點擊垃圾桶【刪除此筆記錄】並自動回滾餘額
+ * 摘要彈窗點擊垃圾桶【刪除此筆記錄】並自動回滾餘額
  */
 function deleteCurrentViewingRecord() {
     if (confirm('確定要刪除這筆記帳紀錄嗎？刪除後無法復原。')) {
@@ -1214,7 +1209,6 @@ function resetRecordFormButtons() {
 // 4 大選取模組：帳戶 / 專案 / 日期 / 時間
 // ==========================================
 
-// 1. 帳戶選取
 function openRecordAccountPicker() {
     filterRecordAccounts('');
     window._isEditingPicker = false;
@@ -1261,7 +1255,6 @@ function selectRecordAccount(name) {
     closeModal('record-account-modal');
 }
 
-// 2. 專案選取
 function openRecordProjectPicker() {
     filterRecordProjects('');
     window._isEditingPicker = false;
@@ -1308,7 +1301,6 @@ function selectRecordProject(name) {
     closeModal('record-project-modal');
 }
 
-// 3. 日曆選取
 let calendarDisplayDate = new Date();
 
 function openRecordCalendar() {
@@ -1370,7 +1362,6 @@ function selectRecordCalendarDate(fullDate, displayDate) {
     closeModal('record-calendar-modal');
 }
 
-// 4. 時間選取
 function openRecordTimePicker() {
     const now = new Date();
     const hrInput = document.getElementById('input-record-hour');
@@ -1401,7 +1392,6 @@ function confirmRecordTime() {
     closeModal('record-time-modal');
 }
 
-// 5. 進階設定頁籤切換
 function switchAdvancedTab(tabType) {
     recordState.advType = tabType;
     document.querySelectorAll('#record-advanced-modal .detail-tab').forEach(t => t.classList.remove('active'));
@@ -1451,12 +1441,6 @@ const defaultQuickMerchants = [
     { name: '悠遊卡加值', category: '悠遊卡', icon: 'credit-card' }
 ];
 
-// 預設常用標籤清單
-const defaultTagsList = [
-    '日常必備', '飲食控制', '運動健身', '學習進修', 
-    '約會聚餐', '固定開銷', '交通通勤', '網購戰利品', '可報帳'
-];
-
 // 暫存當前表單選中的商家與標籤陣列
 let selectedRecordMerchant = '';
 let selectedRecordTags = [];
@@ -1490,7 +1474,6 @@ function applyQuickMerchant(merchantName, defaultCategory) {
     updateRecordMerchantUI();
     renderQuickMerchantsBar();
 
-    // 若該商家有預設分類且目前尚未手動選分類，自動連動分類
     if (defaultCategory && typeof selectCategory === 'function') {
         selectCategory(defaultCategory);
     }
@@ -1556,7 +1539,7 @@ function clearRecordMerchant() {
 }
 
 /**
- * 4. 開啟標籤多選彈窗與渲染膠囊
+ * 4. 開啟標籤多選彈窗與渲染自訂標籤膠囊
  */
 function openRecordTagPicker() {
     renderTagChips();
@@ -1567,7 +1550,12 @@ function renderTagChips() {
     const container = document.getElementById('record-tag-chips-container');
     if (!container) return;
 
-    const savedTags = JSON.parse(localStorage.getItem('koin_tags') || 'null') || defaultTagsList;
+    const savedTags = JSON.parse(localStorage.getItem('koin_tags') || '[]');
+
+    if (savedTags.length === 0) {
+        container.innerHTML = `<span style="color: #8e8e93; font-size: 12px; width: 100%; text-align: center; padding: 10px 0;">尚未建立標籤，請在上方輸入新增</span>`;
+        return;
+    }
 
     container.innerHTML = savedTags.map(tag => {
         const isActive = selectedRecordTags.includes(tag);
@@ -1599,7 +1587,7 @@ function addCustomTag() {
     const newTag = (input ? input.value : '').trim();
     if (!newTag) return;
 
-    const savedTags = JSON.parse(localStorage.getItem('koin_tags') || 'null') || [...defaultTagsList];
+    const savedTags = JSON.parse(localStorage.getItem('koin_tags') || '[]');
     if (!savedTags.includes(newTag)) {
         savedTags.unshift(newTag);
         localStorage.setItem('koin_tags', JSON.stringify(savedTags));
