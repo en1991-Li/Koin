@@ -65,6 +65,9 @@ function showPage(pageId, element) {
         if (typeof refreshCurrentTrendsView === 'function') {
             refreshCurrentTrendsView();
         }
+        if (typeof resetMerchantAndTagsState === 'function') {
+            resetMerchantAndTagsState();
+        }
     }
     
     // 連動：切換至日曆頁時自動更新當天標題與當天明細
@@ -555,16 +558,18 @@ function saveRecord() {
     }
 
     const newRecord = {
-        id: Date.now(),                                     
-        type: currentRecordType,                             
-        category: currentCategory,                            
-        account: currentAccountName,                         
-        project: recordState.project || '生活開銷',
-        amount: amount,                                      
-        date: recordState.date || _todayStr, 
-        time: recordState.time || '12:00',                   
-        note: note                                           
-    };
+    id: Date.now(),
+    type: recordState.type,
+    category: recordState.category,
+    amount: finalAmount,
+    account: recordState.account,
+    project: recordState.project,
+    date: recordState.date,
+    time: recordState.time,
+    note: document.getElementById('record-note').value.trim(),
+    merchant: selectedRecordMerchant || '', // 寫入商家
+    tags: [...selectedRecordTags]           // 寫入標籤陣列
+};
 
     let localRecords = JSON.parse(localStorage.getItem('koin_records')) || [];
     localRecords.push(newRecord);
@@ -1422,4 +1427,220 @@ function switchAdvancedTab(tabType) {
         if (tab) tab.classList.add('active');
         if (paneInstall) paneInstall.style.display = 'block';
     }
+}
+
+/**
+ * ==========================================
+ * 常用商家快捷模組與標籤系統 (Merchants & Tags)
+ * ==========================================
+ */
+
+// 預設常用商家清單 (含智慧對應分類，點擊一鍵帶入)
+const defaultQuickMerchants = [
+    { name: '7-ELEVEN', category: '點心', icon: 'store' },
+    { name: '全家', category: '飲料', icon: 'store' },
+    { name: '路易莎', category: '飲料', icon: 'coffee' },
+    { name: '錢都', category: '晚餐', icon: 'soup' },
+    { name: '三媽臭臭鍋', category: '晚餐', icon: 'soup' },
+    { name: '21Plus', category: '午餐', icon: 'utensils' },
+    { name: '麥當勞', category: '午餐', icon: 'utensils' },
+    { name: 'UNIQLO', category: 'UNIQLO', icon: 'shirt' },
+    { name: 'NET', category: 'NET', icon: 'shirt' },
+    { name: '寶雅', category: '美妝保養', icon: 'shopping-bag' },
+    { name: '全聯', category: '全聯', icon: 'shopping-cart' },
+    { name: '悠遊卡加值', category: '悠遊卡', icon: 'credit-card' }
+];
+
+// 預設常用標籤清單
+const defaultTagsList = [
+    '日常必備', '飲食控制', '運動健身', '學習進修', 
+    '約會聚餐', '固定開銷', '交通通勤', '網購戰利品', '可報帳'
+];
+
+// 暫存當前表單選中的商家與標籤陣列
+let selectedRecordMerchant = '';
+let selectedRecordTags = [];
+
+/**
+ * 1. 初始化並渲染「常用商家快捷膠囊列」
+ */
+function renderQuickMerchantsBar() {
+    const bar = document.getElementById('quick-merchants-bar');
+    if (!bar) return;
+
+    const savedMerchants = JSON.parse(localStorage.getItem('koin_merchants') || 'null') || defaultQuickMerchants;
+
+    bar.innerHTML = savedMerchants.map(m => {
+        const isSelected = (selectedRecordMerchant === m.name);
+        const bgStyle = isSelected ? 'background: #5d5dff; color: #ffffff; border-color: #5d5dff;' : 'background: #2c2c3e; color: #d1d1d6; border-color: rgba(255,255,255,0.06);';
+        return `
+            <div onclick="applyQuickMerchant('${m.name}', '${m.category || ''}')" 
+                 style="${bgStyle} border: 1px solid; padding: 6px 12px; border-radius: 16px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;">
+                <span>${m.name}</span>
+            </div>
+        `;
+    }).join('');
+}
+
+/**
+ * 2. 點擊快捷商家：自動選取商家並智慧帶入預設分類
+ */
+function applyQuickMerchant(merchantName, defaultCategory) {
+    selectedRecordMerchant = merchantName;
+    updateRecordMerchantUI();
+    renderQuickMerchantsBar();
+
+    // 若該商家有預設分類且目前尚未手動選分類，自動連動分類
+    if (defaultCategory && typeof selectCategory === 'function') {
+        selectCategory(defaultCategory);
+    }
+}
+
+function updateRecordMerchantUI() {
+    const displayEl = document.getElementById('record-merchant-display');
+    if (displayEl) {
+        displayEl.innerText = selectedRecordMerchant || '選擇商家';
+        displayEl.style.color = selectedRecordMerchant ? '#ffffff' : '#8a8a8e';
+    }
+}
+
+/**
+ * 3. 開啟商家選擇與新增彈窗
+ */
+function openRecordMerchantPicker() {
+    const input = document.getElementById('merchant-search-input');
+    if (input) input.value = '';
+    filterRecordMerchants('');
+    openModal('record-merchant-modal');
+}
+
+function filterRecordMerchants(keyword) {
+    const container = document.getElementById('record-merchant-options');
+    if (!container) return;
+
+    const savedMerchants = JSON.parse(localStorage.getItem('koin_merchants') || 'null') || defaultQuickMerchants;
+    const filtered = savedMerchants.filter(m => m.name.toLowerCase().includes(keyword.trim().toLowerCase()));
+
+    container.innerHTML = filtered.map(m => `
+        <div class="option-item" onclick="selectMerchantFromModal('${m.name}', '${m.category || ''}')" style="display: flex; justify-content: space-between; align-items: center;">
+            <span>${m.name}</span>
+            ${m.category ? `<span style="font-size: 11px; color: #8e8e93; background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 6px;">${m.category}</span>` : ''}
+        </div>
+    `).join('');
+}
+
+function selectMerchantFromModal(name, category) {
+    applyQuickMerchant(name, category);
+    closeModal('record-merchant-modal');
+}
+
+function addCustomMerchantFromInput() {
+    const input = document.getElementById('merchant-search-input');
+    const name = (input ? input.value : '').trim();
+    if (!name) return;
+
+    const savedMerchants = JSON.parse(localStorage.getItem('koin_merchants') || 'null') || [...defaultQuickMerchants];
+    if (!savedMerchants.some(m => m.name === name)) {
+        savedMerchants.unshift({ name, category: (typeof recordState !== 'undefined' ? recordState.category : '') });
+        localStorage.setItem('koin_merchants', JSON.stringify(savedMerchants));
+    }
+    applyQuickMerchant(name, '');
+    closeModal('record-merchant-modal');
+}
+
+function clearRecordMerchant() {
+    selectedRecordMerchant = '';
+    updateRecordMerchantUI();
+    renderQuickMerchantsBar();
+    closeModal('record-merchant-modal');
+}
+
+/**
+ * 4. 開啟標籤多選彈窗與渲染膠囊
+ */
+function openRecordTagPicker() {
+    renderTagChips();
+    openModal('record-tag-modal');
+}
+
+function renderTagChips() {
+    const container = document.getElementById('record-tag-chips-container');
+    if (!container) return;
+
+    const savedTags = JSON.parse(localStorage.getItem('koin_tags') || 'null') || defaultTagsList;
+
+    container.innerHTML = savedTags.map(tag => {
+        const isActive = selectedRecordTags.includes(tag);
+        const style = isActive 
+            ? 'background: #5d5dff; color: #ffffff; border: 1px solid #5d5dff;' 
+            : 'background: #2c2c3e; color: #8e8e93; border: 1px solid rgba(255,255,255,0.08);';
+        return `
+            <div onclick="toggleRecordTag('${tag}')" 
+                 style="${style} padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;">
+                # ${tag}
+            </div>
+        `;
+    }).join('');
+}
+
+function toggleRecordTag(tag) {
+    const idx = selectedRecordTags.indexOf(tag);
+    if (idx > -1) {
+        selectedRecordTags.splice(idx, 1);
+    } else {
+        selectedRecordTags.push(tag);
+    }
+    renderTagChips();
+    updateRecordTagsUI();
+}
+
+function addCustomTag() {
+    const input = document.getElementById('custom-tag-input');
+    const newTag = (input ? input.value : '').trim();
+    if (!newTag) return;
+
+    const savedTags = JSON.parse(localStorage.getItem('koin_tags') || 'null') || [...defaultTagsList];
+    if (!savedTags.includes(newTag)) {
+        savedTags.unshift(newTag);
+        localStorage.setItem('koin_tags', JSON.stringify(savedTags));
+    }
+    if (!selectedRecordTags.includes(newTag)) {
+        selectedRecordTags.push(newTag);
+    }
+    input.value = '';
+    renderTagChips();
+    updateRecordTagsUI();
+}
+
+function clearRecordTags() {
+    selectedRecordTags = [];
+    renderTagChips();
+    updateRecordTagsUI();
+}
+
+function updateRecordTagsUI() {
+    const displayEl = document.getElementById('record-tags-display');
+    if (!displayEl) return;
+
+    if (selectedRecordTags.length === 0) {
+        displayEl.innerText = '選擇標籤';
+        displayEl.style.color = '#8a8a8e';
+    } else if (selectedRecordTags.length === 1) {
+        displayEl.innerText = `#${selectedRecordTags[0]}`;
+        displayEl.style.color = '#ffffff';
+    } else {
+        displayEl.innerText = `#${selectedRecordTags[0]} (+${selectedRecordTags.length - 1})`;
+        displayEl.style.color = '#ffffff';
+    }
+}
+
+/**
+ * 5. 重置表單狀態 (供進入新增記錄頁或儲存完成後呼叫)
+ */
+function resetMerchantAndTagsState() {
+    selectedRecordMerchant = '';
+    selectedRecordTags = [];
+    updateRecordMerchantUI();
+    updateRecordTagsUI();
+    renderQuickMerchantsBar();
 }
