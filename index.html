@@ -1705,7 +1705,7 @@
                     <span id="summary-main-cat-name">購物</span>
                 </div>
 
-                <div class="summary-info-card">
+               <div class="summary-info-card">
                     <div style="font-size: 12px; color: #8e8e93; margin-bottom: 4px;" id="summary-note-text">Digital storage</div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
@@ -1717,12 +1717,40 @@
                         <span style="font-size: 20px; font-weight: 800; color: #fb7185;" id="summary-amount-text">-$30</span>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; color: #8e8e93; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 10px;">
-                        <div><i data-lucide="credit-card" style="width: 14px; vertical-align: middle;"></i> <span id="summary-account-text">iLEO</span></div>
-                        <div><i data-lucide="piggy-bank" style="width: 14px; vertical-align: middle;"></i> <span id="summary-project-text">玩樂</span></div>
-                        <div><i data-lucide="calendar" style="width: 14px; vertical-align: middle;"></i> <span id="summary-date-text">2026/08/16</span></div>
-                        <div><i data-lucide="clock" style="width: 14px; vertical-align: middle;"></i> <span id="summary-time-text">12:25</span></div>
+                    <!-- 2 欄 × 3 列明細格狀排版 (帳戶/專案、商家/進階設定、日期/時間) -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px 10px; font-size: 14px; color: #ffffff; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 14px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i data-lucide="wallet" style="width: 16px; height: 16px; color: #8e8e93;"></i> 
+                            <span id="summary-account-text">錢包</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i data-lucide="tag" style="width: 16px; height: 16px; color: #8e8e93;"></i> 
+                            <span id="summary-project-text">生活開銷</span>
+                        </div>
+
+                        <!-- 新增第 2 列：商家 & 進階設定 -->
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i data-lucide="store" style="width: 16px; height: 16px; color: #8e8e93;"></i> 
+                            <span id="summary-merchant-text">未設定商家</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i data-lucide="calendar-check" style="width: 16px; height: 16px; color: #8e8e93;"></i> 
+                            <span id="summary-adv-text">單次</span>
+                        </div>
+
+                        <!-- 第 3 列：日期 & 時間 -->
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i data-lucide="calendar" style="width: 16px; height: 16px; color: #8e8e93;"></i> 
+                            <span id="summary-date-text">2026/11/20</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i data-lucide="clock" style="width: 16px; height: 16px; color: #8e8e93;"></i> 
+                            <span id="summary-time-text">13:24</span>
+                        </div>
                     </div>
+
+                    <!-- 若該筆有貼標籤，在最下方顯示標籤膠囊列 -->
+                    <div id="summary-tags-row" style="display: none; flex-wrap: wrap; gap: 6px; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06);"></div>
                 </div>
             </div>
         </div>
