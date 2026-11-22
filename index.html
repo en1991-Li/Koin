@@ -1735,15 +1735,16 @@
                 <i data-lucide="check" class="s-icon" onclick="saveEditedRecord()"></i>
             </header>
 
-            <div class="content-scroll no-scrollbar" style="padding: 15px;">
+            <div class="content-scroll no-scrollbar" style="padding: 15px 15px 120px 15px;">
+                <!-- 頂部分類圖示與金額輸入框 -->
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <div class="cate-icon-wrapper i-shopping" style="width: 50px; height: 50px; margin: 0;">
+                        <div id="edit-rec-icon-wrapper" class="cate-icon-wrapper i-shopping" style="width: 50px; height: 50px; margin: 0;">
                             <i data-lucide="app-window" id="edit-rec-icon"></i>
                         </div>
                         <div>
                             <div style="font-size: 16px; font-weight: 700; color: #fff;" id="edit-rec-cat-name">應用軟體</div>
-                            <div style="font-size: 12px; color: #fb7185;">$30</div>
+                            <div style="font-size: 12px; color: #fb7185;" id="edit-rec-sub-amount">$30</div>
                         </div>
                     </div>
                     <div style="background: #2c2c3e; border-radius: 12px; padding: 10px 16px; display: flex; align-items: center; gap: 10px;">
@@ -1752,14 +1753,40 @@
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-                    <div class="form-btn" id="edit-btn-account" onclick="openEditRecordAccountPicker()">iLEO</div>
-                    <div class="form-btn" id="edit-btn-project" onclick="openEditRecordProjectPicker()">玩樂</div>
-                    <div class="form-btn" id="edit-btn-date" onclick="openEditRecordCalendar()">2026/08/16</div>
-                    <div class="form-btn" id="edit-btn-time" onclick="openEditRecordTimePicker()">12:25</div>
+                <!-- 帳戶 / 專案 / 日期 / 時間 -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div class="form-btn" id="edit-btn-account" onclick="openEditRecordAccountPicker()">錢包</div>
+                    <div class="form-btn" id="edit-btn-project" onclick="openEditRecordProjectPicker()">生活開銷</div>
+                    <div class="form-btn" id="edit-btn-date" onclick="openEditRecordCalendar()">2026/11/12</div>
+                    <div class="form-btn" id="edit-btn-time" onclick="openEditRecordTimePicker()">09:47</div>
                 </div>
 
-                <textarea id="edit-rec-note" placeholder="備註..." style="width: 100%; background: #1c1c28; border: none; border-radius: 16px; color: #fff; padding: 15px; min-height: 100px; outline: none; resize: none; font-size: 14px;"></textarea>
+                <!-- 商家與標籤選擇按鈕 -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                    <div class="form-btn" onclick="openEditRecordMerchantPicker()">
+                        <i data-lucide="store" style="width:14px; display:inline-block; vertical-align:middle; margin-right:4px; color:#8e8e93;"></i> 
+                        <span id="edit-record-merchant-display" style="color: #8a8a8e;">選擇商家</span>
+                    </div>
+                    <div class="form-btn" onclick="openEditRecordTagPicker()">
+                        <i data-lucide="tag" style="width:14px; display:inline-block; vertical-align:middle; margin-right:4px; color:#8e8e93;"></i> 
+                        <span id="edit-record-tags-display" style="color: #8a8a8e;">選擇標籤</span>
+                    </div>
+                </div>
+
+                <!-- 常用商家快捷膠囊列 -->
+                <div style="margin-bottom: 14px;">
+                    <div style="font-size: 11px; color: #8e8e93; margin-bottom: 6px; padding-left: 2px;">常用商家快捷</div>
+                    <div id="edit-quick-merchants-bar" class="no-scrollbar" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;"></div>
+                </div>
+
+                <!-- 備註輸入區 -->
+                <textarea id="edit-rec-note" placeholder="備註..." style="width: 100%; background: #1c1c28; border: none; border-radius: 16px; color: #fff; padding: 15px; min-height: 90px; outline: none; resize: none; font-size: 14px;"></textarea>
+
+                <!-- 進階設定 (週期/分期) 按鈕 -->
+                <div class="form-btn" style="margin-top: 12px; background: #232332; color: #8a8a8e; text-align: center;" onclick="openEditRecordAdvancedModal()">
+                    <i data-lucide="sliders" style="width:14px; display:inline-block; vertical-align:middle; margin-right:5px;"></i> 
+                    <span id="edit-adv-setting-label">進階設定 (單次)</span>
+                </div>
             </div>
         </section>
 
