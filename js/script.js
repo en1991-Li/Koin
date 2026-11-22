@@ -1037,7 +1037,7 @@ function openRecordSummary(recordId) {
 }
 
 /**
- * 點擊摘要彈窗右上角【編輯筆圖示】，切換至編輯記錄頁
+ * 點擊摘要彈窗右上角【編輯筆圖示】，切換至編輯記錄頁並反填所有欄位
  */
 function openEditRecordPage() {
     closeModal('record-summary-modal');
@@ -1047,8 +1047,11 @@ function openEditRecordPage() {
     if (!rec) return;
 
     const meta = categoryMetaMap[rec.category] || { parent: '購物', icon: 'tag', bgClass: 'i-shopping' };
+    const isExpense = (rec.type === '支出' || rec.type === '應付款項');
 
+    const iconWrapper = document.getElementById('edit-rec-icon-wrapper');
     const catNameEl = document.getElementById('edit-rec-cat-name');
+    const subAmtEl = document.getElementById('edit-rec-sub-amount');
     const iconEl = document.getElementById('edit-rec-icon');
     const amountInput = document.getElementById('edit-rec-amount');
     const btnAcc = document.getElementById('edit-btn-account');
@@ -1057,7 +1060,12 @@ function openEditRecordPage() {
     const btnTime = document.getElementById('edit-btn-time');
     const noteInput = document.getElementById('edit-rec-note');
 
+    if (iconWrapper) iconWrapper.className = `cate-icon-wrapper ${meta.bgClass}`;
     if (catNameEl) catNameEl.innerText = rec.category;
+    if (subAmtEl) {
+        subAmtEl.innerText = `${isExpense ? '$' : '+$'}${parseFloat(rec.amount).toLocaleString()}`;
+        subAmtEl.style.color = isExpense ? '#fb7185' : '#4ade80';
+    }
     if (iconEl) iconEl.setAttribute('data-lucide', meta.icon);
     if (amountInput) amountInput.value = rec.amount;
     if (btnAcc) btnAcc.innerText = rec.account || '錢包';
@@ -1065,6 +1073,16 @@ function openEditRecordPage() {
     if (btnDate) btnDate.innerText = rec.date || _todayStr;
     if (btnTime) btnTime.innerText = rec.time || '12:00';
     if (noteInput) noteInput.value = rec.note || '';
+
+    // 反填商家、標籤與進階設定
+    window._editingMerchant = rec.merchant || '';
+    window._editingTags = Array.isArray(rec.tags) ? [...rec.tags] : [];
+    window._editingAdvType = rec.advType || 'single';
+
+    updateEditMerchantUI();
+    renderEditQuickMerchantsBar();
+    updateEditTagsUI();
+    updateEditAdvLabel();
 
     showPage('page-edit-record');
 }
@@ -1092,7 +1110,7 @@ function openEditRecordTimePicker() {
 }
 
 /**
- * 儲存修改後的記錄（餘額差額更新與全域連動）
+ * 儲存修改後的記錄（包含金額差額、商家、標籤與進階設定）
  */
 function saveEditedRecord() {
     const newAmount = parseFloat(document.getElementById('edit-rec-amount').value) || 0;
@@ -1135,6 +1153,9 @@ function saveEditedRecord() {
     records[targetIdx].project = newProjectName;
     records[targetIdx].date = newDate;
     records[targetIdx].time = newTime;
+    records[targetIdx].merchant = window._editingMerchant || '';
+    records[targetIdx].tags = [...(window._editingTags || [])];
+    records[targetIdx].advType = window._editingAdvType || 'single';
 
     localStorage.setItem('koin_records', JSON.stringify(records));
     localStorage.setItem('koin_accounts', JSON.stringify(accounts));
@@ -1392,8 +1413,15 @@ function confirmRecordTime() {
     closeModal('record-time-modal');
 }
 
+// 進階設定頁籤切換 (支援新增頁與編輯頁共用)
 function switchAdvancedTab(tabType) {
-    recordState.advType = tabType;
+    if (window._isEditingPicker) {
+        window._editingAdvType = tabType;
+        updateEditAdvLabel();
+    } else {
+        recordState.advType = tabType;
+    }
+
     document.querySelectorAll('#record-advanced-modal .detail-tab').forEach(t => t.classList.remove('active'));
     
     const paneSingle = document.getElementById('adv-pane-single');
@@ -1419,13 +1447,26 @@ function switchAdvancedTab(tabType) {
     }
 }
 
+function openEditRecordAdvancedModal() {
+    window._isEditingPicker = true;
+    switchAdvancedTab(window._editingAdvType || 'single');
+    openModal('record-advanced-modal');
+}
+
+function updateEditAdvLabel() {
+    const labelEl = document.getElementById('edit-adv-setting-label');
+    if (!labelEl) return;
+    const map = { single: '單次', cycle: '週期', install: '分期' };
+    const text = map[window._editingAdvType || 'single'] || '單次';
+    labelEl.innerText = `進階設定 (${text})`;
+}
+
 /**
  * ==========================================
- * 常用商家快捷模組與標籤系統 (Merchants & Tags)
+ * 常用商家快捷模組與標籤系統 (支援新增與編輯雙模式)
  * ==========================================
  */
 
-// 預設常用商家清單 (含智慧對應分類，點擊一鍵帶入)
 const defaultQuickMerchants = [
     { name: '7-ELEVEN', category: '飲料', icon: 'store' },
     { name: '全家', category: '飲料', icon: 'store' },
@@ -1441,13 +1482,13 @@ const defaultQuickMerchants = [
     { name: '悠遊卡加值', category: '悠遊卡', icon: 'credit-card' }
 ];
 
-// 暫存當前表單選中的商家與標籤陣列
 let selectedRecordMerchant = '';
 let selectedRecordTags = [];
+window._editingMerchant = '';
+window._editingTags = [];
+window._editingAdvType = 'single';
 
-/**
- * 1. 初始化並渲染「常用商家快捷膠囊列」
- */
+// 1. 新增頁快捷商家渲染
 function renderQuickMerchantsBar() {
     const bar = document.getElementById('quick-merchants-bar');
     if (!bar) return;
@@ -1466,10 +1507,30 @@ function renderQuickMerchantsBar() {
     }).join('');
 }
 
-/**
- * 2. 點擊快捷商家：自動選取商家並智慧帶入預設分類
- */
+// 2. 編輯頁快捷商家渲染
+function renderEditQuickMerchantsBar() {
+    const bar = document.getElementById('edit-quick-merchants-bar');
+    if (!bar) return;
+
+    const savedMerchants = JSON.parse(localStorage.getItem('koin_merchants') || 'null') || defaultQuickMerchants;
+
+    bar.innerHTML = savedMerchants.map(m => {
+        const isSelected = (window._editingMerchant === m.name);
+        const bgStyle = isSelected ? 'background: #5d5dff; color: #ffffff; border-color: #5d5dff;' : 'background: #2c2c3e; color: #d1d1d6; border-color: rgba(255,255,255,0.06);';
+        return `
+            <div onclick="applyEditQuickMerchant('${m.name}')" 
+                 style="${bgStyle} border: 1px solid; padding: 6px 12px; border-radius: 16px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;">
+                <span>${m.name}</span>
+            </div>
+        `;
+    }).join('');
+}
+
 function applyQuickMerchant(merchantName, defaultCategory) {
+    if (window._isEditingPicker) {
+        applyEditQuickMerchant(merchantName);
+        return;
+    }
     selectedRecordMerchant = merchantName;
     updateRecordMerchantUI();
     renderQuickMerchantsBar();
@@ -1477,6 +1538,12 @@ function applyQuickMerchant(merchantName, defaultCategory) {
     if (defaultCategory && typeof selectCategory === 'function') {
         selectCategory(defaultCategory);
     }
+}
+
+function applyEditQuickMerchant(merchantName) {
+    window._editingMerchant = merchantName;
+    updateEditMerchantUI();
+    renderEditQuickMerchantsBar();
 }
 
 function updateRecordMerchantUI() {
@@ -1487,10 +1554,24 @@ function updateRecordMerchantUI() {
     }
 }
 
-/**
- * 3. 開啟商家選擇與新增彈窗
- */
+function updateEditMerchantUI() {
+    const displayEl = document.getElementById('edit-record-merchant-display');
+    if (displayEl) {
+        displayEl.innerText = window._editingMerchant || '選擇商家';
+        displayEl.style.color = window._editingMerchant ? '#ffffff' : '#8a8a8e';
+    }
+}
+
 function openRecordMerchantPicker() {
+    window._isEditingPicker = false;
+    const input = document.getElementById('merchant-search-input');
+    if (input) input.value = '';
+    filterRecordMerchants('');
+    openModal('record-merchant-modal');
+}
+
+function openEditRecordMerchantPicker() {
+    window._isEditingPicker = true;
     const input = document.getElementById('merchant-search-input');
     if (input) input.value = '';
     filterRecordMerchants('');
@@ -1532,16 +1613,27 @@ function addCustomMerchantFromInput() {
 }
 
 function clearRecordMerchant() {
-    selectedRecordMerchant = '';
-    updateRecordMerchantUI();
-    renderQuickMerchantsBar();
+    if (window._isEditingPicker) {
+        window._editingMerchant = '';
+        updateEditMerchantUI();
+        renderEditQuickMerchantsBar();
+    } else {
+        selectedRecordMerchant = '';
+        updateRecordMerchantUI();
+        renderQuickMerchantsBar();
+    }
     closeModal('record-merchant-modal');
 }
 
-/**
- * 4. 開啟標籤多選彈窗與渲染自訂標籤膠囊
- */
+// 標籤多選彈窗與渲染 (支援新增與編輯雙模式)
 function openRecordTagPicker() {
+    window._isEditingPicker = false;
+    renderTagChips();
+    openModal('record-tag-modal');
+}
+
+function openEditRecordTagPicker() {
+    window._isEditingPicker = true;
     renderTagChips();
     openModal('record-tag-modal');
 }
@@ -1551,6 +1643,7 @@ function renderTagChips() {
     if (!container) return;
 
     const savedTags = JSON.parse(localStorage.getItem('koin_tags') || '[]');
+    const activeTagsList = window._isEditingPicker ? window._editingTags : selectedRecordTags;
 
     if (savedTags.length === 0) {
         container.innerHTML = `<span style="color: #8e8e93; font-size: 12px; width: 100%; text-align: center; padding: 10px 0;">尚未建立標籤，請在上方輸入新增</span>`;
@@ -1558,7 +1651,7 @@ function renderTagChips() {
     }
 
     container.innerHTML = savedTags.map(tag => {
-        const isActive = selectedRecordTags.includes(tag);
+        const isActive = activeTagsList.includes(tag);
         const style = isActive 
             ? 'background: #5d5dff; color: #ffffff; border: 1px solid #5d5dff;' 
             : 'background: #2c2c3e; color: #8e8e93; border: 1px solid rgba(255,255,255,0.08);';
@@ -1572,14 +1665,16 @@ function renderTagChips() {
 }
 
 function toggleRecordTag(tag) {
-    const idx = selectedRecordTags.indexOf(tag);
+    const targetArr = window._isEditingPicker ? window._editingTags : selectedRecordTags;
+    const idx = targetArr.indexOf(tag);
     if (idx > -1) {
-        selectedRecordTags.splice(idx, 1);
+        targetArr.splice(idx, 1);
     } else {
-        selectedRecordTags.push(tag);
+        targetArr.push(tag);
     }
     renderTagChips();
-    updateRecordTagsUI();
+    if (window._isEditingPicker) updateEditTagsUI();
+    else updateRecordTagsUI();
 }
 
 function addCustomTag() {
@@ -1592,18 +1687,26 @@ function addCustomTag() {
         savedTags.unshift(newTag);
         localStorage.setItem('koin_tags', JSON.stringify(savedTags));
     }
-    if (!selectedRecordTags.includes(newTag)) {
-        selectedRecordTags.push(newTag);
+
+    const targetArr = window._isEditingPicker ? window._editingTags : selectedRecordTags;
+    if (!targetArr.includes(newTag)) {
+        targetArr.push(newTag);
     }
     input.value = '';
     renderTagChips();
-    updateRecordTagsUI();
+    if (window._isEditingPicker) updateEditTagsUI();
+    else updateRecordTagsUI();
 }
 
 function clearRecordTags() {
-    selectedRecordTags = [];
+    if (window._isEditingPicker) {
+        window._editingTags = [];
+        updateEditTagsUI();
+    } else {
+        selectedRecordTags = [];
+        updateRecordTagsUI();
+    }
     renderTagChips();
-    updateRecordTagsUI();
 }
 
 function updateRecordTagsUI() {
@@ -1622,9 +1725,22 @@ function updateRecordTagsUI() {
     }
 }
 
-/**
- * 5. 重置表單狀態 (供進入新增記錄頁或儲存完成後呼叫)
- */
+function updateEditTagsUI() {
+    const displayEl = document.getElementById('edit-record-tags-display');
+    if (!displayEl) return;
+
+    if (!window._editingTags || window._editingTags.length === 0) {
+        displayEl.innerText = '選擇標籤';
+        displayEl.style.color = '#8a8a8e';
+    } else if (window._editingTags.length === 1) {
+        displayEl.innerText = `#${window._editingTags[0]}`;
+        displayEl.style.color = '#ffffff';
+    } else {
+        displayEl.innerText = `#${window._editingTags[0]} (+${window._editingTags.length - 1})`;
+        displayEl.style.color = '#ffffff';
+    }
+}
+
 function resetMerchantAndTagsState() {
     selectedRecordMerchant = '';
     selectedRecordTags = [];
