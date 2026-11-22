@@ -572,9 +572,10 @@ function saveRecord() {
         time: recordState.time || '12:00',
         note: note,
         merchant: selectedRecordMerchant || '',
-        tags: [...selectedRecordTags]
+        tags: [...selectedRecordTags],
+        advType: recordState.advType || 'single' // 寫入進階設定狀態
     };
-
+    
     let localRecords = JSON.parse(localStorage.getItem('koin_records')) || [];
     localRecords.push(newRecord);
     localStorage.setItem('koin_records', JSON.stringify(localRecords));
@@ -1016,8 +1017,11 @@ function openRecordSummary(recordId) {
     const amountEl = document.getElementById('summary-amount-text');
     const accountEl = document.getElementById('summary-account-text');
     const projectEl = document.getElementById('summary-project-text');
+    const merchantEl = document.getElementById('summary-merchant-text');
+    const advEl = document.getElementById('summary-adv-text');
     const dateEl = document.getElementById('summary-date-text');
     const timeEl = document.getElementById('summary-time-text');
+    const tagsRow = document.getElementById('summary-tags-row');
 
     if (noteEl) noteEl.innerText = rec.note || '無備註事項';
     if (subCatName) subCatName.innerText = rec.category;
@@ -1030,8 +1034,34 @@ function openRecordSummary(recordId) {
 
     if (accountEl) accountEl.innerText = rec.account || '錢包';
     if (projectEl) projectEl.innerText = rec.project || '生活開銷';
+
+    // 連動商家顯示
+    if (merchantEl) {
+        merchantEl.innerText = rec.merchant || '未設定商家';
+        merchantEl.style.color = rec.merchant ? '#ffffff' : '#8e8e93';
+    }
+
+    // 連動進階設定顯示 (單次 / 週期 / 分期)
+    if (advEl) {
+        const advMap = { single: '單次', cycle: '週期', install: '分期' };
+        advEl.innerText = advMap[rec.advType || 'single'] || '單次';
+    }
+
     if (dateEl) dateEl.innerText = rec.date || _todayStr;
     if (timeEl) timeEl.innerText = rec.time || '12:00';
+
+    // 連動標籤顯示
+    if (tagsRow) {
+        if (Array.isArray(rec.tags) && rec.tags.length > 0) {
+            tagsRow.style.display = 'flex';
+            tagsRow.innerHTML = rec.tags.map(t => `
+                <span style="background: rgba(93,93,255,0.18); color: #a78bfa; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 12px;"># ${t}</span>
+            `).join('');
+        } else {
+            tagsRow.style.display = 'none';
+            tagsRow.innerHTML = '';
+        }
+    }
 
     openModal('record-summary-modal');
 }
