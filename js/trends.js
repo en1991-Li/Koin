@@ -1010,7 +1010,7 @@ function toggleTrendsNamesSort() {
 }
 
 /**
- * 7. 渲染每月報表中的「名稱」視圖 (對齊截圖：無圓環純文字清單 + 依金額排序)
+ * 7. 渲染每月報表中的「名稱」視圖
  */
 function renderTrendsNamesView() {
     const totalItemsEl = document.getElementById('trends-names-total-items');
@@ -1026,9 +1026,8 @@ function renderTrendsNamesView() {
     records.forEach(r => {
         if (r.type === '支出' || r.type === '應付款項') {
             const amt = parseFloat(r.amount) || 0;
-            // 優先採用備註(note)作為名稱，若無備註則採用分類名稱(category)
-            const rawNote = (r.note || '').trim();
-            const itemName = rawNote !== '' ? rawNote : (r.category || '未分類').trim();
+            // 僅採用分類名稱 (category)，完全排除備註欄 (note) 內容
+            const itemName = (r.category || '未分類').trim();
 
             totalExpense += amt;
 
