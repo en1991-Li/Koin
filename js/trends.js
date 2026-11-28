@@ -61,6 +61,8 @@ function refreshCurrentTrendsView() {
         renderTrendsAccountGroupsView();
     } else if (currentTrendsSubTab === '名稱') {
         renderTrendsNamesView();
+    } else if (currentTrendsSubTab === '商家') {
+        renderTrendsMerchantsView();
     } else {
         renderTrendsPage();
     }
@@ -82,7 +84,8 @@ function switchTrendsTab(tabName, el) {
         'trends-view-accounts',
         'trends-view-projects',
         'trends-view-account-groups',
-        'trends-view-names'
+        'trends-view-names',
+        'trends-view-merchants'
     ];
     viewIds.forEach(id => {
         const v = document.getElementById(id);
@@ -110,6 +113,9 @@ function switchTrendsTab(tabName, el) {
     } else if (tabName === '名稱') {
         document.getElementById('trends-view-names').style.display = 'block';
         renderTrendsNamesView();
+    } else if (tabName === '商家') {
+        document.getElementById('trends-view-merchants').style.display = 'block';
+        renderTrendsMerchantsView();
     } else {
         document.getElementById('trends-view-overview').style.display = 'block';
         renderTrendsPage();
