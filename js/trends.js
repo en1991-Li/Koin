@@ -1206,8 +1206,210 @@ function renderTrendsNamesView() {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
+// 「商家」頁籤的狀態管理：整體金額排序、目前展開的商家、以及展開卡片內的日期排序
+let trendsMerchantsSortOrder = 'asc';          // 'asc' | 'desc' (外層金額排序)
+let expandedTrendsMerchant = null;             // 目前展開的商家名稱 (字串或 null)
+let expandedTrendsMerchantDateOrder = 'asc';   // 'asc' (由舊到新 △) | 'desc' (由新到舊 ▽)
+
 /**
- * 8. 渲染每月報表中的「明細」列表視圖
+ * 切換「商家」頁籤的外層金額排序方向
+ */
+function toggleTrendsMerchantsSort() {
+    trendsMerchantsSortOrder = (trendsMerchantsSortOrder === 'asc') ? 'desc' : 'asc';
+    renderTrendsMerchantsView();
+}
+
+/**
+ * 點擊商家項目：展開或收合該商家的明細卡片
+ */
+function toggleTrendsMerchantAccordion(merchantName) {
+    if (expandedTrendsMerchant === merchantName) {
+        expandedTrendsMerchant = null;
+    } else {
+        expandedTrendsMerchant = merchantName;
+        expandedTrendsMerchantDateOrder = 'asc';
+    }
+    renderTrendsMerchantsView();
+}
+
+/**
+ * 切換商家展開卡片內部的「依日期排序」方向
+ */
+function toggleTrendsMerchantInnerDateSort(e) {
+    if (e) e.stopPropagation();
+    expandedTrendsMerchantDateOrder = (expandedTrendsMerchantDateOrder === 'asc') ? 'desc' : 'asc';
+    renderTrendsMerchantsView();
+}
+
+/**
+ * 8. 渲染每月報表中的「商家」視圖 (依商家統計 + 手風琴展開明細卡片)
+ */
+function renderTrendsMerchantsView() {
+    const totalItemsEl = document.getElementById('trends-merchants-total-items');
+    const bottomTotalEl = document.getElementById('trends-merchants-bottom-total');
+    const listContainer = document.getElementById('trends-merchants-detail-list');
+    if (!listContainer) return;
+
+    const { records } = getFilteredMonthRecords();
+
+    let totalExpense = 0;
+    const merchantMap = {};
+
+    records.forEach(r => {
+        if (r.type === '支出' || r.type === '應付款項') {
+            const amt = parseFloat(r.amount) || 0;
+            // 讀取商家欄位 (merchant)，若未選擇商家則歸類為「未設定商家」
+            const rawMerchant = (r.merchant || '').trim();
+            const merchantName = rawMerchant !== '' ? rawMerchant : '未設定商家';
+
+            totalExpense += amt;
+
+            if (!merchantMap[merchantName]) {
+                merchantMap[merchantName] = { amount: 0, count: 0, records: [] };
+            }
+            merchantMap[merchantName].amount += amt;
+            merchantMap[merchantName].count++;
+            merchantMap[merchantName].records.push(r);
+        }
+    });
+
+    // 外層依金額排序
+    const sortedMerchants = Object.entries(merchantMap).sort((a, b) => {
+        return trendsMerchantsSortOrder === 'asc'
+            ? a[1].amount - b[1].amount
+            : b[1].amount - a[1].amount;
+    });
+
+    if (totalItemsEl) totalItemsEl.innerText = `總共 ${sortedMerchants.length} 筆`;
+    if (bottomTotalEl) bottomTotalEl.innerText = `$${totalExpense.toLocaleString()}`;
+
+    if (sortedMerchants.length === 0 || totalExpense === 0) {
+        listContainer.innerHTML = `<p style="color: #8e8e93; text-align: center; margin-top: 30px; font-size: 14px;">該月份尚無支出商家紀錄</p>`;
+        return;
+    }
+
+    const weekDays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+    let listHTML = '';
+
+    sortedMerchants.forEach(([merchantName, data]) => {
+        const isExpanded = (expandedTrendsMerchant === merchantName);
+        const safeMerchantName = merchantName.replace(/'/g, "\\'");
+
+        if (!isExpanded) {
+            // 【收合狀態】：極簡純文字列表列
+            listHTML += `
+                <div onclick="toggleTrendsMerchantAccordion('${safeMerchantName}')" 
+                     style="display: flex; justify-content: space-between; align-items: center; padding: 6px 4px; cursor: pointer;">
+                    <span style="font-size: 16px; font-weight: 600; color: ${merchantName === '未設定商家' ? '#8e8e93' : '#ffffff'};">
+                        ${merchantName} <span style="font-weight: 500; font-size: 15px;">(${data.count})</span>
+                    </span>
+                    <span style="font-size: 17px; font-weight: 700; color: #fb7185;">
+                        $${data.amount.toLocaleString()}
+                    </span>
+                </div>
+            `;
+        } else {
+            // 【展開狀態】：深色圓角卡片 + 內部日期明細 + 依日期排序按鈕
+            const sortedSubRecords = [...data.records].sort((a, b) => {
+                const tA = new Date(`${(a.date || '').replace(/-/g, '/')} ${a.time || '00:00'}`).getTime() || 0;
+                const tB = new Date(`${(b.date || '').replace(/-/g, '/')} ${b.time || '00:00'}`).getTime() || 0;
+                return expandedTrendsMerchantDateOrder === 'asc' ? tA - tB : tB - tA;
+            });
+
+            const subItemsHTML = sortedSubRecords.map(r => {
+                const cleanCat = String(r.category || '').trim();
+                const meta = (typeof categoryMetaMap !== 'undefined' && categoryMetaMap[cleanCat])
+                    ? categoryMetaMap[cleanCat]
+                    : { icon: 'store', bgClass: 'i-shopping' };
+
+                let weekDayStr = '';
+                const parts = (r.date || '').replace(/-/g, '/').split('/');
+                if (parts.length === 3) {
+                    const dObj = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                    if (!isNaN(dObj.getDay())) {
+                        weekDayStr = ` ${weekDays[dObj.getDay()]}`;
+                    }
+                }
+                const fullDateTimeLabel = `${r.date || ''}${weekDayStr} ${r.time || ''}`.trim();
+
+                return `
+                    <div onclick="event.stopPropagation(); openRecordSummary(${r.id})" style="margin-bottom: 16px; cursor: pointer;">
+                        <!-- 日期 星期 時間 -->
+                        <div style="font-size: 12px; font-weight: 600; color: #d1d1d6; margin-bottom: 8px;">
+                            ${fullDateTimeLabel}
+                        </div>
+                        
+                        <!-- 單筆明細列：左分類圖示+分類名+備註 / 右金額+專案帳戶膠囊 -->
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div class="cate-icon-wrapper ${meta.bgClass}" style="width: 42px; height: 42px; margin: 0; border-radius: 50%;">
+                                    <i data-lucide="${meta.icon}" style="width: 20px; height: 20px;"></i>
+                                </div>
+                                <div>
+                                    <div style="font-size: 15px; font-weight: 700; color: #ffffff;">${r.category}</div>
+                                    <div style="font-size: 12px; color: #8e8e93; margin-top: 2px;">${r.note || '無備註'}</div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: right;">
+                                <div style="font-size: 16px; font-weight: 700; color: #fb7185; margin-bottom: 4px;">
+                                    $${parseFloat(r.amount).toLocaleString()}
+                                </div>
+                                <div style="display: flex; gap: 5px; justify-content: flex-end;">
+                                    <span style="border: 1px solid rgba(255,255,255,0.18); color: #a1a1aa; font-size: 10px; padding: 1px 7px; border-radius: 10px;">
+                                        ${r.project || '生活開銷'}
+                                    </span>
+                                    <span style="border: 1px solid rgba(255,255,255,0.18); color: #a1a1aa; font-size: 10px; padding: 1px 7px; border-radius: 10px;">
+                                        ${r.account || '錢包'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const sortArrow = expandedTrendsMerchantDateOrder === 'asc' ? '△' : '▽';
+
+            listHTML += `
+                <div style="background: #232332; border-radius: 18px; padding: 16px; margin: 4px 0; box-shadow: 0 6px 20px rgba(0,0,0,0.35);">
+                    <!-- 卡片頂部標題列 (點擊可收合) -->
+                    <div onclick="toggleTrendsMerchantAccordion('${safeMerchantName}')" 
+                         style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.06); cursor: pointer;">
+                        <span style="font-size: 17px; font-weight: 700; color: #ffffff;">
+                            ${merchantName} <span style="font-weight: 600;">(${data.count})</span>
+                        </span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 18px; font-weight: 800; color: #fb7185;">$${data.amount.toLocaleString()}</span>
+                            <div style="width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center;">
+                                <i data-lucide="chevron-down" style="width: 14px; height: 14px; color: #a1a1aa;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 卡片內部逐筆交易明細 -->
+                    <div>
+                        ${subItemsHTML}
+                    </div>
+
+                    <!-- 卡片底部「依日期排序 △」控制列 -->
+                    <div style="display: flex; justify-content: flex-end; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.06);">
+                        <span onclick="toggleTrendsMerchantInnerDateSort(event)" 
+                              style="font-size: 13px; color: #d1d1d6; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                            依日期排序 ${sortArrow}
+                        </span>
+                    </div>
+                </div>
+            `;
+        }
+    });
+
+    listContainer.innerHTML = listHTML;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+/**
+ * 9. 渲染每月報表中的「明細」列表視圖
  */
 function renderTrendsTransactionsList() {
     const container = document.getElementById('trends-transactions-container');
