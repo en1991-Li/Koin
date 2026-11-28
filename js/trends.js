@@ -998,14 +998,38 @@ function renderTrendsAccountGroupsView() {
     listContainer.innerHTML = listHTML;
 }
 
-// 記錄「名稱」頁籤的排序方向 ('asc' = 由小到大，對齊截圖預設；'desc' = 由大到小)
-let trendsNamesSortOrder = 'asc';
+// 「名稱」頁籤的狀態管理：整體排序、目前展開的名稱、以及展開卡片內的日期排序
+let trendsNamesSortOrder = 'asc';          // 'asc' | 'desc' (外層金額排序)
+let expandedTrendsName = null;             // 目前展開的項目名稱 (字串或 null)
+let expandedTrendsNameDateOrder = 'asc';   // 'asc' (由舊到新 △) | 'desc' (由新到舊 ▽)
 
 /**
- * 切換「名稱」頁籤的金額排序方向
+ * 切換「名稱」頁籤的外層金額排序方向
  */
 function toggleTrendsNamesSort() {
     trendsNamesSortOrder = (trendsNamesSortOrder === 'asc') ? 'desc' : 'asc';
+    renderTrendsNamesView();
+}
+
+/**
+ * 點擊名稱項目：展開或收合該項目的明細卡片
+ */
+function toggleTrendsNameAccordion(itemName) {
+    if (expandedTrendsName === itemName) {
+        expandedTrendsName = null; // 再次點擊同一項則收合
+    } else {
+        expandedTrendsName = itemName;
+        expandedTrendsNameDateOrder = 'asc'; // 預設由舊到新排列 (對齊截圖)
+    }
+    renderTrendsNamesView();
+}
+
+/**
+ * 切換展開卡片內部的「依日期排序」方向
+ */
+function toggleTrendsNameInnerDateSort(e) {
+    if (e) e.stopPropagation(); // 防止觸發外層卡片的收合
+    expandedTrendsNameDateOrder = (expandedTrendsNameDateOrder === 'asc') ? 'desc' : 'asc';
     renderTrendsNamesView();
 }
 
@@ -1026,20 +1050,21 @@ function renderTrendsNamesView() {
     records.forEach(r => {
         if (r.type === '支出' || r.type === '應付款項') {
             const amt = parseFloat(r.amount) || 0;
-            // 僅採用分類名稱 (category)，完全排除備註欄 (note) 內容
+            // 僅採用分類名稱 (category)，排除備註欄 (note)
             const itemName = (r.category || '未分類').trim();
 
             totalExpense += amt;
 
             if (!nameMap[itemName]) {
-                nameMap[itemName] = { amount: 0, count: 0 };
+                nameMap[itemName] = { amount: 0, count: 0, records: [] };
             }
             nameMap[itemName].amount += amt;
             nameMap[itemName].count++;
+            nameMap[itemName].records.push(r);
         }
     });
 
-    // 依金額進行排序
+    // 外層依金額排序
     const sortedNames = Object.entries(nameMap).sort((a, b) => {
         return trendsNamesSortOrder === 'asc'
             ? a[1].amount - b[1].amount
@@ -1054,21 +1079,125 @@ function renderTrendsNamesView() {
         return;
     }
 
+    const weekDays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
     let listHTML = '';
+
     sortedNames.forEach(([itemName, data]) => {
-        listHTML += `
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 2px 0; cursor: pointer;">
-                <span style="font-size: 16px; font-weight: 600; color: #ffffff;">
-                    ${itemName} <span style="font-weight: 500; font-size: 15px; color: #ffffff;">(${data.count})</span>
-                </span>
-                <span style="font-size: 17px; font-weight: 700; color: #fb7185;">
-                    $${data.amount.toLocaleString()}
-                </span>
-            </div>
-        `;
+        const isExpanded = (expandedTrendsName === itemName);
+        // 避免名稱內含單引號導致 onclick 語法錯誤
+        const safeItemName = itemName.replace(/'/g, "\\'");
+
+        if (!isExpanded) {
+            // 【收合狀態】：極簡純文字列表列
+            listHTML += `
+                <div onclick="toggleTrendsNameAccordion('${safeItemName}')" 
+                     style="display: flex; justify-content: space-between; align-items: center; padding: 6px 4px; cursor: pointer;">
+                    <span style="font-size: 16px; font-weight: 600; color: #ffffff;">
+                        ${itemName} <span style="font-weight: 500; font-size: 15px; color: #ffffff;">(${data.count})</span>
+                    </span>
+                    <span style="font-size: 17px; font-weight: 700; color: #fb7185;">
+                        $${data.amount.toLocaleString()}
+                    </span>
+                </div>
+            `;
+        } else {
+            // 【展開狀態】：深色圓角卡片 + 內部日期明細 + 依日期排序按鈕
+            const sortedSubRecords = [...data.records].sort((a, b) => {
+                const tA = new Date(`${(a.date || '').replace(/-/g, '/')} ${a.time || '00:00'}`).getTime() || 0;
+                const tB = new Date(`${(b.date || '').replace(/-/g, '/')} ${b.time || '00:00'}`).getTime() || 0;
+                return expandedTrendsNameDateOrder === 'asc' ? tA - tB : tB - tA;
+            });
+
+            const meta = (typeof categoryMetaMap !== 'undefined' && categoryMetaMap[itemName])
+                ? categoryMetaMap[itemName]
+                : { icon: 'tag', bgClass: 'i-shopping' };
+
+            const subItemsHTML = sortedSubRecords.map(r => {
+                // 計算星期幾 (如：2026/11/04 週三 15:58)
+                let weekDayStr = '';
+                const parts = (r.date || '').replace(/-/g, '/').split('/');
+                if (parts.length === 3) {
+                    const dObj = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                    if (!isNaN(dObj.getDay())) {
+                        weekDayStr = ` ${weekDays[dObj.getDay()]}`;
+                    }
+                }
+                const fullDateTimeLabel = `${r.date || ''}${weekDayStr} ${r.time || ''}`.trim();
+
+                return `
+                    <div onclick="event.stopPropagation(); openRecordSummary(${r.id})" style="margin-bottom: 16px; cursor: pointer;">
+                        <!-- 日期 星期 時間 -->
+                        <div style="font-size: 12px; font-weight: 600; color: #d1d1d6; margin-bottom: 8px;">
+                            ${fullDateTimeLabel}
+                        </div>
+                        
+                        <!-- 單筆明細列：左圖示+名稱+備註 / 右金額+專案帳戶膠囊 -->
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div class="cate-icon-wrapper ${meta.bgClass}" style="width: 42px; height: 42px; margin: 0; border-radius: 50%;">
+                                    <i data-lucide="${meta.icon}" style="width: 20px; height: 20px;"></i>
+                                </div>
+                                <div>
+                                    <div style="font-size: 15px; font-weight: 700; color: #ffffff;">${r.category}</div>
+                                    <div style="font-size: 12px; color: #8e8e93; margin-top: 2px;">${r.note || '無備註'}</div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: right;">
+                                <div style="font-size: 16px; font-weight: 700; color: #fb7185; margin-bottom: 4px;">
+                                    $${parseFloat(r.amount).toLocaleString()}
+                                </div>
+                                <div style="display: flex; gap: 5px; justify-content: flex-end;">
+                                    <span style="border: 1px solid rgba(255,255,255,0.18); color: #a1a1aa; font-size: 10px; padding: 1px 7px; border-radius: 10px;">
+                                        ${r.project || '生活開銷'}
+                                    </span>
+                                    <span style="border: 1px solid rgba(255,255,255,0.18); color: #a1a1aa; font-size: 10px; padding: 1px 7px; border-radius: 10px;">
+                                        ${r.account || '錢包'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const sortArrow = expandedTrendsNameDateOrder === 'asc' ? '△' : '▽';
+
+            listHTML += `
+                <div style="background: #232332; border-radius: 18px; padding: 16px; margin: 4px 0; box-shadow: 0 6px 20px rgba(0,0,0,0.35);">
+                    <!-- 卡片頂部標題列 (點擊可收合) -->
+                    <div onclick="toggleTrendsNameAccordion('${safeItemName}')" 
+                         style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.06); cursor: pointer;">
+                        <span style="font-size: 17px; font-weight: 700; color: #ffffff;">
+                            ${itemName} <span style="font-weight: 600;">(${data.count})</span>
+                        </span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 18px; font-weight: 800; color: #fb7185;">$${data.amount.toLocaleString()}</span>
+                            <div style="width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center;">
+                                <i data-lucide="chevron-down" style="width: 14px; height: 14px; color: #a1a1aa;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 卡片內部逐筆交易明細 -->
+                    <div>
+                        ${subItemsHTML}
+                    </div>
+
+                    <!-- 卡片底部「依日期排序 △」控制列 -->
+                    <div style="display: flex; justify-content: flex-end; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.06);">
+                        <span onclick="toggleTrendsNameInnerDateSort(event)" 
+                              style="font-size: 13px; color: #d1d1d6; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                            依日期排序 ${sortArrow}
+                        </span>
+                    </div>
+                </div>
+            `;
+        }
     });
 
     listContainer.innerHTML = listHTML;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 /**
